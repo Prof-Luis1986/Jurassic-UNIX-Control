@@ -305,23 +305,16 @@
     </div>
   </div>
 
-  <div class="focus-lock hidden" id="gameOverOverlay" aria-hidden="true">
-    <div class="focus-lock__panel focus-lock__panel--critical">
-      <p class="label">SISTEMA COLAPSADO</p>
-      <h3>ATAQUE MASIVO NO CONTENIDO</h3>
-      <p>El laboratorio ha sido comprometido. La evacuacion ha fallado y la sesion actual se considera perdida.</p>
-      <button class="start-button" id="restartScenario" type="button">REINICIAR ESCENARIO</button>
-    </div>
-  </div>
-
   <div class="escape-overlay hidden" id="escapeOverlay" aria-hidden="true">
     <video class="escape-video" id="escapeVideo" playsinline preload="auto">
-      <source src="assets/video/ESCAPE.MP4" type="video/mp4">
+      <source id="escapeVideoSource" src="assets/video/ESCAPE.MP4" type="video/mp4">
     </video>
     <div class="escape-overlay__panel" id="escapeOverlayPanel">
-      <p class="label">PROTOCOLO FINAL</p>
+      <p class="label" id="escapeOverlayLabel">PROTOCOLO FINAL</p>
       <h3 id="escapeOverlayTitle">ES MOMENTO DE SALIR</h3>
-      <p id="escapeOverlayText">La ruta exterior está abierta. Abandona el laboratorio antes del cierre total.</p>
+      <p id="escapeOverlayText">La ruta exterior esta abierta. Abandona el laboratorio antes del cierre total.</p>
+      <p class="escape-overlay__time hidden" id="escapeOverlayTime">Lograste escapar en 00:00</p>
+      <button class="start-button escape-overlay__button hidden" id="restartScenario" type="button">¿QUIERES VOLVERLO A INTENTAR?</button>
     </div>
   </div>
 

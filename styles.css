@@ -475,16 +475,20 @@ body::after {
 }
 
 .cipher-rotor {
+  position: relative;
   border: 1px solid rgba(125, 255, 155, 0.18);
   background: radial-gradient(circle at center, rgba(125, 255, 155, 0.12), rgba(0, 0, 0, 0.24));
   color: var(--text);
-  padding: 8px;
+  padding: 10px 9px;
   text-align: center;
   font: inherit;
   cursor: pointer;
   display: grid;
   justify-items: center;
   gap: 6px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .cipher-rotor span,
@@ -533,16 +537,36 @@ body::after {
 .cipher-rotor__controls {
   display: flex;
   gap: 6px;
+  position: relative;
+  z-index: 2;
 }
 
 .cipher-rotor__button {
+  position: relative;
+  z-index: 3;
   border: 1px solid rgba(125, 255, 155, 0.2);
   background: rgba(125, 255, 155, 0.08);
   color: var(--text);
   font: inherit;
-  padding: 5px 8px;
+  padding: 8px 10px;
   cursor: pointer;
   font-size: 0.76rem;
+  min-width: 58px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cipher-rotor__button:hover {
+  border-color: rgba(178, 255, 108, 0.36);
+  box-shadow: 0 0 10px rgba(125, 255, 155, 0.12);
+}
+
+.cipher-rotor__button:active {
+  transform: translateY(1px);
 }
 
 .cipher-rotor em {
@@ -921,34 +945,54 @@ body::after {
 .escape-overlay {
   position: fixed;
   inset: 0;
+  padding: 24px;
   z-index: 10;
   display: grid;
   place-items: center;
-  background: rgba(1, 8, 4, 0.94);
+  background:
+    radial-gradient(circle at center, rgba(5, 20, 11, 0.4), rgba(1, 8, 4, 0.97)),
+    rgba(1, 8, 4, 0.94);
 }
 
 .escape-overlay.hidden {
   display: none;
 }
 
+.escape-overlay--success {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(125, 255, 155, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(1, 8, 4, 0.88), rgba(1, 8, 4, 0.98));
+}
+
+.escape-overlay--failure {
+  background:
+    radial-gradient(circle at 50% 25%, rgba(255, 90, 79, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(24, 2, 3, 0.9), rgba(8, 1, 2, 0.98));
+  animation: failurePulse 1.6s ease-in-out infinite;
+}
+
 .escape-video {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: auto;
+  width: min(920px, calc(100% - 48px));
+  max-height: min(56vh, 760px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   object-fit: cover;
-  filter: saturate(0.86) contrast(1.08) brightness(0.52);
+  filter: saturate(0.86) contrast(1.08) brightness(0.72);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
 }
 
 .escape-overlay__panel {
   position: relative;
   z-index: 1;
-  width: min(760px, calc(100% - 32px));
+  width: min(760px, calc(100% - 16px));
+  margin-top: min(58vh, 680px);
   padding: 28px;
   border: 1px solid rgba(125, 255, 155, 0.22);
   background: rgba(3, 12, 7, 0.78);
   box-shadow: 0 0 28px rgba(0, 0, 0, 0.34);
   text-align: center;
+  backdrop-filter: blur(10px);
 }
 
 .escape-overlay__panel h3 {
@@ -958,10 +1002,53 @@ body::after {
   text-shadow: 0 0 18px rgba(125, 255, 155, 0.24);
 }
 
-.escape-overlay__panel p:last-child {
+#escapeOverlayText {
   margin: 0;
   font-size: 1rem;
   color: var(--text);
+}
+
+.escape-overlay--failure .escape-overlay__panel {
+  border-color: rgba(255, 90, 79, 0.34);
+  background: rgba(20, 4, 5, 0.8);
+  box-shadow: 0 0 36px rgba(255, 90, 79, 0.12);
+}
+
+.escape-overlay--failure .escape-overlay__panel h3 {
+  color: #ff938b;
+  text-shadow: 0 0 18px rgba(255, 90, 79, 0.24);
+}
+
+.escape-overlay__time {
+  margin: 18px 0 0;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  color: var(--warning);
+  letter-spacing: 0.08rem;
+}
+
+.escape-overlay__button {
+  margin-top: 24px;
+}
+
+@keyframes failurePulse {
+  0%, 100% {
+    box-shadow: inset 0 0 0 rgba(255, 90, 79, 0);
+  }
+  50% {
+    box-shadow: inset 0 0 120px rgba(255, 90, 79, 0.07);
+  }
+}
+
+@media (max-width: 720px) {
+  .escape-video {
+    width: calc(100% - 24px);
+    max-height: 42vh;
+  }
+
+  .escape-overlay__panel {
+    margin-top: calc(42vh + 24px);
+    padding: 22px;
+  }
 }
 
 .map-modal__backdrop {

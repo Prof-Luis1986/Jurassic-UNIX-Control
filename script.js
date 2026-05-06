@@ -73,12 +73,14 @@ const speciesList = byId("speciesList");
 
 const focusLock = byId("focusLock");
 const resumeSession = byId("resumeSession");
-const gameOverOverlay = byId("gameOverOverlay");
 const restartScenarioButton = byId("restartScenario");
 const escapeOverlay = byId("escapeOverlay");
 const escapeVideo = byId("escapeVideo");
+const escapeVideoSource = byId("escapeVideoSource");
+const escapeOverlayLabel = byId("escapeOverlayLabel");
 const escapeOverlayTitle = byId("escapeOverlayTitle");
 const escapeOverlayText = byId("escapeOverlayText");
+const escapeOverlayTime = byId("escapeOverlayTime");
 
 const actionButtons = Array.from(document.querySelectorAll(".action-button[data-command]"));
 
@@ -152,6 +154,8 @@ const state = {
   escaped: false,
   cinematicStarted: false,
   gameOver: false,
+  finalOutcome: null,
+  finalVideoCompleted: false,
   alertsSilencedUntil: 0,
   currentDinoSound: null,
   alertPanelTimer: null,
@@ -181,6 +185,11 @@ const state = {
     rotors: [],
     activeRotorIndex: 0,
     buffer: "",
+  },
+  lastRotorInteraction: {
+    time: 0,
+    action: "",
+    index: -1,
   },
 };
 
@@ -291,6 +300,16 @@ function stopAmbient() {
   audioAmbiente.pause();
 }
 
+function detenerTodosLosSonidos() {
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+  for (const soundName of ["intro", "alerta", "ambiente", "raptor", "trex", "herb", "anky", "brachio", "dilo", "stego"]) {
+    detenerSonido(soundName);
+  }
+  state.currentDinoSound = null;
+}
+
 function showAlertPanel(message, mode = "active") {
   if (!systemAlertPanel || !systemAlertState || !systemAlertMessage) return;
   if (state.alertPanelTimer) {
@@ -382,6 +401,9 @@ function speak(text, onend) {
 
 function initializeScenario() {
   state.protocolStarted = false;
+  state.introStarted = false;
+  state.introFinished = false;
+  state.bootStarted = false;
   state.ambientMuted = false;
   state.ambientPaused = false;
   state.powerOnline = false;
@@ -397,8 +419,14 @@ function initializeScenario() {
   state.escaped = false;
   state.cinematicStarted = false;
   state.gameOver = false;
+  state.finalOutcome = null;
+  state.finalVideoCompleted = false;
   state.alertsSilencedUntil = 0;
   state.currentDinoSound = null;
+  if (state.timerId) {
+    window.clearInterval(state.timerId);
+    state.timerId = null;
+  }
   if (state.alertPanelTimer) {
     window.clearTimeout(state.alertPanelTimer);
     state.alertPanelTimer = null;
@@ -422,15 +450,40 @@ function initializeScenario() {
   state.raptorRotors = [randomDigit(1, 4), randomDigit(1, 4), randomDigit(1, 4)];
   state.trexRotors = [randomDigit(1, 4), randomDigit(1, 4), randomDigit(1, 4)];
   setCipherTarget("raptor");
-  stopAmbient();
+  detenerTodosLosSonidos();
   hideAlertPanel();
+  focusLock.classList.add("hidden");
+  focusLock.setAttribute("aria-hidden", "true");
+  mapModal.classList.add("hidden");
+  mapModal.setAttribute("aria-hidden", "true");
+  input.value = "";
   if (escapeOverlay) {
-    escapeOverlay.classList.add("hidden");
+    escapeOverlay.className = "escape-overlay hidden";
     escapeOverlay.setAttribute("aria-hidden", "true");
   }
   if (escapeVideo) {
     escapeVideo.pause();
     escapeVideo.currentTime = 0;
+  }
+  if (escapeVideoSource) {
+    escapeVideoSource.src = "assets/video/ESCAPE.MP4";
+    escapeVideo.load();
+  }
+  if (escapeOverlayLabel) {
+    escapeOverlayLabel.textContent = "PROTOCOLO FINAL";
+  }
+  if (escapeOverlayTitle) {
+    escapeOverlayTitle.textContent = "ES MOMENTO DE SALIR";
+  }
+  if (escapeOverlayText) {
+    escapeOverlayText.textContent = "La ruta exterior esta abierta. Abandona el laboratorio antes del cierre total.";
+  }
+  if (escapeOverlayTime) {
+    escapeOverlayTime.textContent = "Lograste escapar en 00:00";
+    escapeOverlayTime.classList.add("hidden");
+  }
+  if (restartScenarioButton) {
+    restartScenarioButton.classList.add("hidden");
   }
 }
 
@@ -785,6 +838,11 @@ function formatCountdown(totalSeconds) {
   return `${minutes}:${seconds}`;
 }
 
+function calcularTiempoEscape() {
+  const elapsedSeconds = Math.max(0, 900 - state.countdownSeconds);
+  return formatCountdown(elapsedSeconds);
+}
+
 function setCurrentAlert(text, className = "warning") {
   currentAlertText.textContent = text;
   addLine(`ALERTA DE SISTEMA: ${text}`, className);
@@ -1000,6 +1058,78 @@ function showStatus() {
   ], "success");
 }
 
+function reproducirVideoFinal(path) {
+  if (!escapeVideo || !escapeVideoSource) return Promise.resolve(false);
+  escapeVideo.pause();
+  escapeVideoSource.src = path;
+  escapeVideo.load();
+  escapeVideo.currentTime = 0;
+  return escapeVideo.play().then(() => true).catch(() => false);
+}
+
+function mostrarPantallaFinal({ mode, label, title, text, videoPath }) {
+  if (!escapeOverlay || !escapeOverlayTitle || !escapeOverlayText) return;
+  state.cinematicStarted = true;
+  state.finalOutcome = mode;
+  state.finalVideoCompleted = false;
+  escapeOverlay.className = `escape-overlay escape-overlay--${mode}`;
+  escapeOverlay.setAttribute("aria-hidden", "false");
+  if (escapeOverlayLabel) {
+    escapeOverlayLabel.textContent = label;
+  }
+  escapeOverlayTitle.textContent = title;
+  escapeOverlayText.textContent = text;
+  escapeOverlayTime?.classList.add("hidden");
+  restartScenarioButton?.classList.add("hidden");
+  reproducirVideoFinal(videoPath).then((played) => {
+    if (!played) {
+      escapeOverlayText.textContent = `No fue posible reproducir ${videoPath}.`;
+      if (mode === "success") {
+        finalizarEscapeExitoso(true);
+      } else {
+        finalizarEscapeFallido(true);
+      }
+    }
+  });
+}
+
+function finalizarEscapeExitoso(skipVideoEnd = false) {
+  if (state.finalOutcome === "success" && state.finalVideoCompleted && !skipVideoEnd) return;
+  state.finalOutcome = "success";
+  state.finalVideoCompleted = true;
+  if (escapeOverlayLabel) {
+    escapeOverlayLabel.textContent = "MISION COMPLETADA";
+  }
+  if (escapeOverlayTitle) {
+    escapeOverlayTitle.textContent = "LOGRASTE ESCAPAR";
+  }
+  if (escapeOverlayText) {
+    escapeOverlayText.textContent = "La evacuacion fue confirmada. Jurassic UNIX Control registra salida exitosa.";
+  }
+  if (escapeOverlayTime) {
+    escapeOverlayTime.textContent = `Lograste escapar en ${calcularTiempoEscape()}`;
+    escapeOverlayTime.classList.remove("hidden");
+  }
+  restartScenarioButton?.classList.remove("hidden");
+}
+
+function finalizarEscapeFallido(skipVideoEnd = false) {
+  if (state.finalOutcome === "failure" && state.finalVideoCompleted && !skipVideoEnd) return;
+  state.finalOutcome = "failure";
+  state.finalVideoCompleted = true;
+  if (escapeOverlayLabel) {
+    escapeOverlayLabel.textContent = "MISION FALLIDA";
+  }
+  if (escapeOverlayTitle) {
+    escapeOverlayTitle.textContent = "NO LOGRASTE ESCAPAR";
+  }
+  if (escapeOverlayText) {
+    escapeOverlayText.textContent = "El laboratorio ha sido comprometido. La evacuacion fallo y la instalacion quedo perdida.";
+  }
+  escapeOverlayTime?.classList.add("hidden");
+  restartScenarioButton?.classList.remove("hidden");
+}
+
 function triggerGameOver() {
   if (state.gameOver || state.escaped) return;
   state.gameOver = true;
@@ -1007,44 +1137,17 @@ function triggerGameOver() {
     window.clearInterval(state.timerId);
     state.timerId = null;
   }
-  stopAmbient();
-  if (state.currentDinoSound) {
-    state.currentDinoSound.pause();
-    state.currentDinoSound.currentTime = 0;
-  }
-  playAlert();
-  setCurrentAlert("Ataque masivo no contenido. El laboratorio ha sido comprometido.", "error");
-  gameOverOverlay.classList.remove("hidden");
-  gameOverOverlay.setAttribute("aria-hidden", "false");
-  updateHud();
-}
-
-function startEscapeCinematic() {
-  if (state.cinematicStarted || !escapeOverlay || !escapeVideo) return;
-  state.cinematicStarted = true;
-  detenerSonido("alerta");
+  detenerTodosLosSonidos();
   hideAlertPanel();
-  stopAmbient();
-  if (state.currentDinoSound) {
-    state.currentDinoSound.pause();
-    state.currentDinoSound.currentTime = 0;
-    state.currentDinoSound = null;
-  }
-  escapeOverlay.classList.remove("hidden");
-  escapeOverlay.setAttribute("aria-hidden", "false");
-  escapeOverlayTitle.textContent = "ES MOMENTO DE SALIR";
-  escapeOverlayText.textContent = "La ruta exterior está abierta. Corre hacia la salida antes del cierre total.";
-  escapeVideo.currentTime = 0;
-  escapeVideo.play().catch(() => {
-    escapeOverlayText.textContent = "No fue posible reproducir ESCAPE.MP4. La misión se considera completada.";
-    finishEscapeCinematic();
+  setCurrentAlert("Ataque masivo no contenido. El laboratorio ha sido comprometido.", "error");
+  mostrarPantallaFinal({
+    mode: "failure",
+    label: "SISTEMA COLAPSADO",
+    title: "FALLO DE EVACUACION",
+    text: "El laboratorio ha sido comprometido. Mantente en cubierta mientras se reproduce el cierre final.",
+    videoPath: "assets/video/Falla.mp4",
   });
-}
-
-function finishEscapeCinematic() {
-  if (!escapeOverlayTitle || !escapeOverlayText) return;
-  escapeOverlayTitle.textContent = "LOGRASTE ESCAPAR";
-  escapeOverlayText.textContent = "Misión completada. Jurassic UNIX Control registra evacuación exitosa.";
+  updateHud();
 }
 
 function processTimedThreats() {
@@ -1128,9 +1231,22 @@ function startThreatTimer() {
   state.timerId = window.setInterval(processTimedThreats, 1000);
 }
 
+function reiniciarExperiencia() {
+  initializeScenario();
+  output.innerHTML = "";
+  introStatus.textContent = "Pulsa INICIAR PROTOCOLO DE EMERGENCIA para activar audio, video, temporizador y protocolo narrado.";
+  startIntroButton.disabled = false;
+  startIntroButton.textContent = "INICIAR PROTOCOLO DE EMERGENCIA";
+  introOverlay.classList.remove("hidden");
+  introOverlay.setAttribute("aria-hidden", "false");
+  bootOverlay.classList.add("hidden");
+  bootOverlay.setAttribute("aria-hidden", "true");
+  introVideo.currentTime = 0;
+  updateHud();
+}
+
 function restartScenario() {
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  window.location.reload();
+  reiniciarExperiencia();
 }
 
 function updateCipherHelper() {
@@ -1148,7 +1264,13 @@ function updateCipherHelper() {
   cipherConsoleBuffer.textContent = buffer ? buffer.split("").join(" ") : "_ _ _";
 
   cipherRotorCards.innerHTML = rotors.map((rotor, index) => `
-    <button type="button" class="cipher-rotor ${index === activeRotorIndex ? "is-active" : ""}" data-rotor-index="${index}">
+    <div
+      class="cipher-rotor ${index === activeRotorIndex ? "is-active" : ""}"
+      data-rotor-index="${index}"
+      role="button"
+      tabindex="0"
+      aria-label="${rotor.label}, valor actual ${rotor.currentValue}"
+    >
       <span>${rotor.label}</span>
       <div class="cipher-rotor__dial"><div class="cipher-rotor__window">${rotor.currentValue}</div></div>
       <strong>${rotor.letter} = ${rotor.baseValue}</strong>
@@ -1157,7 +1279,7 @@ function updateCipherHelper() {
         <button type="button" class="cipher-rotor__button" data-rotate="-1" data-rotor-index="${index}">GIRAR</button>
         <button type="button" class="cipher-rotor__button" data-reset-rotor="${index}">RESET</button>
       </div>
-    </button>
+    </div>
   `).join("");
 }
 
@@ -1190,6 +1312,76 @@ function appendCipherResult() {
 function prepareCipherCommand() {
   input.value = `contain ${state.cipherHelper.target} ${state.cipherHelper.buffer || ""}`.trimEnd();
   input.focus();
+}
+
+function shouldIgnoreRotorInteraction(action, index) {
+  const now = performance.now();
+  const duplicate =
+    state.lastRotorInteraction.action === action &&
+    state.lastRotorInteraction.index === index &&
+    now - state.lastRotorInteraction.time < 220;
+
+  if (!duplicate) {
+    state.lastRotorInteraction = {
+      time: now,
+      action,
+      index,
+    };
+  }
+
+  return duplicate;
+}
+
+function rotateCipherRotor(index) {
+  const rotor = state.cipherHelper.rotors[index];
+  if (!rotor) return;
+  rotor.currentValue = (rotor.currentValue + 9) % 10;
+  state.cipherHelper.activeRotorIndex = index;
+  updateCipherHelper();
+}
+
+function resetCipherRotor(index) {
+  const rotor = state.cipherHelper.rotors[index];
+  if (!rotor) return;
+  rotor.currentValue = rotor.baseValue;
+  state.cipherHelper.activeRotorIndex = index;
+  updateCipherHelper();
+}
+
+function selectCipherRotor(index) {
+  if (!state.cipherHelper.rotors[index]) return;
+  state.cipherHelper.activeRotorIndex = index;
+  updateCipherHelper();
+}
+
+function handleCipherRotorInteraction(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const rotateButton = target.closest("[data-rotate]");
+  if (rotateButton instanceof HTMLElement) {
+    const index = Number(rotateButton.dataset.rotorIndex);
+    if (shouldIgnoreRotorInteraction("rotate", index)) return;
+    event.preventDefault();
+    rotateCipherRotor(index);
+    return;
+  }
+
+  const resetButton = target.closest("[data-reset-rotor]");
+  if (resetButton instanceof HTMLElement) {
+    const index = Number(resetButton.dataset.resetRotor);
+    if (shouldIgnoreRotorInteraction("reset", index)) return;
+    event.preventDefault();
+    resetCipherRotor(index);
+    return;
+  }
+
+  const rotorButton = target.closest("[data-rotor-index]");
+  if (rotorButton instanceof HTMLElement) {
+    const index = Number(rotorButton.dataset.rotorIndex);
+    if (shouldIgnoreRotorInteraction("select", index)) return;
+    selectCipherRotor(index);
+  }
 }
 
 function focusLockIfNeeded() {
@@ -1562,12 +1754,19 @@ async function handleCommand(rawCommand) {
         window.clearInterval(state.timerId);
         state.timerId = null;
       }
-      stopAmbient();
-      detenerAlerta("SITUACION CONTROLADA // Evacuacion completada");
+      detenerTodosLosSonidos();
+      hideAlertPanel();
+      currentAlertText.textContent = "Evacuacion completada. Ejecutando cierre cinematico.";
       updateHud();
       speak(narrationLines.escape);
       await printLines(["Iniciando protocolo de escape...", "Puertas externas liberadas.", "EVACUACION COMPLETADA. Has escapado del laboratorio."], "success");
-      startEscapeCinematic();
+      mostrarPantallaFinal({
+        mode: "success",
+        label: "PROTOCOLO FINAL",
+        title: "ES MOMENTO DE SALIR",
+        text: "La ruta exterior esta abierta. Corre hacia la salida antes del cierre total.",
+        videoPath: "assets/video/ESCAPE.MP4",
+      });
       return;
 
     case "restart":
@@ -1643,12 +1842,22 @@ audioIntro.addEventListener("error", () => {
   console.error("Error al cargar o reproducir assets/audio/INTRO_AUDIO.MP3");
   introStatus.textContent = "Error en INTRO_AUDIO.MP3. Usa OMITIR INTRO para continuar manualmente.";
 });
-escapeVideo?.addEventListener("ended", finishEscapeCinematic);
+escapeVideo?.addEventListener("ended", () => {
+  if (state.finalOutcome === "failure") {
+    finalizarEscapeFallido();
+    return;
+  }
+  finalizarEscapeExitoso();
+});
 escapeVideo?.addEventListener("error", () => {
   if (escapeOverlayText) {
-    escapeOverlayText.textContent = "No fue posible reproducir assets/video/ESCAPE.MP4. La misión se considera completada.";
+    escapeOverlayText.textContent = `No fue posible reproducir ${state.finalOutcome === "failure" ? "assets/video/Falla.mp4" : "assets/video/ESCAPE.MP4"}.`;
   }
-  finishEscapeCinematic();
+  if (state.finalOutcome === "failure") {
+    finalizarEscapeFallido(true);
+  } else {
+    finalizarEscapeExitoso(true);
+  }
 });
 resumeSession.addEventListener("click", hideFocusLock);
 restartScenarioButton.addEventListener("click", restartScenario);
@@ -1726,37 +1935,22 @@ focusCipherSendButton.addEventListener("click", async () => {
   input.value = "";
 });
 
-cipherRotorCards.addEventListener("click", (event) => {
+cipherRotorCards.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+  handleCipherRotorInteraction(event);
+});
+
+cipherRotorCards.addEventListener("click", handleCipherRotorInteraction);
+
+cipherRotorCards.addEventListener("keydown", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
-
-  const rotateButton = target.closest("[data-rotate]");
-  if (rotateButton instanceof HTMLElement) {
-    const index = Number(rotateButton.dataset.rotorIndex);
-    const rotor = state.cipherHelper.rotors[index];
-    if (!rotor) return;
-    rotor.currentValue = (rotor.currentValue + 9) % 10;
-    state.cipherHelper.activeRotorIndex = index;
-    updateCipherHelper();
-    return;
-  }
-
-  const resetButton = target.closest("[data-reset-rotor]");
-  if (resetButton instanceof HTMLElement) {
-    const index = Number(resetButton.dataset.resetRotor);
-    const rotor = state.cipherHelper.rotors[index];
-    if (!rotor) return;
-    rotor.currentValue = rotor.baseValue;
-    state.cipherHelper.activeRotorIndex = index;
-    updateCipherHelper();
-    return;
-  }
-
-  const rotorButton = target.closest("[data-rotor-index]");
-  if (rotorButton instanceof HTMLElement) {
-    state.cipherHelper.activeRotorIndex = Number(rotorButton.dataset.rotorIndex);
-    updateCipherHelper();
-  }
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const rotorButton = target.closest(".cipher-rotor[data-rotor-index]");
+  if (!(rotorButton instanceof HTMLElement)) return;
+  event.preventDefault();
+  const index = Number(rotorButton.dataset.rotorIndex);
+  selectCipherRotor(index);
 });
 
 document.addEventListener("visibilitychange", () => {
