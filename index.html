@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jurassic System Interface</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="intro-overlay" id="introOverlay">
+    <video class="intro-video" id="introVideo" muted playsinline preload="auto">
+      <source src="Intro.MP4" type="video/mp4">
+    </video>
+    <div class="intro-card">
+      <p class="boot-kicker">GENETIC SYSTEMS</p>
+      <h1>PROTOCOLO DE APERTURA</h1>
+      <div class="intro-text">
+      <p>En lo más recóndito de una instalación secreta, donde la ciencia y la ambición se entrelazan, opera el sistema más avanzado de ingeniería genética: <strong>GENETIC SYSTEMS</strong>.</p>
+
+<p>Una división revolucionaria, diseñada para reescribir las reglas de la vida misma, resucitando organismos a partir de ADN que ha estado dormido por milenios.</p>
+
+<p>Por años, este sistema ha sido un modelo de precisión. Cada organismo, una obra maestra controlada; cada movimiento, un ballet meticulosamente monitoreado.</p>
+
+<p>Pero en la penumbra, algo ha cambiado.</p>
+
+<p>Los sensores, guardianes de este mundo artificial, han captado señales de actividad no autorizada. Movimientos inesperados, ecos de lo que no debería existir.</p>
+
+<p>El sistema de contención, que antes era impenetrable, comienza a flaquear.</p>
+
+<p>Se ha confirmado la presencia de organismos fuera de control, sus orígenes envueltos en un manto de misterio.</p>
+
+<p>Su estado actual: inestable. El nivel de riesgo: elevado.</p>
+
+<p>Todo el personal autorizado debe actuar con la máxima precaución.</p>
+
+<p><strong>GENETIC SYSTEMS</strong> ya no es el bastión de la ciencia que era; la evolución ha sido reactivada, y ahora, la naturaleza ha tomado las riendas.</p>
+
+<p><strong>¿Estamos preparados para lo que vendrá?</strong></p>
+      </div>
+      <p class="intro-status" id="introStatus">Pulsa INICIAR PROTOCOLO DE EMERGENCIA para activar audio, video, temporizador y protocolo narrado.</p>
+      <div class="intro-actions">
+        <button id="startIntro" class="start-button">INICIAR PROTOCOLO DE EMERGENCIA</button>
+        <button id="skipIntro" class="start-button start-button--secondary">OMITIR INTRO</button>
+      </div>
+    </div>
+  </div>
+  <div class="boot-overlay" id="bootOverlay">
+    <div class="boot-card">
+      <img src="logo_Jurassic-removebg-preview.png" alt="Jurassic System" class="boot-logo">
+      <p class="boot-kicker">GENETIC SYSTEMS // LAB ESCAPE PROTOCOL</p>
+      <h1>JURASSIC UNIX CONTROL</h1>
+      <p class="boot-text">
+        El sistema principal del laboratorio ha caido. Restaura la energia, neutraliza la zona de raptores
+        y abre la salida de emergencia antes de la brecha total.
+      </p>
+      <button id="startSystem" class="start-button">INICIAR SISTEMA</button>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <div class="hud-panel">
+      <div>
+        <p class="label">ESTADO</p>
+        <h2>LABORATORIO B</h2>
+      </div>
+      <div class="status-grid">
+        <div class="status-box">
+          <span>Energia</span>
+          <strong id="powerState">OFFLINE</strong>
+        </div>
+        <div class="status-box">
+          <span>Puerta</span>
+          <strong id="doorState">BLOQUEADA</strong>
+        </div>
+        <div class="status-box">
+          <span>Zona Raptor</span>
+          <strong id="raptorState">ACTIVA</strong>
+        </div>
+        <div class="status-box">
+          <span>Evacuacion</span>
+          <strong id="escapeState">PENDIENTE</strong>
+        </div>
+        <div class="status-box">
+          <span>Nivel De Amenaza</span>
+          <strong id="threatLevelState">ALTO</strong>
+        </div>
+        <div class="status-box">
+          <span>Tiempo Critico</span>
+          <strong id="countdownState">15:00</strong>
+        </div>
+      </div>
+      <div class="mission-box">
+        <p class="label">OBJETIVO ACTUAL</p>
+        <p id="objectiveText">Explora los archivos del sistema y encuentra como restaurar la energia.</p>
+      </div>
+      <div class="mission-box">
+        <p class="label">ALERTA EN CURSO</p>
+        <p id="currentAlertText">Sincronizando sensores de perimetro del laboratorio.</p>
+      </div>
+      <div class="mission-box">
+        <p class="label">MISIONES</p>
+        <div class="mission-list" id="missionList">
+          <div class="mission-item" id="missionPower">
+            <span class="mission-item__state">PENDIENTE</span>
+            <strong>1. Restaurar energia</strong>
+            <p>Activar la subestacion principal para recuperar el control del sistema.</p>
+          </div>
+          <div class="mission-item" id="missionGenerator">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>2. Reparar generador</strong>
+            <p>Si la energia vuelve a caer, revisa el generador de respaldo y repara la linea dañada.</p>
+          </div>
+          <div class="mission-item" id="missionRaptor">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>3. Contener Velociraptor</strong>
+            <p>Usa el cifrado de rotores del archivo `RAPTOR.KEY`. Pista: la tabla base va de `A=0` a `J=9`.</p>
+          </div>
+          <div class="mission-item" id="missionTrex">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>4. Contener T-Rex</strong>
+            <p>Resuelve el mensaje cifrado del protocolo `TREX.KEY` y concatena los tres valores del rotor.</p>
+          </div>
+          <div class="mission-item" id="missionDilo">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>5. Neutralizar Dilophosaurus</strong>
+            <p>Bloquea las compuertas del acceso principal antes de que la amenaza entre al laboratorio.</p>
+          </div>
+          <div class="mission-item" id="missionBarrier">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>6. Restaurar barreras</strong>
+            <p>Reactiva las barreras de contención cuando el sistema quede parcialmente desactivado.</p>
+          </div>
+          <div class="mission-item" id="missionHerd">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>7. Separar herbivoros</strong>
+            <p>Activa el protocolo de separación para cortar el conflicto entre Triceratops y Ankylosaurus.</p>
+          </div>
+          <div class="mission-item" id="missionAnky">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>8. Redirigir Ankylosaurus</strong>
+            <p>Desviar un Ankylosaurus fuera del corredor logistico antes de que cierre la ruta de salida.</p>
+          </div>
+          <div class="mission-item" id="missionDoor">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>9. Abrir salida</strong>
+            <p>Desbloquear la compuerta norte cuando no haya amenazas activas.</p>
+          </div>
+          <div class="mission-item" id="missionEscape">
+            <span class="mission-item__state">BLOQUEADA</span>
+            <strong>10. Evacuar</strong>
+            <p>Ejecutar el protocolo final y abandonar el laboratorio.</p>
+          </div>
+        </div>
+      </div>
+      <div class="mission-box">
+        <p class="label">COMANDOS BASE</p>
+        <p><code>help</code> <code>ls</code> <code>cat archivo</code> <code>status</code> <code>hint</code> <code>clear</code></p>
+      </div>
+      <div class="mission-box">
+        <p class="label">NARRACION</p>
+        <p>El sistema puede relatar eventos criticos con voz automatizada y mensajes de emergencia.</p>
+        <div class="action-grid">
+          <button class="action-button action-button--primary" id="toggleNarration" type="button">Narracion: ON</button>
+          <button class="action-button" id="playBriefing" type="button">Reproducir briefing</button>
+          <button class="action-button" id="toggleAmbientMute" type="button">Silenciar ambiente</button>
+          <button class="action-button" id="toggleAmbientPause" type="button">Pausar ambiente</button>
+        </div>
+      </div>
+      <div class="mission-box">
+        <p class="label">MODO GUIADO</p>
+        <p>Si no saben comandos, pueden usar los accesos rapidos. El sistema enviara la orden correcta.</p>
+        <div class="action-grid" id="actionGrid">
+          <button class="action-button" data-command="ls">Ver archivos</button>
+          <button class="action-button" data-command="cat POWER.LOG">Revisar energia</button>
+          <button class="action-button" data-command="cat GENERATOR.LOG">Ver generador</button>
+          <button class="action-button" data-command="cat ENIGMA.MANUAL">Manual Enigma</button>
+          <button class="action-button" data-command="cat RAPTOR.KEY">Clave raptor</button>
+          <button class="action-button" data-command="cat TREX.KEY">Clave T-Rex</button>
+          <button class="action-button" data-command="cat DILO.LOG">Ver Dilophosaurus</button>
+          <button class="action-button" data-command="cat BARRIER.SYS">Ver barreras</button>
+          <button class="action-button" data-command="cat HERD.LOG">Ver herbivoros</button>
+          <button class="action-button" data-command="cat ANKY.KEY">Ver Ankylosaurus</button>
+          <button class="action-button action-button--primary" data-command="restore power RST-POWER-73">Activar energia</button>
+          <button class="action-button action-button--primary" data-command="repair generator GEN-RESTART-84">Reparar generador</button>
+          <button class="action-button action-button--primary" data-command="lock dilo GATE-DILO-19">Bloquear dilo</button>
+          <button class="action-button action-button--primary" data-command="restore barrier BARRIER-RESTORE-31">Restaurar barreras</button>
+          <button class="action-button action-button--primary" data-command="separate herd HERD-SPLIT-41">Separar herbivoros</button>
+          <button class="action-button action-button--primary" data-command="redirect anky ANKY-PORT-55">Redirigir anky</button>
+          <button class="action-button action-button--primary" data-command="cat CREW.LOG">Ver incidentes</button>
+          <button class="action-button action-button--primary" data-command="cat DOOR.SYS">Revisar puerta</button>
+          <button class="action-button action-button--primary" data-command="unlock door DOOR-LOCK-42">Abrir salida</button>
+          <button class="action-button action-button--danger" data-command="escape">Evacuar</button>
+        </div>
+      </div>
+      <div class="mission-box">
+        <p class="label">CONTROLES DE CAMPO</p>
+        <p>Usa estos controles para investigar el mapa, reconocer amenazas y bajar el ruido del sistema sin salir de la experiencia.</p>
+        <div class="action-grid">
+          <button class="action-button action-button--primary" id="scanSectorButton" type="button">ESCANEAR SECTOR</button>
+          <button class="action-button" id="identifySpeciesButton" type="button">IDENTIFICAR ESPECIE</button>
+          <button class="action-button" id="confirmContainmentButton" type="button">CONFIRMAR CONTENCION</button>
+          <button class="action-button" id="silenceAlertButton" type="button">SILENCIAR ALERTA</button>
+        </div>
+      </div>
+      <div class="mission-box">
+        <p class="label">MAPA OPERATIVO</p>
+        <button class="map-launch" id="openMapButton" type="button">ABRIR MAPA TACTICO</button>
+        <div class="map-board" id="compactMapBoard">
+          <div class="map-gridline"></div>
+          <div class="map-route map-route--power"></div>
+          <div class="map-route map-route--raptor"></div>
+          <div class="map-route map-route--door"></div>
+          <article class="map-node map-node--power" id="zonePower">
+            <span class="map-node__tag">SUBESTACION</span>
+            <strong>Energia Principal</strong>
+            <span class="zone-state zone-state--offline" id="zonePowerState">OFFLINE</span>
+          </article>
+          <article class="map-node map-node--raptor" id="zoneRaptor">
+            <span class="map-node__tag">PADDOCK R-01</span>
+            <strong>Zona Raptor</strong>
+            <span class="zone-state zone-state--danger" id="zoneRaptorState">ACTIVA</span>
+          </article>
+          <article class="map-node map-node--door" id="zoneDoor">
+            <span class="map-node__tag">LAB-B</span>
+            <strong>Compuerta Norte</strong>
+            <span class="zone-state zone-state--locked" id="zoneDoorState">BLOQUEADA</span>
+          </article>
+          <article class="map-node map-node--escape" id="zoneEscape">
+            <span class="map-node__tag">RUTA EXTERIOR</span>
+            <strong>Evacuacion</strong>
+            <span class="zone-state zone-state--pending" id="zoneEscapeState">PENDIENTE</span>
+          </article>
+          <div class="map-legend">
+            <span>SECUENCIA:</span>
+            <code>ENERGIA</code>
+            <code>PADDOCK</code>
+            <code>PUERTA</code>
+            <code>ESCAPE</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="terminal-frame">
+      <div class="terminal-topbar">
+        <span class="top-dot red"></span>
+        <span class="top-dot amber"></span>
+        <span class="top-dot green"></span>
+        <p>root@jurassic-unix:/lab/control</p>
+      </div>
+      <div class="system-alert system-alert--off hidden" id="systemAlertPanel" aria-live="assertive">
+        <span class="system-alert__state" id="systemAlertState">ALERTA APAGADA</span>
+        <strong class="system-alert__message" id="systemAlertMessage">Sistema estable.</strong>
+      </div>
+      <div class="system-banner">
+        <span class="scan-pill">CRT LINK STABLE</span>
+        <span class="scan-pill">SECURITY LEVEL: OMEGA</span>
+        <span class="scan-pill">INPUT MODE: GUIADO + TERMINAL</span>
+      </div>
+      <section class="cipher-console" id="cipherConsole">
+        <div class="cipher-console__header">
+          <div>
+            <p class="label">DESCIFRADO ACTIVO</p>
+            <strong id="cipherConsoleTarget">OBJETIVO: RAPTOR</strong>
+          </div>
+          <p id="cipherConsoleHint">Cada rotor inicia en el numero de su letra. Cada giro hacia atras resta 1. Si bajas de 0, vuelves a 9.</p>
+        </div>
+        <div class="cipher-console__body">
+          <div class="cipher-console__rotors" id="cipherRotorCards">
+            <div class="cipher-rotor-shell"></div>
+          </div>
+          <div class="cipher-console__side">
+            <div class="cipher-console__result">
+              <span>ROTOR ACTIVO</span>
+              <strong id="cipherEquationDisplay">ROTOR I: D = 3</strong>
+              <p id="cipherExplanation">Gira hacia atras tantas veces como indique `resta`. El numero final es el digito correcto.</p>
+            </div>
+            <div class="cipher-console__result">
+              <span>CLAVE</span>
+              <strong id="cipherConsoleBuffer">_ _ _</strong>
+            </div>
+            <div class="cipher-console__actions">
+              <button type="button" class="action-button action-button--primary" id="focusCipherRaptor">Cargar Raptor</button>
+              <button type="button" class="action-button" id="focusCipherTrex">Cargar T-Rex</button>
+              <button type="button" class="action-button" id="focusCipherAppend">Guardar digito</button>
+              <button type="button" class="action-button" id="focusCipherSend">Enviar comando</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="terminalOutput" class="terminal-output" aria-live="polite"></section>
+      <form id="terminalForm" class="terminal-input-row" autocomplete="off">
+        <label class="prompt" for="commandInput">root@jurassic-unix:~#</label>
+        <input id="commandInput" name="commandInput" type="text" spellcheck="false" autofocus placeholder="Escribe un comando o usa los botones de la izquierda">
+      </form>
+    </main>
+  </div>
+
+  <div class="focus-lock hidden" id="focusLock" aria-hidden="true">
+    <div class="focus-lock__panel">
+      <p class="label">ALERTA DE SESION</p>
+      <h3>SISTEMA FUERA DE FOCO</h3>
+      <p>La consola detecto cambio de pestaña o ventana. Regresa al sistema para continuar la contencion.</p>
+      <button class="start-button" id="resumeSession" type="button">REANUDAR SESION</button>
+    </div>
+  </div>
+
+  <div class="focus-lock hidden" id="gameOverOverlay" aria-hidden="true">
+    <div class="focus-lock__panel focus-lock__panel--critical">
+      <p class="label">SISTEMA COLAPSADO</p>
+      <h3>ATAQUE MASIVO NO CONTENIDO</h3>
+      <p>El laboratorio ha sido comprometido. La evacuacion ha fallado y la sesion actual se considera perdida.</p>
+      <button class="start-button" id="restartScenario" type="button">REINICIAR ESCENARIO</button>
+    </div>
+  </div>
+
+  <div class="escape-overlay hidden" id="escapeOverlay" aria-hidden="true">
+    <video class="escape-video" id="escapeVideo" playsinline preload="auto">
+      <source src="assets/video/ESCAPE.MP4" type="video/mp4">
+    </video>
+    <div class="escape-overlay__panel" id="escapeOverlayPanel">
+      <p class="label">PROTOCOLO FINAL</p>
+      <h3 id="escapeOverlayTitle">ES MOMENTO DE SALIR</h3>
+      <p id="escapeOverlayText">La ruta exterior está abierta. Abandona el laboratorio antes del cierre total.</p>
+    </div>
+  </div>
+
+  <div class="map-modal hidden" id="mapModal" aria-hidden="true">
+    <div class="map-modal__backdrop" id="mapBackdrop"></div>
+    <section class="map-modal__panel">
+      <div class="map-modal__header">
+        <div>
+          <p class="label">ISLA NUBLAR</p>
+          <h3>MAPA DE CONTENCION Y RIESGO</h3>
+        </div>
+        <button class="map-close" id="closeMapButton" type="button">CERRAR</button>
+      </div>
+      <div class="map-modal__content">
+        <div class="island-map">
+          <div class="island-core"></div>
+          <div class="map-lab" id="mapLab">
+            <div class="map-lab__radar"></div>
+            <strong>LABORATORIO B</strong>
+            <span id="labThreatState">AMENAZA EN APROXIMACION</span>
+          </div>
+          <div class="threat-blip threat-blip--raptor" id="threatRaptor" aria-hidden="true"></div>
+          <div class="threat-blip threat-blip--trex" id="threatTrex" aria-hidden="true"></div>
+          <div class="threat-blip threat-blip--dilo" id="threatDilo" aria-hidden="true"></div>
+          <button class="species-marker species-marker--power" data-zone="power" type="button">
+            <div class="marker-icon marker-icon--power" aria-hidden="true">⚡</div>
+            <span>ENERGIA</span>
+          </button>
+          <button class="species-marker species-marker--raptor" data-zone="raptor" type="button">
+            <img src="Dinosaurios/Creatacico/Velociraptor.jpeg" alt="Velociraptor">
+            <span>RAPTOR</span>
+          </button>
+          <button class="species-marker species-marker--trex" data-zone="trex" type="button">
+            <img src="Dinosaurios/Creatacico/Tyrannosaurus rex.webp" alt="Tyrannosaurus rex">
+            <span>T-REX</span>
+          </button>
+          <button class="species-marker species-marker--dilo" data-zone="dilo" type="button">
+            <img src="Dinosaurios/Jurasico/Dilophosaurus.webp" alt="Dilophosaurus">
+            <span>DILO</span>
+          </button>
+          <button class="species-marker species-marker--herb" data-zone="herb" type="button">
+            <img src="Dinosaurios/Creatacico/Triceratops.jpeg" alt="Herbivoros">
+            <span>HERBIV.</span>
+          </button>
+          <button class="species-marker species-marker--anky" data-zone="anky" type="button">
+            <img src="Dinosaurios/Creatacico/Ankylosaurus.jpeg" alt="Ankylosaurus">
+            <span>ANKY</span>
+          </button>
+          <button class="species-marker species-marker--brachio" data-zone="brachio" type="button">
+            <img src="Dinosaurios/Jurasico/Brachiosaurus.jpg" alt="Brachiosaurus">
+            <span>BRACHIO</span>
+          </button>
+          <button class="species-marker species-marker--stego" data-zone="stego" type="button">
+            <img src="Dinosaurios/Jurasico/Stegosaurus.jpeg" alt="Stegosaurus">
+            <span>STEGO</span>
+          </button>
+          <button class="species-marker species-marker--dock" data-zone="dock" type="button">
+            <div class="marker-icon marker-icon--dock" aria-hidden="true">⌂</div>
+            <span>MUELLE</span>
+          </button>
+        </div>
+        <aside class="species-panel">
+          <div class="species-display">
+            <img id="speciesImage" src="Dinosaurios/Creatacico/Velociraptor.jpeg" alt="Especie detectada">
+            <div class="species-display__overlay">
+              <p id="speciesSector">SECTOR R-01</p>
+              <h4 id="speciesName">Velociraptor</h4>
+            </div>
+          </div>
+          <div class="species-readout">
+            <div class="species-readout__row">
+              <span>Estado</span>
+              <strong id="speciesStatus">CONTENCION COMPROMETIDA</strong>
+            </div>
+            <div class="species-readout__row">
+              <span>Riesgo</span>
+              <strong id="speciesRisk">CRITICO</strong>
+            </div>
+            <div class="species-readout__row">
+              <span>Actividad</span>
+              <strong id="speciesActivity">MOVIMIENTO NO AUTORIZADO</strong>
+            </div>
+            <div class="species-readout__row species-readout__row--stack">
+              <span>Caracteristicas</span>
+              <strong id="speciesTraits">Cazador social, alta inteligencia, respuesta coordinada.</strong>
+            </div>
+            <div class="species-readout__row species-readout__row--stack">
+              <span>Nivel de riesgo</span>
+              <strong id="speciesRiskLevel">Nivel IV: amenaza inmediata para personal y cercado.</strong>
+            </div>
+          </div>
+          <p class="species-description" id="speciesDescription">
+            Presencia confirmada fuera del perimetro interno. Patrulla automatica sin respuesta.
+          </p>
+          <div class="incident-log">
+            <p class="label">INCIDENTES RECIENTES</p>
+            <div id="speciesIncidents"></div>
+          </div>
+          <div class="species-list" id="speciesList"></div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <audio id="typingSound" src="texto.mp3" preload="auto"></audio>
+  <audio id="audioIntro" src="assets/audio/INTRO_AUDIO.MP3" preload="auto"></audio>
+  <audio id="audioAlerta" src="assets/audio/alerta.mp3" preload="auto"></audio>
+  <audio id="audioAmbiente" src="assets/audio/ambiente.mp3" preload="auto" loop></audio>
+  <audio id="audioRaptor" src="assets/audio/raptor.mp3" preload="auto"></audio>
+  <audio id="audioRex" src="assets/audio/rex.mp3" preload="auto"></audio>
+  <audio id="audioTriceratops" src="assets/audio/triceratops.mp3" preload="auto"></audio>
+  <audio id="audioAnkylosaurus" src="assets/audio/ankylosaurus.mp3" preload="auto"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
