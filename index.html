@@ -37,7 +37,7 @@
 
 <p><strong>¿Estamos preparados para lo que vendrá?</strong></p>
       </div>
-      <p class="intro-status" id="introStatus">Pulsa INICIAR PROTOCOLO DE EMERGENCIA para activar audio, video, temporizador y protocolo narrado.</p>
+      <p class="intro-status" id="introStatus">Pulsa INICIAR PROTOCOLO DE EMERGENCIA para activar el audio de introducción, el video y el protocolo visual.</p>
       <div class="intro-actions">
         <button id="startIntro" class="start-button">INICIAR PROTOCOLO DE EMERGENCIA</button>
         <button id="skipIntro" class="start-button start-button--secondary">OMITIR INTRO</button>
@@ -302,12 +302,10 @@
         <p><code>help</code> <code>ls</code> <code>cat archivo</code> <code>status</code> <code>hint</code> <code>clear</code></p>
       </div>
       <div class="mission-box">
-        <p class="label">NARRACION</p>
-        <p>El sistema puede relatar eventos criticos con voz automatizada y mensajes de emergencia.</p>
+        <p class="label">AUDIO AMBIENTE</p>
+        <p>La introducción usa exclusivamente <code>assets/audio/INTRO_AUDIO.MP3</code>. La sesión mantiene ambiente y alertas sin narración automática.</p>
         <div class="action-grid">
-          <button class="action-button action-button--primary" id="toggleNarration" type="button">Narracion: ON</button>
-          <button class="action-button" id="playBriefing" type="button">Reproducir briefing</button>
-          <button class="action-button" id="toggleAmbientMute" type="button">Silenciar ambiente</button>
+          <button class="action-button action-button--primary" id="toggleAmbientMute" type="button">Silenciar ambiente</button>
           <button class="action-button" id="toggleAmbientPause" type="button">Pausar ambiente</button>
         </div>
       </div>

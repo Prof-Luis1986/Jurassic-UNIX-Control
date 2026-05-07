@@ -128,8 +128,6 @@ const focusCipherTrexButton = byId("focusCipherTrex");
 const focusCipherAppendButton = byId("focusCipherAppend");
 const focusCipherSendButton = byId("focusCipherSend");
 
-const toggleNarrationButton = byId("toggleNarration");
-const playBriefingButton = byId("playBriefing");
 const toggleAmbientMuteButton = byId("toggleAmbientMute");
 const toggleAmbientPauseButton = byId("toggleAmbientPause");
 const scanSectorButton = byId("scanSectorButton");
@@ -150,24 +148,6 @@ const dinoSounds = {
 for (const sound of Object.values(dinoSounds)) {
   sound.preload = "auto";
 }
-
-const narrationLines = {
-  opening:
-    "En las profundidades de nuestras instalaciones, más allá de los protocolos convencionales de investigación, opera GENETIC SYSTEMS, la unidad encargada de la manipulación, secuenciación y reactivación de material genético prehistórico. A través de algoritmos avanzados y sistemas de bioingeniería de alta precisión, hemos logrado lo que durante décadas fue considerado imposible: reconstruir organismos extintos a partir de fragmentos de ADN preservados en el tiempo. Cada espécimen es monitoreado en tiempo real mediante una red de sensores integrados, controlados por nuestro núcleo central basado en arquitectura UNIX, garantizando estabilidad, control y trazabilidad absoluta, hasta ahora. Recientes anomalías en el sistema han provocado inconsistencias en los módulos de contención. Registros indican actividad biológica no autorizada en múltiples sectores. El origen de estas variaciones aún es desconocido. Estado actual: inestable. Nivel de riesgo: elevado. Todo el personal autorizado deberá proceder con extrema precaución. GENETIC SYSTEMS ya no responde completamente a los protocolos establecidos.",
-  briefing:
-    "Atención. El núcleo de Jurassic Unix Control ha entrado en contingencia. Restablezca energía, recupere el generador, contenga fauna crítica y asegure la salida del laboratorio.",
-  power: "Energía principal restaurada.",
-  generator: "Alerta. El generador de respaldo ha sido dañado por impacto estructural.",
-  backup: "Generador de reserva activado. Operando con potencia parcial.",
-  raptor: "Velociraptor detectado en el paddock R cero uno.",
-  trex: "Tyrannosaurus rex aproximándose al corredor C cero siete.",
-  collision: "Colisión biológica masiva detectada entre Tyrannosaurus rex y Brachiosaurus.",
-  herd: "Conflicto territorial de herbívoros detectado en el valle sur.",
-  anky: "Ankylosaurus bloqueando el corredor logístico L cero cinco.",
-  dilo: "Dilophosaurus infiltrado. Ingrese código de contención antes de propagación.",
-  door: "Ruta de evacuación liberada.",
-  escape: "Evacuación autorizada. Personal restante, abandone la instalación.",
-};
 
 const RISK_LEVELS = ["ESTABLE", "MODERADO", "ALTO", "CRITICO"];
 const MAX_DAMAGE = 100;
@@ -278,7 +258,6 @@ const state = {
   introStarted: false,
   introFinished: false,
   bootStarted: false,
-  narrationEnabled: true,
   ambientMuted: false,
   ambientPaused: false,
   powerOnline: false,
@@ -478,9 +457,6 @@ function stopAmbient() {
 }
 
 function detenerTodosLosSonidos() {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
   for (const soundName of ["intro", "alerta", "ambiente", "raptor", "trex", "herb", "anky", "brachio", "dilo", "stego"]) {
     detenerSonido(soundName);
   }
@@ -1111,22 +1087,6 @@ function setAlertSilence(durationMs = 20000) {
       silenceAlertButton.textContent = "SILENCIAR ALERTA";
     }
   }, durationMs + 50);
-}
-
-function speak(text, onend) {
-  if (!state.narrationEnabled || !("speechSynthesis" in window)) {
-    if (onend) onend();
-    return;
-  }
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "es-MX";
-  utterance.rate = 0.93;
-  utterance.pitch = 0.84;
-  utterance.onend = () => onend?.();
-  utterance.onerror = () => onend?.();
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
 }
 
 function initializeScenario() {
@@ -1816,7 +1776,6 @@ async function runBootSequence() {
   setActiveEvent("OPERADOR ENLAZADO // CONTINGENCIA ABIERTA");
   iniciarDirectorEventos();
   setCurrentAlert("Operador enlazado. Todos los sistemas de emergencia quedan bajo tu control.", "success");
-  speak(narrationLines.briefing);
   input.focus();
 }
 
@@ -2070,7 +2029,6 @@ function processTimedThreats() {
     });
     playAlert();
     playDinoSound("raptor");
-    speak(narrationLines.raptor);
     setActiveEvent("PRIMERA BARRERA COMPROMETIDA");
     pulseCrisisFilter("critical", 850);
     setCurrentAlert("Primera barrera comprometida. Velociraptor acercándose al núcleo.", "error");
@@ -2087,7 +2045,6 @@ function processTimedThreats() {
     });
     playAlert(0.58);
     playDinoSound("trex", 0.5);
-    speak(narrationLines.trex);
     setActiveEvent("T-REX EN APROXIMACION AL CORREDOR C-07");
     setCurrentAlert("Huella de gran masa confirmada. Tyrannosaurus rex aproximándose al corredor C-07.", "error");
   }
@@ -2103,7 +2060,6 @@ function processTimedThreats() {
     });
     playAlert(0.6);
     playDinoSound("herb", 0.55);
-    speak(narrationLines.herd);
     setActiveEvent("CONFLICTO ENTRE HERBIVOROS");
     setCurrentAlert("Conflicto entre herbívoros en curso. Triceratops y Ankylosaurus están dañando compuertas.", "warning");
   }
@@ -2120,7 +2076,6 @@ function processTimedThreats() {
     });
     playAlert();
     playDinoSound("brachio", 0.55);
-    speak(narrationLines.generator);
     setActiveEvent("ENERGIA CRITICA // GENERADOR PRINCIPAL OFFLINE");
     pulseCrisisFilter("critical", 1200);
     setCurrentAlert("ENERGÍA CRÍTICA. GENERADOR PRINCIPAL OFFLINE.", "error");
@@ -2139,7 +2094,6 @@ function processTimedThreats() {
     });
     playAlert(0.65);
     playDinoSound("dilo", 0.6);
-    speak(narrationLines.dilo);
     setActiveEvent("DILOPHOSAURUS INFILTRADO");
     pulseCrisisFilter("critical", 1000);
     setCurrentAlert("Dilophosaurus infiltrado. Ingresar código de contención antes de propagación.", "error");
@@ -2158,7 +2112,6 @@ function processTimedThreats() {
       estabilidadLaboratorio: 18,
     });
     reproducirColisionBiologica();
-    speak(narrationLines.collision);
     setActiveEvent("COLISION BIOLOGICA MASIVA DETECTADA");
     pulseCrisisFilter("critical", 1400);
     setCurrentAlert("Colisión biológica masiva detectada. Estabiliza sectores afectados.", "error");
@@ -2174,7 +2127,6 @@ function processTimedThreats() {
     });
     playAlert(0.6);
     playDinoSound("anky", 0.55);
-    speak(narrationLines.anky);
     setActiveEvent("ANKYLOSAURUS BLOQUEANDO CORREDOR L-05");
     setCurrentAlert("Ankylosaurus detectado en perímetro logístico. Corredor L-05 bloqueado.", "warning");
   }
@@ -2234,7 +2186,7 @@ function startThreatTimer() {
 function reiniciarExperiencia() {
   initializeScenario();
   output.innerHTML = "";
-  introStatus.textContent = "Pulsa INICIAR PROTOCOLO DE EMERGENCIA para activar audio, video, temporizador y protocolo narrado.";
+  introStatus.textContent = "Pulsa INICIAR PROTOCOLO DE EMERGENCIA para activar el audio de introducción, el video y el protocolo visual.";
   startIntroButton.disabled = false;
   startIntroButton.textContent = "INICIAR PROTOCOLO DE EMERGENCIA";
   introOverlay.classList.remove("hidden");
@@ -2652,7 +2604,6 @@ async function handleCommand(rawCommand) {
         setActiveEvent("GENERADOR DE RESERVA ACTIVO");
         detenerAlerta("SITUACION CONTROLADA // Respaldo energetico activo");
         setCurrentAlert("Generador de reserva activo. El sistema vuelve con potencia parcial.", "success");
-        speak(narrationLines.backup);
         completarAccion("backup_generator");
         relieveGlobalDamage({ energiaSistema: 18, estabilidadLaboratorio: 8 });
         updateHud();
@@ -2750,7 +2701,6 @@ async function handleCommand(rawCommand) {
         relieveGlobalDamage({ energiaSistema: 26, estabilidadLaboratorio: 7 });
         updateHud();
         setCurrentAlert("Energía principal restaurada.", "success");
-        speak(narrationLines.power);
         await printLines(["Restaurando suministro electrico...", "Subestacion oeste en linea.", "Energia principal ONLINE."], "success");
         return;
       }
@@ -2960,7 +2910,6 @@ async function handleCommand(rawCommand) {
         completarAccion("confirm_route");
         relieveGlobalDamage({ estabilidadLaboratorio: 4 });
         updateHud();
-        speak(narrationLines.door);
         await printLines(["Validando acceso de emergencia...", "Sellos magneticos liberados.", "Puerta de evacuacion ABIERTA."], "success");
         return;
       }
@@ -2989,7 +2938,6 @@ async function handleCommand(rawCommand) {
       hideAlertPanel();
       currentAlertText.textContent = "Evacuacion completada. Ejecutando cierre cinematico.";
       updateHud();
-      speak(narrationLines.escape);
       await printLines(["Iniciando protocolo de escape...", "Puertas externas liberadas.", "EVACUACION COMPLETADA. Has escapado del laboratorio."], "success");
       verificarCondicionesDeVictoria();
       mostrarPantallaFinal({
@@ -3032,13 +2980,13 @@ async function handleCommand(rawCommand) {
 function revealBootOverlay() {
   if (state.introFinished) return;
   state.introFinished = true;
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   introVideo.pause();
   audioIntro.pause();
   introOverlay.classList.add("hidden");
   introOverlay.setAttribute("aria-hidden", "true");
   bootOverlay.classList.remove("hidden");
   bootOverlay.setAttribute("aria-hidden", "false");
+  startSystemButton.focus();
 }
 
 function finalizarIntroSiListo() {
@@ -3052,13 +3000,13 @@ function iniciarProtocolo() {
   state.introStarted = true;
   startIntroButton.disabled = true;
   startIntroButton.textContent = "PROTOCOLO EN CURSO...";
-  introStatus.textContent = "Protocolo activado. Intro, temporizador, ambiente y alerta inicial en ejecución.";
+  introStatus.textContent = "Protocolo activado. INTRO_AUDIO.MP3, video, temporizador y ambiente en ejecución.";
   startThreatTimer();
   startAmbient();
   introVideo.loop = true;
   introVideo.currentTime = 0;
   introVideo.play().catch(() => {
-    introStatus.textContent = "No fue posible reproducir el video de apertura. El sistema continuará con audio y narración.";
+    introStatus.textContent = "No fue posible reproducir el video de apertura. El sistema continuará con INTRO_AUDIO.MP3 y el briefing visual.";
   });
   reproducirSonido("intro", { volume: 0.6 }).then((played) => {
     if (!played) {
@@ -3066,7 +3014,6 @@ function iniciarProtocolo() {
       introStatus.textContent = "INTRO_AUDIO.MP3 no pudo reproducirse. Puedes continuar con OMITIR INTRO sin romper la sesión.";
     }
   });
-  speak(narrationLines.opening);
 }
 
 startIntroButton.addEventListener("click", iniciarProtocolo);
@@ -3102,13 +3049,6 @@ escapeVideo?.addEventListener("error", () => {
 resumeSession.addEventListener("click", hideFocusLock);
 restartScenarioButton.addEventListener("click", restartScenario);
 
-toggleNarrationButton.addEventListener("click", () => {
-  state.narrationEnabled = !state.narrationEnabled;
-  toggleNarrationButton.textContent = `Narracion: ${state.narrationEnabled ? "ON" : "OFF"}`;
-  if (!state.narrationEnabled && "speechSynthesis" in window) window.speechSynthesis.cancel();
-});
-
-playBriefingButton.addEventListener("click", () => speak(narrationLines.briefing));
 toggleAmbientMuteButton.addEventListener("click", toggleAmbientMute);
 toggleAmbientPauseButton.addEventListener("click", toggleAmbientPause);
 scanSectorButton.addEventListener("click", scanSector);
