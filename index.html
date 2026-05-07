@@ -47,15 +47,35 @@
   <div class="boot-overlay" id="bootOverlay">
     <div class="boot-card">
       <img src="logo_Jurassic-removebg-preview.png" alt="Jurassic System" class="boot-logo">
-      <p class="boot-kicker">GENETIC SYSTEMS // LAB ESCAPE PROTOCOL</p>
-      <h1>JURASSIC UNIX CONTROL</h1>
+      <p class="boot-kicker">BRIEFING DE EMERGENCIA // INSTALACION GENETICA</p>
+      <h1>PROTOCOLO DE SUPERVIVENCIA</h1>
       <p class="boot-text">
-        El sistema principal del laboratorio ha caido. Restaura la energia, neutraliza la zona de raptores
-        y abre la salida de emergencia antes de la brecha total.
+        Su misión es contener la falla genética y escapar antes de que la instalación colapse. Cada alerta ignorada
+        incrementará el riesgo biológico y degradará los niveles de contención.
       </p>
-      <button id="startSystem" class="start-button">INICIAR SISTEMA</button>
+      <div class="briefing-list">
+        <div class="briefing-item">
+          <strong>OBJETIVO</strong>
+          <p>Recupera energía, estabiliza amenazas, protege el núcleo y ejecuta el escape antes del colapso total.</p>
+        </div>
+        <div class="briefing-item">
+          <strong>ADVERTENCIA</strong>
+          <p>Raptor, Dilophosaurus, T-Rex y herbívoros pueden generar crisis simultáneas y romper barreras en cadena.</p>
+        </div>
+        <div class="briefing-item">
+          <strong>SISTEMA</strong>
+          <p>Usa terminal, accesos guiados, rotores y protocolos de contención. Algunas amenazas requerirán códigos.</p>
+        </div>
+        <div class="briefing-item">
+          <strong>REGLAS</strong>
+          <p>No ignores alertas críticas, reacciona rápido ante fallos de energía y mantén la ruta de evacuación abierta.</p>
+        </div>
+      </div>
+      <button id="startSystem" class="start-button">ACCEDER AL SISTEMA</button>
     </div>
   </div>
+
+  <div class="crisis-filter" id="crisisFilter" aria-hidden="true"></div>
 
   <div class="app-shell">
     <div class="hud-panel">
@@ -93,9 +113,134 @@
         <p class="label">OBJETIVO ACTUAL</p>
         <p id="objectiveText">Explora los archivos del sistema y encuentra como restaurar la energia.</p>
       </div>
+      <div class="mission-box mission-box--active">
+        <p class="label">MISION ACTIVA</p>
+        <div class="mission-active">
+          <div class="mission-active__row">
+            <span>Amenaza actual</span>
+            <strong id="missionActivePhase">FASE 1 // ARRANQUE</strong>
+          </div>
+          <div class="mission-active__row">
+            <span>Objetivo</span>
+            <strong id="missionActiveObjective">Ingresar al sistema y activar monitoreo general.</strong>
+          </div>
+          <div class="mission-active__row">
+            <span>Comando requerido</span>
+            <strong id="missionActiveAction">ACTIVAR MONITOREO GENERAL</strong>
+          </div>
+          <div class="mission-active__row">
+            <span>Consecuencia si falla</span>
+            <strong id="missionActiveFailure">La amenaza escala y aumenta el daño global.</strong>
+          </div>
+          <div class="mission-active__meta">
+            <div>
+              <span>Riesgo biologico</span>
+              <strong id="bioRiskState">ESTABLE</strong>
+            </div>
+            <div>
+              <span>Contencion</span>
+              <strong id="containmentSummaryState">ESTABLE</strong>
+            </div>
+            <div>
+              <span>Tiempo critico</span>
+              <strong id="missionCriticalTimer">15:00</strong>
+            </div>
+            <div>
+              <span>Prioridad</span>
+              <strong id="missionPriorityState">ALTA</strong>
+            </div>
+          </div>
+          <button class="start-button mission-active__button" id="missionActionButton" type="button">EJECUTAR ACCION</button>
+        </div>
+      </div>
+      <div class="mission-box mission-box--crisis">
+        <p class="label">CONTENCION Y CRISIS</p>
+        <div class="crisis-status-grid">
+          <div class="crisis-status">
+            <span>Primera barrera</span>
+            <strong id="primaryBarrierState">ESTABLE</strong>
+          </div>
+          <div class="crisis-status">
+            <span>Segunda barrera</span>
+            <strong id="secondaryBarrierState">ESTABLE</strong>
+          </div>
+          <div class="crisis-status">
+            <span>Contencion critica</span>
+            <strong id="criticalContainmentState">CONTROLADA</strong>
+          </div>
+          <div class="crisis-status">
+            <span>Generador reserva</span>
+            <strong id="reservePowerState">STANDBY</strong>
+          </div>
+        </div>
+        <p class="crisis-status__event">Evento activo: <strong id="activeEventState">MONITOREO ESTABLE</strong></p>
+      </div>
+      <div class="mission-box mission-box--damage">
+        <p class="label">DETERIORO GLOBAL</p>
+        <div class="damage-grid">
+          <div class="damage-meter">
+            <div class="damage-meter__head">
+              <span>Nivel contencion</span>
+              <strong id="metricContainmentValue">100%</strong>
+            </div>
+            <div class="damage-meter__track"><span id="metricContainmentBar"></span></div>
+          </div>
+          <div class="damage-meter">
+            <div class="damage-meter__head">
+              <span>Daño instalacion</span>
+              <strong id="metricDamageValue">0%</strong>
+            </div>
+            <div class="damage-meter__track"><span id="metricDamageBar"></span></div>
+          </div>
+          <div class="damage-meter">
+            <div class="damage-meter__head">
+              <span>Riesgo biologico</span>
+              <strong id="metricBioValue">0%</strong>
+            </div>
+            <div class="damage-meter__track"><span id="metricBioBar"></span></div>
+          </div>
+          <div class="damage-meter">
+            <div class="damage-meter__head">
+              <span>Energia sistema</span>
+              <strong id="metricEnergyValue">100%</strong>
+            </div>
+            <div class="damage-meter__track"><span id="metricEnergyBar"></span></div>
+          </div>
+          <div class="damage-meter">
+            <div class="damage-meter__head">
+              <span>Estabilidad laboratorio</span>
+              <strong id="metricStabilityValue">100%</strong>
+            </div>
+            <div class="damage-meter__track"><span id="metricStabilityBar"></span></div>
+          </div>
+        </div>
+        <p class="damage-summary" id="damageSummaryText">Instalacion operando en margen estable. Sin daños mayores visibles.</p>
+      </div>
       <div class="mission-box">
         <p class="label">ALERTA EN CURSO</p>
         <p id="currentAlertText">Sincronizando sensores de perimetro del laboratorio.</p>
+        <div class="alert-details">
+          <div class="alert-detail">
+            <span>Que paso</span>
+            <strong id="alertEventText">Sensores en sincronizacion.</strong>
+          </div>
+          <div class="alert-detail">
+            <span>Que hacer</span>
+            <strong id="alertObjectiveText">Activa monitoreo general.</strong>
+          </div>
+          <div class="alert-detail">
+            <span>Comando</span>
+            <strong id="alertCommandText">activate monitoring general</strong>
+          </div>
+          <div class="alert-detail">
+            <span>Si falla</span>
+            <strong id="alertFailureText">Sube el riesgo biologico y se degrada la contencion.</strong>
+          </div>
+          <div class="alert-detail">
+            <span>Tiempo restante</span>
+            <strong id="alertTimerText">15:00</strong>
+          </div>
+        </div>
       </div>
       <div class="mission-box">
         <p class="label">MISIONES</p>
@@ -173,17 +318,27 @@
           <button class="action-button" data-command="ls">Ver archivos</button>
           <button class="action-button" data-command="cat POWER.LOG">Revisar energia</button>
           <button class="action-button" data-command="cat GENERATOR.LOG">Ver generador</button>
+          <button class="action-button" data-command="cat BACKUP.LOG">Ver respaldo</button>
           <button class="action-button" data-command="cat ENIGMA.MANUAL">Manual Enigma</button>
+          <button class="action-button" data-command="cat CONTAINMENT.SYS">Ver contencion</button>
           <button class="action-button" data-command="cat RAPTOR.KEY">Clave raptor</button>
           <button class="action-button" data-command="cat TREX.KEY">Clave T-Rex</button>
           <button class="action-button" data-command="cat DILO.LOG">Ver Dilophosaurus</button>
           <button class="action-button" data-command="cat BARRIER.SYS">Ver barreras</button>
+          <button class="action-button" data-command="cat DEFENSE.SYS">Ver defensa</button>
           <button class="action-button" data-command="cat HERD.LOG">Ver herbivoros</button>
           <button class="action-button" data-command="cat ANKY.KEY">Ver Ankylosaurus</button>
           <button class="action-button action-button--primary" data-command="restore power RST-POWER-73">Activar energia</button>
           <button class="action-button action-button--primary" data-command="repair generator GEN-RESTART-84">Reparar generador</button>
+          <button class="action-button action-button--primary" data-command="activate backup generator">Activar generador de reserva</button>
           <button class="action-button action-button--primary" data-command="lock dilo GATE-DILO-19">Bloquear dilo</button>
           <button class="action-button action-button--primary" data-command="restore barrier BARRIER-RESTORE-31">Restaurar barreras</button>
+          <button class="action-button action-button--primary" data-command="activate defense">Activar defensa</button>
+          <button class="action-button action-button--primary" data-command="redirect power">Redirigir energia</button>
+          <button class="action-button action-button--primary" data-command="block access">Bloquear acceso</button>
+          <button class="action-button action-button--primary" data-command="restart containment">Reiniciar contencion</button>
+          <button class="action-button action-button--primary" data-command="scan dna">Escanear ADN</button>
+          <button class="action-button action-button--primary" data-command="enter containment code">Ingresar codigo</button>
           <button class="action-button action-button--primary" data-command="separate herd HERD-SPLIT-41">Separar herbivoros</button>
           <button class="action-button action-button--primary" data-command="redirect anky ANKY-PORT-55">Redirigir anky</button>
           <button class="action-button action-button--primary" data-command="cat CREW.LOG">Ver incidentes</button>
@@ -242,6 +397,14 @@
     </div>
 
     <main class="terminal-frame">
+      <div class="terminal-damage">
+        <div class="terminal-damage__glow" id="terminalDamageGlow" aria-hidden="true"></div>
+        <div class="terminal-damage__noise" id="terminalDamageNoise" aria-hidden="true"></div>
+        <div class="terminal-damage__warning hidden" id="terminalDamageWarning" aria-live="assertive">
+          <span>ESTADO CRITICO</span>
+          <strong id="terminalDamageWarningText">FALLA GENERAL DE INSTALACION</strong>
+        </div>
+      </div>
       <div class="terminal-topbar">
         <span class="top-dot red"></span>
         <span class="top-dot amber"></span>
