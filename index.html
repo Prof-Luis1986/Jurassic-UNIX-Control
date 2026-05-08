@@ -98,6 +98,15 @@
         <p id="currentAlertText">Sincronizando sensores de perimetro del laboratorio.</p>
       </div>
       <div class="mission-box">
+        <p class="label">SISTEMA</p>
+        <div class="system-health">
+          <div><span>Daño instalacion</span><strong id="damageState">12%</strong></div>
+          <div><span>Riesgo biologico</span><strong id="biohazardState">18%</strong></div>
+          <div><span>Estabilidad</span><strong id="stabilityState">88%</strong></div>
+          <div><span>Energia sistema</span><strong id="energySystemState">62%</strong></div>
+        </div>
+      </div>
+      <div class="mission-box">
         <p class="label">MISIONES</p>
         <div class="mission-list" id="missionList">
           <div class="mission-item" id="missionPower">
@@ -140,14 +149,19 @@
             <strong>8. Redirigir Ankylosaurus</strong>
             <p>Desviar un Ankylosaurus fuera del corredor logistico antes de que cierre la ruta de salida.</p>
           </div>
+          <div class="mission-item" id="missionChimera">
+            <span class="mission-item__state">LATENTE</span>
+            <strong>9. Contener Chimerasaurus</strong>
+            <p>El protocolo OMEGA requiere reunir fragmentos y reconstruir la clave final del híbrido.</p>
+          </div>
           <div class="mission-item" id="missionDoor">
             <span class="mission-item__state">BLOQUEADA</span>
-            <strong>9. Abrir salida</strong>
+            <strong>10. Abrir salida</strong>
             <p>Desbloquear la compuerta norte cuando no haya amenazas activas.</p>
           </div>
           <div class="mission-item" id="missionEscape">
             <span class="mission-item__state">BLOQUEADA</span>
-            <strong>10. Evacuar</strong>
+            <strong>11. Evacuar</strong>
             <p>Ejecutar el protocolo final y abandonar el laboratorio.</p>
           </div>
         </div>
@@ -166,7 +180,7 @@
       </div>
       <div class="mission-box">
         <p class="label">MODO GUIADO</p>
-        <p>Si no saben comandos, pueden usar los accesos rapidos. El sistema enviara la orden correcta.</p>
+        <p>Usa accesos de investigacion. El sistema ya no envia todas las soluciones exactas: primero hay que revisar archivos y deducir protocolos.</p>
         <div class="action-grid" id="actionGrid">
           <button class="action-button" data-command="ls">Ver archivos</button>
           <button class="action-button" data-command="cat POWER.LOG">Revisar energia</button>
@@ -178,16 +192,13 @@
           <button class="action-button" data-command="cat BARRIER.SYS">Ver barreras</button>
           <button class="action-button" data-command="cat HERD.LOG">Ver herbivoros</button>
           <button class="action-button" data-command="cat ANKY.KEY">Ver Ankylosaurus</button>
-          <button class="action-button action-button--primary" data-command="restore power RST-POWER-73">Activar energia</button>
-          <button class="action-button action-button--primary" data-command="repair generator GEN-RESTART-84">Reparar generador</button>
-          <button class="action-button action-button--primary" data-command="lock dilo GATE-DILO-19">Bloquear dilo</button>
-          <button class="action-button action-button--primary" data-command="restore barrier BARRIER-RESTORE-31">Restaurar barreras</button>
-          <button class="action-button action-button--primary" data-command="separate herd HERD-SPLIT-41">Separar herbivoros</button>
-          <button class="action-button action-button--primary" data-command="redirect anky ANKY-PORT-55">Redirigir anky</button>
+          <button class="action-button" data-command="cat OMEGA.LOG">Ver OMEGA</button>
+          <button class="action-button" data-command="cat CHIMERA.KEY">Ver clave quimera</button>
+          <button class="action-button" data-command="cat DNA-MIX.LOG">Ver ADN hibrido</button>
           <button class="action-button action-button--primary" data-command="cat CREW.LOG">Ver incidentes</button>
           <button class="action-button action-button--primary" data-command="cat DOOR.SYS">Revisar puerta</button>
-          <button class="action-button action-button--primary" data-command="unlock door DOOR-LOCK-42">Abrir salida</button>
-          <button class="action-button action-button--danger" data-command="escape">Evacuar</button>
+          <button class="action-button action-button--primary" data-command="status">Estado actual</button>
+          <button class="action-button action-button--danger" data-command="hint">Solicitar pista</button>
         </div>
       </div>
       <div class="mission-box">
@@ -289,7 +300,7 @@
       <section id="terminalOutput" class="terminal-output" aria-live="polite"></section>
       <form id="terminalForm" class="terminal-input-row" autocomplete="off">
         <label class="prompt" for="commandInput">root@jurassic-unix:~#</label>
-        <input id="commandInput" name="commandInput" type="text" spellcheck="false" autofocus placeholder="Escribe un comando o usa los botones de la izquierda">
+        <input id="commandInput" name="commandInput" type="text" spellcheck="false" autofocus placeholder="Escribe un comando o investiga primero en los archivos del sistema">
       </form>
     </main>
   </div>

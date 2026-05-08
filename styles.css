@@ -264,6 +264,28 @@ body::after {
   color: var(--warning);
 }
 
+.system-health {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+  margin-top: 8px;
+}
+
+.system-health span,
+.system-health strong {
+  display: block;
+}
+
+.system-health span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  margin-bottom: 6px;
+}
+
+.system-health strong {
+  color: var(--warning);
+}
+
 .mission-list {
   display: grid;
   gap: 10px;
@@ -424,6 +446,10 @@ body::after {
   padding: 10px 12px;
   border-bottom: 1px solid rgba(125, 255, 155, 0.16);
   background: linear-gradient(180deg, rgba(125, 255, 155, 0.08), rgba(0, 0, 0, 0.12));
+}
+
+.cipher-console.hidden {
+  display: none;
 }
 
 .cipher-console__header {
@@ -1308,6 +1334,28 @@ body.state-omega .threat-blip--chimera {
 
 body.state-omega .threat-blip--chimera {
   display: block;
+}
+
+body.state-damage-medium .terminal-frame,
+body.state-damage-medium .hud-panel {
+  box-shadow: 0 0 44px rgba(255, 209, 102, 0.08), var(--shadow);
+}
+
+body.state-damage-high .terminal-frame,
+body.state-damage-high .hud-panel,
+body.state-omega .terminal-frame,
+body.state-omega .hud-panel {
+  box-shadow: 0 0 48px rgba(255, 90, 79, 0.12), var(--shadow);
+}
+
+body.state-damage-high::before,
+body.state-omega::before {
+  opacity: 0.28;
+}
+
+body.state-damage-high .system-banner,
+body.state-omega .system-banner {
+  background: linear-gradient(90deg, rgba(255, 90, 79, 0.12), rgba(125, 255, 155, 0.05));
 }
 
 .species-panel {
