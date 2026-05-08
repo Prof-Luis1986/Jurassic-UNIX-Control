@@ -78,6 +78,52 @@
   <div class="crisis-filter" id="crisisFilter" aria-hidden="true"></div>
 
   <div class="app-shell">
+    <section class="command-deck" id="commandDeck">
+      <div class="command-deck__primary">
+        <p class="label">MISION ACTIVA</p>
+        <div class="command-deck__headline">
+          <strong id="activeMissionThreat">Velociraptor detectado en R-01</strong>
+          <span class="command-deck__badge" id="activeMissionRisk">ALTO</span>
+        </div>
+        <div class="command-deck__grid">
+          <article class="command-deck__card">
+            <span>Objetivo</span>
+            <strong id="activeMissionObjective">Restaurar barrera secundaria.</strong>
+          </article>
+          <article class="command-deck__card">
+            <span>Pista importante</span>
+            <strong id="activeMissionHint">Consulta RAPTOR.KEY.</strong>
+          </article>
+          <article class="command-deck__card">
+            <span>Contencion</span>
+            <strong id="activeMissionContainment">ESTABLE</strong>
+          </article>
+          <article class="command-deck__card">
+            <span>Tiempo critico</span>
+            <strong id="activeMissionTimer">15:00</strong>
+          </article>
+        </div>
+      </div>
+      <div class="command-deck__secondary">
+        <div class="command-chip">
+          <span>Energia</span>
+          <strong id="deckPowerState">OFFLINE</strong>
+        </div>
+        <div class="command-chip">
+          <span>Riesgo</span>
+          <strong id="deckThreatState">ALTO</strong>
+        </div>
+        <div class="command-chip">
+          <span>Ruta</span>
+          <strong id="deckEscapeState">PENDIENTE</strong>
+        </div>
+        <div class="command-chip">
+          <span>Evento</span>
+          <strong id="deckEventState">MONITOREO ESTABLE</strong>
+        </div>
+      </div>
+    </section>
+
     <div class="hud-panel">
       <div>
         <p class="label">ESTADO</p>
@@ -99,6 +145,10 @@
         <div class="status-box">
           <span>Evacuacion</span>
           <strong id="escapeState">PENDIENTE</strong>
+        </div>
+        <div class="status-box">
+          <span>Dificultad</span>
+          <strong id="difficultyState">NORMAL</strong>
         </div>
         <div class="status-box">
           <span>Nivel De Amenaza</span>
@@ -125,8 +175,8 @@
             <strong id="missionActiveObjective">Ingresar al sistema y activar monitoreo general.</strong>
           </div>
           <div class="mission-active__row">
-            <span>Comando requerido</span>
-            <strong id="missionActiveAction">ACTIVAR MONITOREO GENERAL</strong>
+            <span>Pista operativa</span>
+            <strong id="missionActiveAction">REVISA LOS REGISTROS DEL SISTEMA Y DEDUCE EL PROTOCOLO</strong>
           </div>
           <div class="mission-active__row">
             <span>Consecuencia si falla</span>
@@ -150,7 +200,7 @@
               <strong id="missionPriorityState">ALTA</strong>
             </div>
           </div>
-          <button class="start-button mission-active__button" id="missionActionButton" type="button">EJECUTAR ACCION</button>
+          <button class="start-button mission-active__button" id="missionActionButton" type="button">SOLICITAR PISTA</button>
         </div>
       </div>
       <div class="mission-box mission-box--crisis">
@@ -229,8 +279,8 @@
             <strong id="alertObjectiveText">Activa monitoreo general.</strong>
           </div>
           <div class="alert-detail">
-            <span>Comando</span>
-            <strong id="alertCommandText">activate monitoring general</strong>
+            <span>Pista</span>
+            <strong id="alertCommandText">Consulta los archivos de sistema antes de ejecutar un protocolo.</strong>
           </div>
           <div class="alert-detail">
             <span>Si falla</span>
@@ -248,37 +298,37 @@
           <div class="mission-item" id="missionPower">
             <span class="mission-item__state">PENDIENTE</span>
             <strong>1. Restaurar energia</strong>
-            <p>Activar la subestacion principal para recuperar el control del sistema.</p>
+            <p>Consulta los registros de energia y reconstruye el protocolo de restauracion sin recibir el comando completo.</p>
           </div>
           <div class="mission-item" id="missionGenerator">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>2. Reparar generador</strong>
-            <p>Si la energia vuelve a caer, revisa el generador de respaldo y repara la linea dañada.</p>
+            <p>Si la red cae, revisa `POWER.LOG` y `GENERATOR.LOG`, repara la linea y solo entonces restaura la energia.</p>
           </div>
           <div class="mission-item" id="missionRaptor">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>3. Contener Velociraptor</strong>
-            <p>Usa el cifrado de rotores del archivo `RAPTOR.KEY`. Pista: la tabla base va de `A=0` a `J=9`.</p>
+            <p>Debes consultar `RAPTOR.KEY` y deducir la clave del protocolo antes de que el raptor atraviese más barreras.</p>
           </div>
           <div class="mission-item" id="missionTrex">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>4. Contener T-Rex</strong>
-            <p>Resuelve el mensaje cifrado del protocolo `TREX.KEY` y concatena los tres valores del rotor.</p>
+            <p>Evalua la situacion entre T-Rex y Brachiosaurus y decide la primera respuesta correcta antes de cerrar el corredor.</p>
           </div>
           <div class="mission-item" id="missionDilo">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>5. Neutralizar Dilophosaurus</strong>
-            <p>Bloquea las compuertas del acceso principal antes de que la amenaza entre al laboratorio.</p>
+            <p>El codigo se obtiene mezclando `DILO.LOG` y `TOXIN.KEY`. Si fallas dos veces, el acceso principal queda contaminado.</p>
           </div>
           <div class="mission-item" id="missionBarrier">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>6. Restaurar barreras</strong>
-            <p>Reactiva las barreras de contención cuando el sistema quede parcialmente desactivado.</p>
+            <p>Reactiva las barreras de contención antes de separar la manada o liberar la ruta final.</p>
           </div>
           <div class="mission-item" id="missionHerd">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>7. Separar herbivoros</strong>
-            <p>Activa el protocolo de separación para cortar el conflicto entre Triceratops y Ankylosaurus.</p>
+            <p>Descubre el orden correcto: primero barreras, luego separacion de manada.</p>
           </div>
           <div class="mission-item" id="missionAnky">
             <span class="mission-item__state">BLOQUEADA</span>
@@ -288,13 +338,25 @@
           <div class="mission-item" id="missionDoor">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>9. Abrir salida</strong>
-            <p>Desbloquear la compuerta norte cuando no haya amenazas activas.</p>
+            <p>La compuerta norte solo se libera si la energia, las barreras, las contenciones y la ruta de escape siguen estables.</p>
           </div>
           <div class="mission-item" id="missionEscape">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>10. Evacuar</strong>
-            <p>Ejecutar el protocolo final y abandonar el laboratorio.</p>
+            <p>Si falta un protocolo obligatorio, el sistema respondera: ESCAPE DENEGADO.</p>
           </div>
+        </div>
+      </div>
+      <div class="mission-box">
+        <p class="label">DIFICULTAD</p>
+        <p>Normal es el modo por defecto. A mayor dificultad, menos tiempo, menos pistas directas y peores consecuencias por error.</p>
+        <div class="action-grid">
+          <label for="difficultySelect">Modo</label>
+          <select id="difficultySelect">
+            <option value="easy">Facil</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Dificil</option>
+          </select>
         </div>
       </div>
       <div class="mission-box">
@@ -310,8 +372,8 @@
         </div>
       </div>
       <div class="mission-box">
-        <p class="label">MODO GUIADO</p>
-        <p>Si no saben comandos, pueden usar los accesos rapidos. El sistema enviara la orden correcta.</p>
+        <p class="label">CONSOLA DE INVESTIGACION</p>
+        <p>Estos accesos solo abren registros y herramientas de analisis. La resolucion final debe salir de la terminal.</p>
         <div class="action-grid" id="actionGrid">
           <button class="action-button" data-command="ls">Ver archivos</button>
           <button class="action-button" data-command="cat POWER.LOG">Revisar energia</button>
@@ -322,27 +384,19 @@
           <button class="action-button" data-command="cat RAPTOR.KEY">Clave raptor</button>
           <button class="action-button" data-command="cat TREX.KEY">Clave T-Rex</button>
           <button class="action-button" data-command="cat DILO.LOG">Ver Dilophosaurus</button>
+          <button class="action-button" data-command="cat TOXIN.KEY">Ver Toxin Key</button>
           <button class="action-button" data-command="cat BARRIER.SYS">Ver barreras</button>
           <button class="action-button" data-command="cat DEFENSE.SYS">Ver defensa</button>
           <button class="action-button" data-command="cat HERD.LOG">Ver herbivoros</button>
           <button class="action-button" data-command="cat ANKY.KEY">Ver Ankylosaurus</button>
-          <button class="action-button action-button--primary" data-command="restore power RST-POWER-73">Activar energia</button>
-          <button class="action-button action-button--primary" data-command="repair generator GEN-RESTART-84">Reparar generador</button>
-          <button class="action-button action-button--primary" data-command="activate backup generator">Activar generador de reserva</button>
-          <button class="action-button action-button--primary" data-command="lock dilo GATE-DILO-19">Bloquear dilo</button>
-          <button class="action-button action-button--primary" data-command="restore barrier BARRIER-RESTORE-31">Restaurar barreras</button>
-          <button class="action-button action-button--primary" data-command="activate defense">Activar defensa</button>
-          <button class="action-button action-button--primary" data-command="redirect power">Redirigir energia</button>
-          <button class="action-button action-button--primary" data-command="block access">Bloquear acceso</button>
-          <button class="action-button action-button--primary" data-command="restart containment">Reiniciar contencion</button>
+          <button class="action-button" data-command="cat TACTICAL.LOG">Ver tactica</button>
+          <button class="action-button" data-command="cat BRACHIO.SYS">Ver sector Brachio</button>
+          <button class="action-button" data-command="cat DIVERSION.MAP">Ver ruta de desvio</button>
           <button class="action-button action-button--primary" data-command="scan dna">Escanear ADN</button>
-          <button class="action-button action-button--primary" data-command="enter containment code">Ingresar codigo</button>
-          <button class="action-button action-button--primary" data-command="separate herd HERD-SPLIT-41">Separar herbivoros</button>
-          <button class="action-button action-button--primary" data-command="redirect anky ANKY-PORT-55">Redirigir anky</button>
           <button class="action-button action-button--primary" data-command="cat CREW.LOG">Ver incidentes</button>
           <button class="action-button action-button--primary" data-command="cat DOOR.SYS">Revisar puerta</button>
-          <button class="action-button action-button--primary" data-command="unlock door DOOR-LOCK-42">Abrir salida</button>
-          <button class="action-button action-button--danger" data-command="escape">Evacuar</button>
+          <button class="action-button action-button--primary" data-command="hint">Solicitar pista</button>
+          <button class="action-button action-button--danger" data-command="status">Ver estado</button>
         </div>
       </div>
       <div class="mission-box">
@@ -416,7 +470,7 @@
       <div class="system-banner">
         <span class="scan-pill">CRT LINK STABLE</span>
         <span class="scan-pill">SECURITY LEVEL: OMEGA</span>
-        <span class="scan-pill">INPUT MODE: GUIADO + TERMINAL</span>
+        <span class="scan-pill">INPUT MODE: INVESTIGACION + TERMINAL</span>
       </div>
       <section class="cipher-console" id="cipherConsole">
         <div class="cipher-console__header">
@@ -452,7 +506,7 @@
       <section id="terminalOutput" class="terminal-output" aria-live="polite"></section>
       <form id="terminalForm" class="terminal-input-row" autocomplete="off">
         <label class="prompt" for="commandInput">root@jurassic-unix:~#</label>
-        <input id="commandInput" name="commandInput" type="text" spellcheck="false" autofocus placeholder="Escribe un comando o usa los botones de la izquierda">
+        <input id="commandInput" name="commandInput" type="text" spellcheck="false" autofocus placeholder="Escribe un comando, consulta registros y deduce la solucion">
       </form>
     </main>
   </div>
@@ -476,6 +530,17 @@
       <p id="escapeOverlayText">La ruta exterior esta abierta. Abandona el laboratorio antes del cierre total.</p>
       <p class="escape-overlay__time hidden" id="escapeOverlayTime">Lograste escapar en 00:00</p>
       <button class="start-button escape-overlay__button hidden" id="restartScenario" type="button">¿QUIERES VOLVERLO A INTENTAR?</button>
+    </div>
+  </div>
+
+  <div class="omega-overlay hidden" id="omegaOverlay" aria-hidden="true">
+    <video class="omega-video" id="omegaVideo" playsinline preload="auto">
+      <source id="omegaVideoSource" src="assets/video/Chimerasaurus Escape.MP4" type="video/mp4">
+    </video>
+    <div class="omega-overlay__panel">
+      <p class="label" id="omegaOverlayLabel">NIVEL OMEGA ACTIVADO</p>
+      <h3 id="omegaOverlayTitle">CHIMERASAURUS REX HA ROTO LA CAPSULA DE CONTENCION</h3>
+      <p id="omegaOverlayText">Contencion total fallida. Supervivencia prioritaria. El temporizador sigue corriendo.</p>
     </div>
   </div>
 
