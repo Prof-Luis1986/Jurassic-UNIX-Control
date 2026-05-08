@@ -169,6 +169,7 @@ const state = {
   alertsSilencedUntil: 0,
   currentDinoSound: null,
   alertPanelTimer: null,
+  glitchBurstTimer: null,
   activeZone: "raptor",
   attempts: 0,
   countdownSeconds: 900,
@@ -182,6 +183,8 @@ const state = {
   energiaSistema: 62,
   chimeraContained: false,
   chimeraCode: "",
+  chimeraBreakoutCount: 0,
+  chimeraContainmentExpiresAt: null,
   chimeraFragmentsKnown: {
     omega: false,
     key: false,
@@ -247,6 +250,28 @@ function getChimeraCodeParts() {
     digits: parts[2],
     suffix: parts[3],
   };
+}
+
+function generateChimeraCode() {
+  generateChimeraCode();
+}
+
+function getChimeraContainmentWindow() {
+  return Math.max(22, 52 - state.chimeraBreakoutCount * 6);
+}
+
+function resetChimeraFragments() {
+  state.chimeraFragmentsKnown = {
+    omega: false,
+    key: false,
+    dna: false,
+  };
+  state.timelineFlags.chimeraHint = false;
+}
+
+function prepareNextChimeraCycle() {
+  generateChimeraCode();
+  resetChimeraFragments();
 }
 
 function clonePlay(audioElement, volume = 0.45) {
@@ -450,6 +475,10 @@ function initializeScenario() {
     window.clearTimeout(state.alertPanelTimer);
     state.alertPanelTimer = null;
   }
+  if (state.glitchBurstTimer) {
+    window.clearTimeout(state.glitchBurstTimer);
+    state.glitchBurstTimer = null;
+  }
   state.attempts = 0;
   state.activeZone = "raptor";
   state.countdownSeconds = 900;
@@ -462,6 +491,8 @@ function initializeScenario() {
   state.energiaSistema = 62;
   state.chimeraContained = false;
   state.chimeraCode = "";
+  state.chimeraBreakoutCount = 0;
+  state.chimeraContainmentExpiresAt = null;
   state.chimeraFragmentsKnown = {
     omega: false,
     key: false,
@@ -519,7 +550,7 @@ function initializeScenario() {
     omegaVideo.currentTime = 0;
   }
   document.body.classList.remove("state-omega");
-  document.body.classList.remove("state-damage-medium", "state-damage-high");
+  document.body.classList.remove("state-damage-medium", "state-damage-high", "glitch-burst", "glitch-severe");
 }
 
 function getCipherRotorsForTarget(target) {
@@ -615,6 +646,7 @@ function getFiles() {
       "PROTOCOLO OMEGA // ACCESO RESTRINGIDO",
       state.omegaReleased ? "ADVERTENCIA: el híbrido no responde a contención estándar." : "Archivo sellado hasta activación de nivel OMEGA.",
       state.omegaReleased ? `Fragmento de prefijo recuperado: ${chimera.prefix}` : "Fragmento oculto por protocolo negro.",
+      state.omegaReleased ? `Contenciones fallidas acumuladas: ${state.chimeraBreakoutCount}` : "Sin datos de ruptura.",
       state.omegaReleased ? "Referencia de comando: contain chimerasaurus <clave>" : "Referencia no disponible.",
     ],
     "CHIMERA.KEY": [
@@ -872,6 +904,45 @@ function setPuzzleVisibility(mode) {
   cipherConsole.classList.toggle("hidden", !shouldShow);
 }
 
+function triggerVisualGlitchBurst(severity = "normal") {
+  document.body.classList.add("glitch-burst");
+  document.body.classList.toggle("glitch-severe", severity === "severe");
+  if (state.glitchBurstTimer) {
+    window.clearTimeout(state.glitchBurstTimer);
+  }
+  state.glitchBurstTimer = window.setTimeout(() => {
+    document.body.classList.remove("glitch-burst", "glitch-severe");
+    state.glitchBurstTimer = null;
+  }, severity === "severe" ? 480 : 260);
+}
+
+function triggerChimeraBreakout(reason = "RUPTURA OMEGA DETECTADA") {
+  state.omegaReleased = true;
+  state.chimeraContained = false;
+  state.chimeraContainmentExpiresAt = null;
+  state.chimeraBreakoutCount += 1;
+  state.activeZone = "chimera";
+  state.doorUnlocked = false;
+  state.omegaVideoSeen = false;
+  prepareNextChimeraCycle();
+  const escalation = state.chimeraBreakoutCount;
+  applyDeterioration({
+    damage: 10 + escalation * 4,
+    bio: 12 + escalation * 4,
+    stability: -(12 + escalation * 5),
+    energy: -(8 + escalation * 2),
+  });
+  playAlert(0.82);
+  clonePlay(dinoSounds.chimera, 0.68);
+  reproducirGarrasAleatorio(true);
+  triggerVisualGlitchBurst("severe");
+  setPuzzleVisibility("none");
+  addLine(`OMEGA REACTIVADO // ${reason} // RUPTURA ${state.chimeraBreakoutCount}`, "error");
+  addLine(`NUEVO PROTOCOLO: revisa OMEGA.LOG, CHIMERA.KEY y DNA-MIX.LOG para reconstruir la nueva clave.`, "warning");
+  setCurrentAlert(`CHIMERASAURUS REX LIBERADO OTRA VEZ. RUPTURA ${state.chimeraBreakoutCount}.`, "error");
+  mostrarEventoOmega();
+}
+
 function applyDeterioration(delta = {}) {
   state.damageInstalacion = clamp(state.damageInstalacion + (delta.damage ?? 0), 0, 100);
   state.riesgoBiologico = clamp(state.riesgoBiologico + (delta.bio ?? 0), 0, 100);
@@ -900,6 +971,7 @@ function applyCommandPenalty(level = "standard", reason = "Error operativo.") {
     clonePlay(dinoSounds.chimera, 0.45);
     reproducirGarrasAleatorio(true);
   }
+  triggerVisualGlitchBurst(level === "omega" || level === "severe" ? "severe" : "normal");
   maybeTriggerCollapse();
 }
 
@@ -923,6 +995,9 @@ function applyPassivePressure() {
     stability: -Math.ceil(baseDamage + unresolvedThreats * 0.3),
     energy: state.powerOnline ? -Math.max(1, Math.floor(phase / 2)) : 0,
   });
+  if (phase >= 3 && Math.random() < (phase >= 5 ? 0.65 : phase >= 4 ? 0.4 : 0.22)) {
+    triggerVisualGlitchBurst(phase >= 5 ? "severe" : "normal");
+  }
 }
 
 function maybeTriggerCollapse() {
@@ -948,8 +1023,8 @@ function updateObjective() {
   if (state.omegaReleased && !state.escaped) {
     objectiveText.textContent = state.chimeraContained
       ? state.doorUnlocked
-        ? "OMEGA estabilizado. La salida sigue abierta: ejecuta escape antes del colapso total."
-        : "Chimerasaurus contenido. Libera la salida norte y evacua."
+        ? "OMEGA estabilizado temporalmente. La salida sigue abierta: ejecuta escape antes de la siguiente ruptura."
+        : "Chimerasaurus contenido temporalmente. Libera la salida norte y evacua antes de que vuelva a romperse."
       : "NIVEL OMEGA ACTIVO. Revisa OMEGA.LOG, CHIMERA.KEY y DNA-MIX.LOG para reconstruir la clave final.";
     return;
   }
@@ -1023,7 +1098,7 @@ function updateMissionStates() {
   setMissionState(missionBarrier, !state.diloNeutralized ? "BLOQUEADA" : state.barriersRestored ? "COMPLETA" : "ACTIVA", !state.diloNeutralized ? "is-locked" : state.barriersRestored ? "is-done" : "is-active");
   setMissionState(missionHerd, !state.barriersRestored ? "BLOQUEADA" : state.herdCalmed ? "COMPLETA" : "ACTIVA", !state.barriersRestored ? "is-locked" : state.herdCalmed ? "is-done" : "is-active");
   setMissionState(missionAnky, !state.herdCalmed ? "BLOQUEADA" : state.ankyRedirected ? "COMPLETA" : "ACTIVA", !state.herdCalmed ? "is-locked" : state.ankyRedirected ? "is-done" : "is-active");
-  setMissionState(missionChimera, !state.omegaReleased ? "LATENTE" : state.chimeraContained ? "COMPLETA" : "ACTIVA", !state.omegaReleased ? "is-locked" : state.chimeraContained ? "is-done" : "is-active");
+  setMissionState(missionChimera, !state.omegaReleased ? "LATENTE" : state.chimeraContained ? "TEMPORAL" : "ACTIVA", !state.omegaReleased ? "is-locked" : state.chimeraContained ? "is-done" : "is-active");
   setMissionState(missionDoor, !state.ankyRedirected || !state.omegaReleased || !state.chimeraContained ? "BLOQUEADA" : state.doorUnlocked ? "COMPLETA" : "ACTIVA", !state.ankyRedirected || !state.omegaReleased || !state.chimeraContained ? "is-locked" : state.doorUnlocked ? "is-done" : "is-active");
   setMissionState(missionEscape, !state.doorUnlocked || !state.omegaReleased || !state.chimeraContained ? "BLOQUEADA" : state.escaped ? "COMPLETA" : "ACTIVA", !state.doorUnlocked || !state.omegaReleased || !state.chimeraContained ? "is-locked" : state.escaped ? "is-done" : "is-active");
 }
@@ -1035,7 +1110,7 @@ function updateThreatMap() {
 
   if (state.omegaReleased) {
     labThreatState.textContent = state.chimeraContained
-      ? "CHIMERASAURUS CONTENIDO // OMEGA INESTABLE"
+      ? "CHIMERASAURUS CONTENIDO TEMPORALMENTE // OMEGA INESTABLE"
       : "CHIMERASAURUS REX LIBERADO // NIVEL OMEGA";
   } else if (state.generatorDamaged) {
     labThreatState.textContent = "GENERADOR DAÑADO // RIESGO ESTRUCTURAL";
@@ -1133,6 +1208,9 @@ function updateHud() {
   document.body.classList.toggle("state-omega", state.omegaReleased && !state.chimeraContained);
   document.body.classList.toggle("state-damage-medium", state.damageInstalacion >= 40 && state.damageInstalacion < 70);
   document.body.classList.toggle("state-damage-high", state.damageInstalacion >= 70);
+  if (state.damageInstalacion >= 85 || state.energiaSistema <= 18 || (state.omegaReleased && !state.chimeraContained)) {
+    if (Math.random() < 0.14) triggerVisualGlitchBurst(state.damageInstalacion >= 85 ? "severe" : "normal");
+  }
 
   setZoneState(zonePowerState, state.powerOnline ? "ONLINE" : "OFFLINE", state.powerOnline ? "online" : "offline");
   setZoneState(zoneRaptorState, state.raptorContained ? "ASEGURADA" : "ACTIVA", state.raptorContained ? "safe" : "danger");
@@ -1226,7 +1304,7 @@ function showStatus() {
     `Raptor: ${state.raptorContained ? "CONTENIDO" : "ACTIVO"}`,
     `T-Rex: ${state.trexContained ? "CONTENIDO" : "ACTIVO"}`,
     `Dilophosaurus: ${state.diloNeutralized ? "NEUTRALIZADO" : "ACTIVO"}`,
-    `Chimerasaurus: ${state.omegaReleased ? state.chimeraContained ? "CONTENIDO" : "LIBERADO" : "NO DETECTADO"}`,
+    `Chimerasaurus: ${state.omegaReleased ? state.chimeraContained ? "CONTENIDO TEMPORAL" : "LIBERADO" : "NO DETECTADO"}`,
     `Barreras: ${state.barriersRestored ? "RESTAURADAS" : "COMPROMETIDAS"}`,
     `Herbivoros: ${state.herdCalmed ? "SEPARADOS" : "EN CONFLICTO"}`,
     `Ankylosaurus: ${state.ankyRedirected ? "REDIRIGIDO" : "BLOQUEANDO RUTA"}`,
@@ -1343,12 +1421,12 @@ function reproducirVideoOmega() {
 }
 
 function mostrarEventoOmega() {
-  if (!omegaOverlay || state.omegaCinematicPlaying || state.omegaVideoSeen) return;
+  if (!omegaOverlay || state.omegaCinematicPlaying) return;
   state.omegaCinematicPlaying = true;
   omegaOverlay.classList.remove("hidden");
   omegaOverlay.setAttribute("aria-hidden", "false");
   omegaOverlayLabel.textContent = "NIVEL OMEGA ACTIVADO";
-  omegaOverlayTitle.textContent = "CHIMERASAURUS REX LIBERADO";
+  omegaOverlayTitle.textContent = `CHIMERASAURUS REX LIBERADO // RUPTURA ${state.chimeraBreakoutCount || 1}`;
   omegaOverlayText.textContent = "CAPSULA DE CONTENCION ROTA. El evento es intermedio y el temporizador sigue corriendo.";
   playAlert(0.8);
   clonePlay(dinoSounds.chimera, 0.62);
@@ -1437,16 +1515,7 @@ function activateDirectorEvent(key) {
       setCurrentAlert("Conflicto entre herbívoros en curso. Triceratops, Parasaurolophus y Stegosaurus fuera de pauta.", "warning");
       break;
     case "omega":
-      state.omegaReleased = true;
-      state.activeZone = "chimera";
-      state.doorUnlocked = false;
-      applyDeterioration({ damage: 14, bio: 16, stability: -18, energy: -10 });
-      playAlert(0.8);
-      clonePlay(dinoSounds.chimera, 0.66);
-      reproducirGarrasAleatorio(true);
-      setPuzzleVisibility("none");
-      setCurrentAlert("NIVEL OMEGA ACTIVADO. CHIMERASAURUS REX LIBERADO.", "error");
-      mostrarEventoOmega();
+      triggerChimeraBreakout("CAPSULA DE CONTENCION ROTA");
       break;
     case "collapse":
       applyDeterioration({ damage: 10, bio: 8, stability: -12, energy: -8 });
@@ -1487,13 +1556,22 @@ function processTimedThreats() {
 
   if (state.omegaReleased && !state.chimeraContained && !state.timelineFlags.chimeraHint && state.countdownSeconds <= 540) {
     state.timelineFlags.chimeraHint = true;
-    addLine("PROTOCOLO OMEGA: revisa OMEGA.LOG, CHIMERA.KEY y DNA-MIX.LOG. La clave no será mostrada completa.", "warning");
+    addLine(`PROTOCOLO OMEGA: revisa OMEGA.LOG, CHIMERA.KEY y DNA-MIX.LOG. La ruptura ${state.chimeraBreakoutCount} usa una clave nueva.`, "warning");
+  }
+
+  if (state.omegaReleased && state.chimeraContained && state.chimeraContainmentExpiresAt !== null && state.countdownSeconds <= state.chimeraContainmentExpiresAt) {
+    triggerChimeraBreakout("LA CONTENCION TEMPORAL FALLÓ");
   }
 
   if (state.omegaReleased && !state.chimeraContained && state.countdownSeconds % 20 === 0) {
     clonePlay(dinoSounds.chimera, 0.38);
     reproducirGarrasAleatorio(true);
-    applyDeterioration({ damage: 2, bio: 2, stability: -2, energy: -1 });
+    applyDeterioration({
+      damage: 2 + state.chimeraBreakoutCount,
+      bio: 2 + state.chimeraBreakoutCount,
+      stability: -(2 + state.chimeraBreakoutCount),
+      energy: -(1 + Math.floor(state.chimeraBreakoutCount / 2)),
+    });
   }
 
   if (state.countdownSeconds === 0) {
@@ -1529,16 +1607,18 @@ function updateCipherHelper() {
   cipherConsoleBuffer.textContent = buffer ? buffer.split("").join(" ") : "_ _ _";
 
   cipherRotorCards.innerHTML = rotors.map((rotor, index) => `
-    <button type="button" class="cipher-rotor ${index === activeRotorIndex ? "is-active" : ""}" data-rotor-index="${index}">
+    <div class="cipher-rotor ${index === activeRotorIndex ? "is-active" : ""}" data-rotor-index="${index}">
       <span>${rotor.label}</span>
-      <div class="cipher-rotor__dial"><div class="cipher-rotor__window">${rotor.currentValue}</div></div>
+      <button type="button" class="cipher-rotor__dial" data-rotate="-1" data-rotor-index="${index}" aria-label="Girar ${rotor.label}">
+        <div class="cipher-rotor__window">${rotor.currentValue}</div>
+      </button>
       <strong>${rotor.letter} = ${rotor.baseValue}</strong>
       <em>gira ${rotor.shift}</em>
       <div class="cipher-rotor__controls">
-        <button type="button" class="cipher-rotor__button" data-rotate="-1" data-rotor-index="${index}">GIRAR</button>
+        <button type="button" class="cipher-rotor__button cipher-rotor__button--primary" data-rotate="-1" data-rotor-index="${index}">GIRAR</button>
         <button type="button" class="cipher-rotor__button" data-reset-rotor="${index}">RESET</button>
       </div>
-    </button>
+    </div>
   `).join("");
 }
 
@@ -1946,6 +2026,7 @@ async function handleCommand(rawCommand) {
         }
         if (tokens[2] === state.chimeraCode) {
           state.chimeraContained = true;
+          state.chimeraContainmentExpiresAt = state.countdownSeconds - getChimeraContainmentWindow();
           state.riesgoBiologico = clamp(state.riesgoBiologico - 18, 0, 100);
           state.damageInstalacion = clamp(state.damageInstalacion - 10, 0, 100);
           state.estabilidadLaboratorio = clamp(state.estabilidadLaboratorio + 14, 0, 100);
@@ -1954,8 +2035,9 @@ async function handleCommand(rawCommand) {
           await printLines([
             "Validando protocolo OMEGA...",
             "Cerrando campos híbridos del núcleo central...",
-            "CHIMERASAURUS REX CONTENIDO.",
+            `CHIMERASAURUS REX CONTENIDO // VENTANA TEMPORAL ${getChimeraContainmentWindow()}s`,
           ], "success");
+          addLine("La contencion OMEGA es temporal. Aprovecha la ventana antes de la siguiente ruptura.", "warning");
           return;
         }
         applyCommandPenalty("omega", "Clave OMEGA inválida. El híbrido rechaza la contención.");

@@ -60,6 +60,17 @@ body::after {
   pointer-events: none;
 }
 
+body.state-damage-medium::after {
+  opacity: 0.34;
+  animation: screenFlicker 5.2s steps(2, end) infinite;
+}
+
+body.state-damage-high::after,
+body.state-omega::after {
+  opacity: 0.44;
+  animation: screenFlicker 2.1s steps(3, end) infinite;
+}
+
 .boot-overlay {
   position: fixed;
   inset: 0;
@@ -224,6 +235,7 @@ body::after {
   background: var(--panel);
   border: 1px solid var(--panel-edge);
   box-shadow: var(--shadow);
+  transition: transform 140ms ease, box-shadow 180ms ease, filter 180ms ease, opacity 180ms ease;
 }
 
 .hud-panel {
@@ -432,6 +444,41 @@ body::after {
   50% { box-shadow: inset 0 0 40px rgba(255, 90, 79, 0.18); opacity: 0.8; }
 }
 
+@keyframes screenFlicker {
+  0%, 100% { opacity: 0.24; }
+  15% { opacity: 0.34; }
+  16% { opacity: 0.2; }
+  48% { opacity: 0.28; }
+  49% { opacity: 0.38; }
+  50% { opacity: 0.22; }
+  78% { opacity: 0.31; }
+  79% { opacity: 0.18; }
+}
+
+@keyframes lowPowerHum {
+  0%, 100% { opacity: 1; transform: translate3d(0, 0, 0); }
+  30% { opacity: 0.96; transform: translate3d(0, -1px, 0); }
+  32% { opacity: 0.88; transform: translate3d(0, 1px, 0); }
+  60% { opacity: 0.98; transform: translate3d(0, 0, 0); }
+  62% { opacity: 0.9; transform: translate3d(0, 1px, 0); }
+}
+
+@keyframes glitchNoise {
+  0% { transform: translate3d(0, 0, 0) scaleY(1); }
+  25% { transform: translate3d(0, -2px, 0) scaleY(1.01); }
+  50% { transform: translate3d(0, 2px, 0) scaleY(0.99); }
+  75% { transform: translate3d(0, -1px, 0) scaleY(1.02); }
+  100% { transform: translate3d(0, 0, 0) scaleY(1); }
+}
+
+@keyframes severeJitter {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-1px, 0, 0); }
+  50% { transform: translate3d(2px, 0, 0); }
+  75% { transform: translate3d(-2px, 1px, 0); }
+  100% { transform: translate3d(1px, -1px, 0); }
+}
+
 .scan-pill {
   display: inline-flex;
   align-items: center;
@@ -504,13 +551,12 @@ body::after {
   border: 1px solid rgba(125, 255, 155, 0.18);
   background: radial-gradient(circle at center, rgba(125, 255, 155, 0.12), rgba(0, 0, 0, 0.24));
   color: var(--text);
-  padding: 8px;
+  padding: 10px;
   text-align: center;
-  font: inherit;
-  cursor: pointer;
   display: grid;
   justify-items: center;
-  gap: 6px;
+  gap: 8px;
+  border-radius: 16px;
 }
 
 .cipher-rotor span,
@@ -532,7 +578,7 @@ body::after {
 }
 
 .cipher-rotor__dial {
-  width: 80px;
+  width: 94px;
   aspect-ratio: 1;
   border-radius: 50%;
   border: 1px solid rgba(125, 255, 155, 0.24);
@@ -542,6 +588,10 @@ body::after {
   place-items: center;
   position: relative;
   box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+  font: inherit;
 }
 
 .cipher-rotor__window {
@@ -558,6 +608,7 @@ body::after {
 
 .cipher-rotor__controls {
   display: flex;
+  width: 100%;
   gap: 6px;
 }
 
@@ -566,9 +617,17 @@ body::after {
   background: rgba(125, 255, 155, 0.08);
   color: var(--text);
   font: inherit;
-  padding: 5px 8px;
+  padding: 8px 10px;
   cursor: pointer;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
+  flex: 1;
+}
+
+.cipher-rotor__button--primary,
+.cipher-rotor__dial:hover,
+.cipher-rotor__dial:focus-visible {
+  border-color: rgba(178, 255, 108, 0.42);
+  box-shadow: 0 0 14px rgba(156, 255, 87, 0.14);
 }
 
 .cipher-rotor em {
@@ -1339,6 +1398,7 @@ body.state-omega .threat-blip--chimera {
 body.state-damage-medium .terminal-frame,
 body.state-damage-medium .hud-panel {
   box-shadow: 0 0 44px rgba(255, 209, 102, 0.08), var(--shadow);
+  filter: saturate(0.94) contrast(1.02);
 }
 
 body.state-damage-high .terminal-frame,
@@ -1346,6 +1406,7 @@ body.state-damage-high .hud-panel,
 body.state-omega .terminal-frame,
 body.state-omega .hud-panel {
   box-shadow: 0 0 48px rgba(255, 90, 79, 0.12), var(--shadow);
+  filter: saturate(0.9) contrast(1.05);
 }
 
 body.state-damage-high::before,
@@ -1356,6 +1417,54 @@ body.state-omega::before {
 body.state-damage-high .system-banner,
 body.state-omega .system-banner {
   background: linear-gradient(90deg, rgba(255, 90, 79, 0.12), rgba(125, 255, 155, 0.05));
+}
+
+body.state-damage-medium .terminal-output,
+body.state-damage-medium .system-banner {
+  animation: lowPowerHum 6s ease-in-out infinite;
+}
+
+body.state-damage-high .terminal-output,
+body.state-damage-high .system-banner,
+body.state-omega .terminal-output,
+body.state-omega .system-banner {
+  animation: lowPowerHum 2.8s ease-in-out infinite;
+}
+
+body.glitch-burst .terminal-frame,
+body.glitch-burst .hud-panel {
+  transform: translate3d(-2px, 0, 0);
+  filter: contrast(1.08) saturate(0.86);
+}
+
+body.glitch-burst .terminal-output,
+body.glitch-burst .system-banner,
+body.glitch-burst .terminal-topbar {
+  text-shadow:
+    1px 0 rgba(255, 90, 79, 0.28),
+    -1px 0 rgba(135, 255, 217, 0.28),
+    0 0 8px rgba(125, 255, 155, 0.1);
+}
+
+body.glitch-burst::before {
+  opacity: 0.42;
+}
+
+body.glitch-burst::after {
+  opacity: 0.56;
+  animation: glitchNoise 180ms steps(2, end) infinite;
+}
+
+body.glitch-severe .terminal-frame,
+body.glitch-severe .hud-panel {
+  transform: translate3d(3px, -1px, 0);
+  filter: contrast(1.14) saturate(0.78) brightness(0.92);
+}
+
+body.glitch-severe .terminal-output,
+body.glitch-severe .system-banner,
+body.glitch-severe .terminal-topbar {
+  animation: severeJitter 120ms steps(2, end) infinite;
 }
 
 .species-panel {
