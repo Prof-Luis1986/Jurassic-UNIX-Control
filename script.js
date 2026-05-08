@@ -28,51 +28,10 @@ const powerState = byId("powerState");
 const doorState = byId("doorState");
 const raptorState = byId("raptorState");
 const escapeState = byId("escapeState");
-const difficultyState = byId("difficultyState");
 const threatLevelState = byId("threatLevelState");
 const countdownState = byId("countdownState");
 const objectiveText = byId("objectiveText");
-const activeMissionThreat = byId("activeMissionThreat");
-const activeMissionObjective = byId("activeMissionObjective");
-const activeMissionHint = byId("activeMissionHint");
-const activeMissionContainment = byId("activeMissionContainment");
-const activeMissionRisk = byId("activeMissionRisk");
-const activeMissionTimer = byId("activeMissionTimer");
-const deckPowerState = byId("deckPowerState");
-const deckThreatState = byId("deckThreatState");
-const deckEscapeState = byId("deckEscapeState");
-const deckEventState = byId("deckEventState");
 const currentAlertText = byId("currentAlertText");
-const alertEventText = byId("alertEventText");
-const alertObjectiveText = byId("alertObjectiveText");
-const alertCommandText = byId("alertCommandText");
-const alertFailureText = byId("alertFailureText");
-const alertTimerText = byId("alertTimerText");
-const missionActivePhase = byId("missionActivePhase");
-const missionActiveObjective = byId("missionActiveObjective");
-const missionActiveAction = byId("missionActiveAction");
-const missionActiveFailure = byId("missionActiveFailure");
-const bioRiskState = byId("bioRiskState");
-const containmentSummaryState = byId("containmentSummaryState");
-const missionCriticalTimer = byId("missionCriticalTimer");
-const missionPriorityState = byId("missionPriorityState");
-const missionActionButton = byId("missionActionButton");
-const primaryBarrierState = byId("primaryBarrierState");
-const secondaryBarrierState = byId("secondaryBarrierState");
-const criticalContainmentState = byId("criticalContainmentState");
-const reservePowerState = byId("reservePowerState");
-const activeEventState = byId("activeEventState");
-const metricContainmentValue = byId("metricContainmentValue");
-const metricContainmentBar = byId("metricContainmentBar");
-const metricDamageValue = byId("metricDamageValue");
-const metricDamageBar = byId("metricDamageBar");
-const metricBioValue = byId("metricBioValue");
-const metricBioBar = byId("metricBioBar");
-const metricEnergyValue = byId("metricEnergyValue");
-const metricEnergyBar = byId("metricEnergyBar");
-const metricStabilityValue = byId("metricStabilityValue");
-const metricStabilityBar = byId("metricStabilityBar");
-const damageSummaryText = byId("damageSummaryText");
 
 const missionPower = byId("missionPower");
 const missionGenerator = byId("missionGenerator");
@@ -114,17 +73,12 @@ const speciesList = byId("speciesList");
 
 const focusLock = byId("focusLock");
 const resumeSession = byId("resumeSession");
+const gameOverOverlay = byId("gameOverOverlay");
 const restartScenarioButton = byId("restartScenario");
 const escapeOverlay = byId("escapeOverlay");
 const escapeVideo = byId("escapeVideo");
-const escapeVideoSource = byId("escapeVideoSource");
-const escapeOverlayLabel = byId("escapeOverlayLabel");
 const escapeOverlayTitle = byId("escapeOverlayTitle");
 const escapeOverlayText = byId("escapeOverlayText");
-const escapeOverlayTime = byId("escapeOverlayTime");
-const crisisFilter = byId("crisisFilter");
-const terminalDamageWarning = byId("terminalDamageWarning");
-const terminalDamageWarningText = byId("terminalDamageWarningText");
 const omegaOverlay = byId("omegaOverlay");
 const omegaVideo = byId("omegaVideo");
 const omegaVideoSource = byId("omegaVideoSource");
@@ -147,7 +101,6 @@ const focusCipherSendButton = byId("focusCipherSend");
 
 const toggleAmbientMuteButton = byId("toggleAmbientMute");
 const toggleAmbientPauseButton = byId("toggleAmbientPause");
-const difficultySelect = byId("difficultySelect");
 const scanSectorButton = byId("scanSectorButton");
 const identifySpeciesButton = byId("identifySpeciesButton");
 const confirmContainmentButton = byId("confirmContainmentButton");
@@ -169,156 +122,23 @@ for (const sound of Object.values(dinoSounds)) {
   sound.preload = "auto";
 }
 
-const RISK_LEVELS = ["ESTABLE", "MODERADO", "ALTO", "CRITICO"];
-const MAX_DAMAGE = 100;
-const DIFFICULTY_SETTINGS = {
-  easy: {
-    label: "FACIL",
-    hintLevelCap: 3,
-    timerPenalty: 7,
-    severeTimerPenalty: 12,
-    countdownExtraDrainEvery: 0,
-    countdownExtraDrainAmount: 0,
-    diloDrainEvery: 0,
-    diloDrainAmount: 0,
-    directiveWindow: 40,
-    raptorRotorMax: 4,
-    trexRotorMax: 4,
-    dangerPulse: 1,
-  },
-  normal: {
-    label: "NORMAL",
-    hintLevelCap: 2,
-    timerPenalty: 10,
-    severeTimerPenalty: 15,
-    countdownExtraDrainEvery: 6,
-    countdownExtraDrainAmount: 1,
-    diloDrainEvery: 6,
-    diloDrainAmount: 1,
-    directiveWindow: 32,
-    raptorRotorMax: 5,
-    trexRotorMax: 5,
-    dangerPulse: 1.18,
-  },
-  hard: {
-    label: "DIFICIL",
-    hintLevelCap: 1,
-    timerPenalty: 12,
-    severeTimerPenalty: 18,
-    countdownExtraDrainEvery: 4,
-    countdownExtraDrainAmount: 1,
-    diloDrainEvery: 4,
-    diloDrainAmount: 1,
-    directiveWindow: 24,
-    raptorRotorMax: 6,
-    trexRotorMax: 6,
-    dangerPulse: 1.38,
-  },
+const narrationLines = {
+  opening:
+    "En las profundidades de nuestras instalaciones, más allá de los protocolos convencionales de investigación, opera GENETIC SYSTEMS, la unidad encargada de la manipulación, secuenciación y reactivación de material genético prehistórico. A través de algoritmos avanzados y sistemas de bioingeniería de alta precisión, hemos logrado lo que durante décadas fue considerado imposible: reconstruir organismos extintos a partir de fragmentos de ADN preservados en el tiempo. Cada espécimen es monitoreado en tiempo real mediante una red de sensores integrados, controlados por nuestro núcleo central basado en arquitectura UNIX, garantizando estabilidad, control y trazabilidad absoluta, hasta ahora. Recientes anomalías en el sistema han provocado inconsistencias en los módulos de contención. Registros indican actividad biológica no autorizada en múltiples sectores. El origen de estas variaciones aún es desconocido. Estado actual: inestable. Nivel de riesgo: elevado. Todo el personal autorizado deberá proceder con extrema precaución. GENETIC SYSTEMS ya no responde completamente a los protocolos establecidos.",
+  briefing:
+    "Atención. El núcleo de Jurassic Unix Control ha entrado en contingencia. Restablezca energía, recupere el generador, contenga fauna crítica y asegure la salida del laboratorio.",
+  power: "Energía principal restaurada.",
+  generator: "Alerta. El generador de respaldo ha sido dañado por impacto estructural.",
+  raptor: "Velociraptor detectado en el paddock R cero uno.",
+  trex: "Tyrannosaurus rex aproximándose al corredor C cero siete.",
+  herd: "Conflicto territorial de herbívoros detectado en el valle sur.",
+  anky: "Ankylosaurus bloqueando el corredor logístico L cero cinco.",
+  door: "Ruta de evacuación liberada.",
+  escape: "Evacuación autorizada. Personal restante, abandone la instalación.",
+  omega: "Atención. Nivel Omega activado. Chimerasaurus Rex liberado. Cápsula de contención rota.",
 };
-
-const THREAT_STAGE_LABELS = {
-  raptor: [
-    "Raptor detectado en barrera 1.",
-    "Raptor rompe barrera 1 y arranca paneles.",
-    "Raptor destruye camaras y bloquea corredor.",
-    "Raptor invade corredor interno y amenaza el nucleo.",
-  ],
-  dilo: [
-    "Dilophosaurus genera interferencia en sector humedo.",
-    "Dilophosaurus contamina paneles y distorsiona la terminal.",
-    "Dilophosaurus corrompe camaras y compuertas.",
-    "Dilophosaurus propaga contaminacion biologica hacia el acceso central.",
-  ],
-  trex: [
-    "T-Rex golpea el sector exterior.",
-    "T-Rex destruye camaras y derriba soportes.",
-    "T-Rex provoca apagones parciales y vibracion estructural.",
-    "T-Rex abre un colapso parcial en el corredor principal.",
-  ],
-  herb: [
-    "Herbivoros bloquean una ruta secundaria.",
-    "Herbivoros dañan compuertas del valle sur.",
-    "Herbivoros cierran accesos logistico y norte.",
-    "Herbivoros destruyen rutas de salida y obligan desvio total.",
-  ],
-};
-
-const gamePhases = [
-  {
-    id: "phase1",
-    startAt: 900,
-    title: "FASE 1 // ARRANQUE",
-    objective: "Ingresar al sistema, revisar protocolo y activar monitoreo general.",
-    requiredActions: [
-      { id: "monitoring_general", label: "ACTIVAR MONITOREO GENERAL", command: "activate monitoring general" },
-    ],
-    minRisk: 0,
-  },
-  {
-    id: "phase2",
-    startAt: 780,
-    title: "FASE 2 // PRIMERA CRISIS",
-    objective: "Raptor en ruptura de defensa. Escanea el sector y activa cierre perimetral.",
-    requiredActions: [
-      { id: "scan_sector", label: "ESCANEAR SECTOR", command: "scan sector" },
-      { id: "perimeter_lockdown", label: "ACTIVAR CIERRE PERIMETRAL", command: "activate perimeter lockdown" },
-    ],
-    consequence: "Si tardas, el raptor rompe la segunda defensa.",
-    minRisk: 1,
-  },
-  {
-    id: "phase3",
-    startAt: 630,
-    title: "FASE 3 // FALLA DE ENERGIA",
-    objective: "Generador principal inhabilitado. Redirige energia y activa el generador de reserva.",
-    requiredActions: [
-      { id: "redirect_power", label: "REDIRIGIR ENERGIA", command: "redirect power" },
-      { id: "backup_generator", label: "ACTIVAR GENERADOR DE RESERVA", command: "activate backup generator" },
-    ],
-    consequence: "Si ignoras la falla, módulos clave quedan inactivos temporalmente.",
-    minRisk: 2,
-  },
-  {
-    id: "phase4",
-    startAt: 480,
-    title: "FASE 4 // AMENAZA DILOPHOSAURUS",
-    objective: "Dilophosaurus infiltrado. Ingresa el código de contención y confirma bloqueo de compuertas.",
-    requiredActions: [
-      { id: "containment_code", label: "INGRESAR CODIGO DE CONTENCION", command: "enter containment code" },
-      { id: "dilo_lockdown", label: "CONFIRMAR BLOQUEO DE COMPUERTAS", command: "lock dilo GATE-DILO-19" },
-    ],
-    consequence: "Si fallas, el riesgo biológico sube a crítico.",
-    minRisk: 2,
-  },
-  {
-    id: "phase5",
-    startAt: 330,
-    title: "FASE 5 // CONFLICTO MAYOR",
-    objective: "Separar sectores, estabilizar herbívoros y reforzar la contención antes del colapso del núcleo.",
-    requiredActions: [
-      { id: "stabilize_herd", label: "ESTABILIZAR HERBIVOROS", command: "separate herd HERD-SPLIT-41" },
-      { id: "redirect_anky_action", label: "REDIRIGIR ANKYLOSAURUS", command: "redirect anky ANKY-PORT-55" },
-      { id: "reinforce_containment", label: "REFORZAR CONTENCION", command: "restore barrier BARRIER-RESTORE-31" },
-    ],
-    consequence: "Si no respondes, la contención crítica se activa.",
-    minRisk: 3,
-  },
-  {
-    id: "phase6",
-    startAt: 180,
-    title: "FASE 6 // ESCAPE FINAL",
-    objective: "Confirmar ruta de evacuación y ejecutar el escape antes de 00:00.",
-    requiredActions: [
-      { id: "confirm_route", label: "CONFIRMAR RUTA DE EVACUACION", command: "confirm route" },
-      { id: "activate_escape", label: "ACTIVAR ESCAPE", command: "escape" },
-    ],
-    consequence: "Si no completas la secuencia, la sesión termina en falla.",
-    minRisk: 3,
-  },
-];
 
 const state = {
-  difficulty: "normal",
   protocolStarted: false,
   introStarted: false,
   introFinished: false,
@@ -326,23 +146,12 @@ const state = {
   ambientMuted: false,
   ambientPaused: false,
   powerOnline: false,
-  monitoringOnline: false,
   generatorDamaged: false,
   generatorRepaired: false,
-  reserveGeneratorOnline: false,
   raptorContained: false,
   trexContained: false,
   diloNeutralized: false,
   barriersRestored: false,
-  primaryBarrierDown: false,
-  secondaryBarrierDown: false,
-  criticalContainmentActive: false,
-  defenseModeActive: false,
-  accessBlocked: false,
-  darkModeActive: false,
-  diloCountdown: null,
-  activeEvent: "MONITOREO ESTABLE",
-  trexCollisionActive: false,
   herdCalmed: false,
   ankyRedirected: false,
   doorUnlocked: false,
@@ -350,58 +159,16 @@ const state = {
   cinematicStarted: false,
   gameOver: false,
   finalOutcome: null,
-  finalVideoCompleted: false,
-  bioRiskLevel: 0,
-  currentPhaseId: "phase1",
-  phaseActionState: {},
-  directorStarted: false,
-  lastDirectiveTick: 900,
   alertsSilencedUntil: 0,
   currentDinoSound: null,
   alertPanelTimer: null,
   activeZone: "raptor",
-  reserveGeneratorActivated: false,
-  generatorSequenceReady: false,
-  generatorLogReviewed: false,
-  powerLogReviewed: false,
-  diloLogReviewed: false,
-  toxinKeyReviewed: false,
-  raptorKeyReviewed: false,
-  trexKeyReviewed: false,
-  tacticalLogReviewed: false,
-  routeEscapeLiberada: false,
+  attempts: 0,
+  countdownSeconds: 900,
   omegaReleased: false,
   omegaCinematicPlaying: false,
   omegaVideoSeen: false,
-  chimeraContained: false,
-  trexDecisionRequired: false,
-  trexDecisionResolved: false,
-  trexDecisionSolution: "",
-  brachioSectorSecured: false,
-  diversionRouteOpened: false,
-  diloFailedAttempts: 0,
-  hintProgress: {},
-  fileAccess: {},
-  attempts: 0,
-  countdownSeconds: 900,
-  threatPulseTick: 0,
-  lastImpactSoundAt: 0,
-  lastClawSoundAt: 0,
-  userScrolledTerminal: false,
   timerId: null,
-  deterioration: {
-    nivelContencion: 100,
-    dañoInstalacion: 0,
-    riesgoBiologico: 0,
-    energiaSistema: 100,
-    estabilidadLaboratorio: 100,
-  },
-  threatProgress: {
-    raptor: 0,
-    dilo: 0,
-    trex: 0,
-    herb: 0,
-  },
   timelineFlags: {
     generator: false,
     sensors: false,
@@ -411,8 +178,7 @@ const state = {
     barrier: false,
     herd: false,
     anky: false,
-    collision: false,
-    secondaryBarrier: false,
+    omega: false,
     collapse: false,
   },
   raptorCode: "",
@@ -427,225 +193,10 @@ const state = {
     activeRotorIndex: 0,
     buffer: "",
   },
-  lastRotorInteraction: {
-    time: 0,
-    action: "",
-    index: -1,
-  },
 };
 
 function randomDigit(min = 1, max = 9) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
-function getDifficultySettings() {
-  return DIFFICULTY_SETTINGS[state.difficulty] ?? DIFFICULTY_SETTINGS.normal;
-}
-
-function getScaledImpact(impact = {}, severityMultiplier = 1) {
-  const pulse = getDifficultySettings().dangerPulse * severityMultiplier;
-  return Object.fromEntries(
-    Object.entries(impact).map(([key, value]) => [key, Math.max(0, Math.round(value * pulse))]),
-  );
-}
-
-function consumeTimePenalty(seconds) {
-  state.countdownSeconds = Math.max(0, state.countdownSeconds - seconds);
-}
-
-function applyMistakePenalty(reason, severity = "standard") {
-  const settings = getDifficultySettings();
-  const critical = severity === "critical";
-  const timeLoss = critical ? settings.severeTimerPenalty : settings.timerPenalty;
-  const impact = critical
-    ? getScaledImpact({
-      nivelContencion: 8,
-      dañoInstalacion: 10,
-      riesgoBiologico: 10,
-      energiaSistema: 4,
-      estabilidadLaboratorio: 8,
-    })
-    : getScaledImpact({
-      nivelContencion: 5,
-      dañoInstalacion: 6,
-      riesgoBiologico: 7,
-      energiaSistema: 2,
-      estabilidadLaboratorio: 5,
-    });
-
-  consumeTimePenalty(timeLoss);
-  applyGlobalDamage(reason, impact);
-  pulseCrisisFilter("critical", critical ? 1200 : 850);
-  setCurrentAlert(`${reason} -${timeLoss}s // barrera debilitada`, "error");
-}
-
-function markFileReviewed(fileName) {
-  state.fileAccess[fileName] = true;
-  if (fileName === "POWER.LOG") state.powerLogReviewed = true;
-  if (fileName === "GENERATOR.LOG") state.generatorLogReviewed = true;
-  if (fileName === "DILO.LOG") state.diloLogReviewed = true;
-  if (fileName === "TOXIN.KEY") state.toxinKeyReviewed = true;
-  if (fileName === "RAPTOR.KEY") state.raptorKeyReviewed = true;
-  if (fileName === "TREX.KEY") state.trexKeyReviewed = true;
-  if (fileName === "TACTICAL.LOG") state.tacticalLogReviewed = true;
-}
-
-function getDiloCode() {
-  return "GATE-DILO-19";
-}
-
-function getDiloCommandHint() {
-  return "El protocolo de Dilophosaurus empieza con `lock dilo`.";
-}
-
-function getDirectiveHint() {
-  if (state.omegaReleased) return state.omegaCinematicPlaying
-    ? "Chimerasaurus rompio la capsula. Sobrevive al impacto visual y prepara la evacuacion."
-    : "NIVEL OMEGA: estabiliza barreras, energia y salida. Cada segundo aumenta el colapso.";
-  if (!state.monitoringOnline) return "Consulta README.TXT y deduce como activar el monitoreo general.";
-  if (!hasOperationalPower()) return state.generatorDamaged
-    ? "Revisa POWER.LOG y GENERATOR.LOG. Sin reparar la linea, la energia no volvera."
-    : "Revisa POWER.LOG para obtener el protocolo de restauracion.";
-  if (state.diloCountdown !== null && !state.diloNeutralized) return "Cruza la informacion de DILO.LOG y TOXIN.KEY para bloquear el acceso principal.";
-  if (!state.raptorContained) return state.raptorKeyReviewed
-    ? "La clave del raptor sale del sistema de rotores. Completa el comando manualmente."
-    : "Consulta RAPTOR.KEY y deduce la clave del protocolo de contencion.";
-  if (state.trexDecisionRequired && !state.trexDecisionResolved) return "Compara energia y daño visibles con TACTICAL.LOG para decidir la primera respuesta.";
-  if (!state.trexContained) return "Consulta TREX.KEY y resuelve la clave; no siempre contener primero es la respuesta correcta.";
-  if (!state.barriersRestored) return "Revisa BARRIER.SYS y restaura primero las barreras.";
-  if (!state.herdCalmed) return "No puedes separar la manada sin barreras estables. Revisa HERD.LOG.";
-  if (!state.ankyRedirected) return "Consulta ANKY.KEY y libera el corredor logistico.";
-  if (!state.routeEscapeLiberada) return "La ruta final sigue incompleta. Revisa TACTICAL.LOG, BRACHIO.SYS o DIVERSION.MAP.";
-  if (!state.doorUnlocked) return "Consulta DOOR.SYS y valida que no quede ningun protocolo pendiente.";
-  return "Si todo esta estable, ya puedes intentar evacuar.";
-}
-
-function getHintBundle() {
-  if (!state.monitoringOnline) {
-    return [
-      "El sistema no va a ofrecer el protocolo completo de arranque.",
-      "Revisa README.TXT; la accion empieza con `activate`.",
-      "Escribe `activate monitoring general`.",
-    ];
-  }
-  if (!hasOperationalPower()) {
-    if (state.generatorDamaged) {
-      return [
-        "La red no volvera si intentas restaurarla a ciegas.",
-        "Consulta primero POWER.LOG y GENERATOR.LOG; luego repara y por ultimo restaura.",
-        "La secuencia valida es `cat POWER.LOG`, `cat GENERATOR.LOG`, `repair generator GEN-RESTART-84`, `restore power RST-POWER-73`.",
-      ];
-    }
-    return [
-      "La subestacion tiene el protocolo en un registro.",
-      "Consulta POWER.LOG y completa el comando de restauracion.",
-      "Escribe `restore power RST-POWER-73`.",
-    ];
-  }
-  if (!state.raptorContained) {
-    return [
-      "La clave del raptor no se entrega; se deduce con rotores.",
-      "Consulta ENIGMA.MANUAL y luego RAPTOR.KEY.",
-      "El comando inicia con `contain raptor` seguido de tres digitos.",
-    ];
-  }
-  if (state.trexDecisionRequired && !state.trexDecisionResolved) {
-    return [
-      "La colision T-Rex vs Brachiosaurus no se resuelve siempre igual.",
-      "Consulta TACTICAL.LOG y compara energia y daño del HUD.",
-      `La respuesta correcta ahora es ${state.trexDecisionSolution}.`,
-    ];
-  }
-  if (!state.trexContained) {
-    return [
-      "El T-Rex usa el mismo principio de rotores que el raptor.",
-      "Consulta TREX.KEY y deduce los tres digitos.",
-      "El comando inicia con `contain trex` seguido de la clave.",
-    ];
-  }
-  if (state.diloCountdown !== null && !state.diloNeutralized) {
-    return [
-      "La clave del Dilophosaurus esta partida en dos archivos.",
-      "Consulta DILO.LOG y TOXIN.KEY.",
-      `${getDiloCommandHint()} ${getDiloCode()}`,
-    ];
-  }
-  if (!state.barriersRestored) {
-    return [
-      "Sin barreras, la manada y la salida siguen bloqueadas.",
-      "Consulta BARRIER.SYS y restaura la malla de contencion.",
-      "Escribe `restore barrier BARRIER-RESTORE-31`.",
-    ];
-  }
-  if (!state.herdCalmed) {
-    return [
-      "La manada no se separa hasta recuperar barreras.",
-      "Consulta HERD.LOG despues de restaurar barreras.",
-      "Escribe `separate herd HERD-SPLIT-41`.",
-    ];
-  }
-  if (!state.ankyRedirected) {
-    return [
-      "El corredor logistico sigue bloqueado.",
-      "Consulta ANKY.KEY.",
-      "Escribe `redirect anky ANKY-PORT-55`.",
-    ];
-  }
-  if (!state.routeEscapeLiberada) {
-    return [
-      "La salida no se considera lista hasta liberar la ruta final.",
-      "Consulta DIVERSION.MAP o BRACHIO.SYS segun el estado tactico.",
-      "Completa la accion tactica pendiente para liberar la ruta de escape.",
-    ];
-  }
-  if (!state.doorUnlocked) {
-    return [
-      "Aun falta validar la puerta norte.",
-      "Consulta DOOR.SYS.",
-      "Escribe `unlock door DOOR-LOCK-42`.",
-    ];
-  }
-  return [
-    "La ruta parece estable.",
-    "Revisa `status` antes de evacuar.",
-    "Escribe `escape`.",
-  ];
-}
-
-function getHintText() {
-  const bundle = getHintBundle();
-  const used = state.hintProgress[state.activeEvent] ?? 0;
-  const maxLevel = getDifficultySettings().hintLevelCap;
-  const index = Math.min(used, maxLevel, bundle.length - 1);
-  state.hintProgress[state.activeEvent] = used + 1;
-  if (index >= 2) {
-    consumeTimePenalty(15);
-    pulseCrisisFilter("warning", 700);
-    return `${bundle[index]} Penalizacion aplicada: -15s.`;
-  }
-  return bundle[index];
-}
-
-function getTrexDecisionSolution() {
-  if (state.deterioration.energiaSistema <= 42) return "open diversion ROUTE-BRAVO-22";
-  if (state.deterioration.dañoInstalacion >= 46) return "reinforce brachio BRACHIO-SHIELD-77";
-  return "contain trex";
-}
-
-function getMissingEscapeProtocols() {
-  const missing = [];
-  if (!state.powerOnline) missing.push("energia restaurada");
-  if (!state.reserveGeneratorActivated) missing.push("generador de reserva activado");
-  if (!state.raptorContained) missing.push("raptor contenido");
-  if (!state.diloNeutralized) missing.push("dilophosaurus contenido");
-  if (!state.barriersRestored) missing.push("barreras restauradas");
-  if (!state.herdCalmed) missing.push("herbivoros separados");
-  if (!state.routeEscapeLiberada) missing.push("ruta de escape liberada");
-  return missing;
 }
 
 function encodeRotorLetter(digit, shift) {
@@ -678,6 +229,7 @@ function reproducirSonido(nombre, overrides = {}) {
     brachio: dinoSounds.brachio,
     dilo: dinoSounds.dilo,
     stego: dinoSounds.stego,
+    chimera: dinoSounds.chimera,
   };
 
   const audio = library[nombre];
@@ -690,7 +242,7 @@ function reproducirSonido(nombre, overrides = {}) {
     nombre === "alerta" ? 0.7 :
     0.8;
 
-  if (["raptor", "trex", "herb", "anky", "brachio", "dilo", "stego"].includes(nombre)) {
+  if (["raptor", "trex", "herb", "anky", "brachio", "dilo", "stego", "chimera"].includes(nombre)) {
     if (state.currentDinoSound && state.currentDinoSound !== audio) {
       state.currentDinoSound.pause();
       state.currentDinoSound.currentTime = 0;
@@ -720,6 +272,7 @@ function detenerSonido(nombre) {
     brachio: dinoSounds.brachio,
     dilo: dinoSounds.dilo,
     stego: dinoSounds.stego,
+    chimera: dinoSounds.chimera,
   };
   const audio = library[nombre];
   if (!audio) return;
@@ -739,14 +292,9 @@ function playDinoSound(key, volume = 0.8) {
 }
 
 function reproducirGarrasAleatorio(force = false) {
-  if (state.gameOver || state.escaped) return false;
-  const now = state.threatPulseTick;
-  const cooldown = state.omegaReleased ? 8 : 16;
-  if (!force && now - state.lastClawSoundAt < cooldown) return false;
-  const shouldPlay = force || Math.random() < (state.omegaReleased ? 0.42 : 0.18);
-  if (!shouldPlay) return false;
-  state.lastClawSoundAt = now;
-  clonePlay(dinoSounds.garras, state.omegaReleased ? 0.38 : 0.24);
+  if ((!state.omegaReleased && !force) || state.escaped || state.gameOver) return false;
+  if (!force && Math.random() < 0.45) return false;
+  clonePlay(dinoSounds.garras, state.omegaReleased ? 0.34 : 0.24);
   return true;
 }
 
@@ -761,588 +309,6 @@ function startAmbient() {
 
 function stopAmbient() {
   audioAmbiente.pause();
-}
-
-function detenerTodosLosSonidos() {
-  for (const soundName of ["intro", "alerta", "ambiente", "raptor", "trex", "herb", "anky", "brachio", "dilo", "stego"]) {
-    detenerSonido(soundName);
-  }
-  state.currentDinoSound = null;
-}
-
-function pulseCrisisFilter(mode = "warning", durationMs = 700) {
-  if (!crisisFilter) return;
-  crisisFilter.classList.remove("is-warning", "is-critical");
-  void crisisFilter.offsetWidth;
-  crisisFilter.classList.add(mode === "critical" ? "is-critical" : "is-warning");
-  window.setTimeout(() => {
-    crisisFilter.classList.remove("is-warning", "is-critical");
-  }, durationMs);
-}
-
-function setActiveEvent(text) {
-  state.activeEvent = text;
-  if (activeEventState) {
-    activeEventState.textContent = text;
-  }
-}
-
-function hasOperationalPower() {
-  return state.powerOnline || state.reserveGeneratorOnline;
-}
-
-function getCurrentPhase() {
-  return gamePhases.find((phase) => phase.id === state.currentPhaseId) ?? gamePhases[0];
-}
-
-function getPhaseActionState(phaseId) {
-  if (!state.phaseActionState[phaseId]) {
-    state.phaseActionState[phaseId] = {};
-  }
-  return state.phaseActionState[phaseId];
-}
-
-function getPendingActionsForPhase(phase = getCurrentPhase()) {
-  const actionState = getPhaseActionState(phase.id);
-  return phase.requiredActions.filter((action) => !actionState[action.id]);
-}
-
-function getContainmentSummaryText() {
-  if (state.criticalContainmentActive) return "CONTENCION CRITICA";
-  if (state.secondaryBarrierDown) return "SEGUNDA BARRERA ABIERTA";
-  if (state.primaryBarrierDown) return "PRIMERA BARRERA COMPROMETIDA";
-  if (!state.barriersRestored) return "CONTENCION PARCIAL";
-  return "ESTABLE";
-}
-
-function getPriorityLabel() {
-  if (state.omegaReleased) return "OMEGA";
-  if (state.criticalContainmentActive || state.bioRiskLevel >= 3) return "MAXIMA";
-  if (state.bioRiskLevel >= 2 || state.secondaryBarrierDown) return "ALTA";
-  if (state.bioRiskLevel >= 1 || state.primaryBarrierDown) return "MEDIA";
-  return "OPERATIVA";
-}
-
-function getCriticalTimerForDirective() {
-  if (state.diloCountdown !== null && !state.diloNeutralized) return formatCountdown(state.diloCountdown);
-  if (state.criticalContainmentActive && state.countdownSeconds <= 180) return formatCountdown(state.countdownSeconds);
-  return formatCountdown(state.countdownSeconds);
-}
-
-function getDirectiveForCurrentState(overrideEvent) {
-  const phase = getCurrentPhase();
-  const pendingActions = getPendingActionsForPhase(phase);
-  const nextAction = pendingActions[0];
-  const fallbackCommand = nextAction?.command ?? "stand by";
-  const fallbackObjective = nextAction?.label ?? "MANTEN CONTENCION Y ESPERA NUEVA ORDEN";
-  const phaseFailure = phase.consequence ?? "La amenaza escala, aumenta el daño y se pierde contención.";
-
-  const directive = {
-    title: phase.title,
-    event: overrideEvent || state.activeEvent,
-    objective: fallbackObjective,
-    command: getDirectiveHint(),
-    executeCommand: fallbackCommand,
-    failure: phaseFailure,
-    timer: getCriticalTimerForDirective(),
-    risk: RISK_LEVELS[state.bioRiskLevel],
-  };
-
-  if (state.gameOver) {
-    return {
-      title: "FALLO DE MISION",
-      event: overrideEvent || "LABORATORIO COMPROMETIDO",
-      objective: "REINICIA EL ESCENARIO",
-      command: "restart",
-      executeCommand: "restart",
-      failure: "La instalacion ya colapso.",
-      timer: "00:00",
-      risk: "COLAPSO",
-    };
-  }
-
-  if (state.escaped) {
-    return {
-      title: "EVACUACION COMPLETA",
-      event: overrideEvent || "SALIDA CONFIRMADA",
-      objective: "MANTEN RUTA DE ESCAPE",
-      command: "escape",
-      executeCommand: "escape",
-      failure: "Sin riesgo inmediato.",
-      timer: "00:00",
-      risk: "CONTROLADO",
-    };
-  }
-
-  if (state.omegaReleased) {
-    return {
-      title: "NIVEL OMEGA ACTIVADO",
-      event: overrideEvent || "CHIMERASAURUS REX LIBERADO",
-      objective: state.routeEscapeLiberada ? "MANTEN LA RUTA ABIERTA Y ESCAPA" : "SUPERVIVENCIA PRIORITARIA // LIBERA LA RUTA FINAL",
-      command: state.routeEscapeLiberada ? "La ruta de salida sigue siendo la prioridad absoluta." : "Estabiliza el laboratorio lo suficiente para liberar la ruta de escape.",
-      executeCommand: state.routeEscapeLiberada ? "unlock door DOOR-LOCK-42" : "hint",
-      failure: "Si fallas: colapso total, camaras offline, barreras destruidas y derrota inmediata.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: "OMEGA",
-    };
-  }
-
-  if (state.diloCountdown !== null && !state.diloNeutralized) {
-    return {
-      title: "ALERTA CRITICA // DILOPHOSAURUS",
-      event: overrideEvent || "DILOPHOSAURUS INFILTRADO EN ACCESO PRINCIPAL",
-      objective: "CIERRA COMPUERTA DE CONTENCION",
-      command: "Revisa DILO.LOG y TOXIN.KEY. El protocolo inicia con lock dilo.",
-      executeCommand: "lock dilo GATE-DILO-19",
-      failure: "Si falla: contaminacion, paneles corruptos y barrera 2 comprometida.",
-      timer: formatCountdown(state.diloCountdown),
-      risk: "CRITICO",
-    };
-  }
-
-  if (state.criticalContainmentActive) {
-    return {
-      title: "ALERTA CRITICA // NUCLEO",
-      event: overrideEvent || "CONTENCION CRITICA ACTIVA",
-      objective: "REINICIA CONTENCION Y RESTAURA BARRERAS",
-      command: state.barriersRestored ? "La malla del nucleo necesita reinicio manual." : "Consulta BARRIER.SYS antes de restaurar la malla.",
-      executeCommand: state.barriersRestored ? "restart containment" : "restore barrier BARRIER-RESTORE-31",
-      failure: "Si falla: sectores offline, daño masivo y colapso operativo.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: "CRITICO",
-    };
-  }
-
-  if (!hasOperationalPower()) {
-    return {
-      title: "ALERTA OPERATIVA // ENERGIA",
-      event: overrideEvent || (state.generatorDamaged ? "GENERADOR PRINCIPAL OFFLINE" : "SUBESTACION FUERA DE LINEA"),
-      objective: state.generatorDamaged ? "ACTIVA RESPALDO O REPARA GENERADOR" : "RESTAURA ENERGIA PRINCIPAL",
-      command: state.generatorDamaged ? "Consulta POWER.LOG y GENERATOR.LOG; la secuencia es obligatoria." : "Consulta POWER.LOG para recuperar el protocolo de energia.",
-      executeCommand: state.generatorDamaged ? (state.reserveGeneratorOnline ? "repair generator GEN-RESTART-84" : "activate backup generator") : "restore power RST-POWER-73",
-      failure: state.generatorDamaged ? "Si falla: apagones parciales y defensa inactiva." : "Si falla: el sistema no podra contener amenazas.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: state.generatorDamaged ? "ALTO" : "MODERADO",
-    };
-  }
-
-  if (!state.raptorContained) {
-    return {
-      title: "ALERTA CRITICA // VELOCIRAPTOR",
-      event: overrideEvent || (state.threatProgress.raptor >= 2 ? "RAPTOR EN CORREDOR INTERNO" : "RAPTOR CERCA DEL NUCLEO"),
-      objective: "EJECUTA PROTOCOLO DE CONTENCION RAPTOR",
-      command: "Consulta RAPTOR.KEY y deduce la clave del protocolo.",
-      executeCommand: nextAction?.command ?? "cat RAPTOR.KEY",
-      failure: "Si falla: barrera 2 destruida y nucleo comprometido.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: state.threatProgress.raptor >= 2 ? "CRITICO" : "ALTO",
-    };
-  }
-
-  if (!state.trexContained) {
-    return {
-      title: "ALERTA CRITICA // T-REX",
-      event: overrideEvent || (state.threatProgress.trex >= 2 ? "T-REX GENERANDO IMPACTOS MASIVOS" : "T-REX EN APROXIMACION C-07"),
-      objective: "EJECUTA PROTOCOLO DE CONTENCION T-REX",
-      command: state.trexDecisionRequired && !state.trexDecisionResolved ? "Consulta TACTICAL.LOG y decide la respuesta inicial correcta." : "Consulta TREX.KEY y deduce la clave.",
-      executeCommand: nextAction?.command ?? "cat TREX.KEY",
-      failure: "Si falla: camaras destruidas, apagones y colapso parcial.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: "CRITICO",
-    };
-  }
-
-  if (!state.barriersRestored) {
-    return {
-      title: "ALERTA OPERATIVA // BARRERAS",
-      event: overrideEvent || "MALLA DE CONTENCION INCOMPLETA",
-      objective: "RESTAURA BARRERAS",
-      command: "Consulta BARRIER.SYS y restaura la malla antes de avanzar.",
-      executeCommand: "restore barrier BARRIER-RESTORE-31",
-      failure: "Si falla: reapertura de sectores y escalamiento de amenazas.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: "ALTO",
-    };
-  }
-
-  if (!state.herdCalmed) {
-    return {
-      title: "ALERTA TACTICA // HERBIVOROS",
-      event: overrideEvent || "CONFLICTO DE MANADA EN VALLE SUR",
-      objective: "SEPARA HERBIVOROS",
-      command: "Consulta HERD.LOG y confirma que las barreras ya esten restauradas.",
-      executeCommand: "separate herd HERD-SPLIT-41",
-      failure: "Si falla: compuertas dañadas y rutas bloqueadas.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: "ALTO",
-    };
-  }
-
-  if (!state.ankyRedirected) {
-    return {
-      title: "ALERTA TACTICA // ANKYLOSAURUS",
-      event: overrideEvent || "CORREDOR L-05 BLOQUEADO",
-      objective: "REDIRIGE ANKYLOSAURUS",
-      command: "Consulta ANKY.KEY para liberar el corredor logistico.",
-      executeCommand: "redirect anky ANKY-PORT-55",
-      failure: "Si falla: acceso logistico destruido y salida retrasada.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: "ALTO",
-    };
-  }
-
-  if (!state.doorUnlocked) {
-    return {
-      title: "PROTOCOLO FINAL // SALIDA",
-      event: overrideEvent || "RUTA DE EVACUACION AUN BLOQUEADA",
-      objective: "ABRE COMPUERTA NORTE",
-      command: "Consulta DOOR.SYS; la puerta no abre mientras falten protocolos.",
-      executeCommand: "unlock door DOOR-LOCK-42",
-      failure: "Si falla: quedas atrapado durante el colapso final.",
-      timer: formatCountdown(state.countdownSeconds),
-      risk: "ALTO",
-    };
-  }
-
-  return {
-    title: "PROTOCOLO FINAL // EVACUACION",
-    event: overrideEvent || "RUTA EXTERIOR DESPEJADA",
-    objective: "EJECUTA EVACUACION",
-    command: "Valida el estado global y evacua solo si no falta ningun protocolo.",
-    executeCommand: "escape",
-    failure: "Si fallas: el laboratorio colapsa antes de salir.",
-    timer: formatCountdown(state.countdownSeconds),
-    risk: "ALTO",
-  };
-}
-
-function getDeteriorationTier() {
-  const damage = state.deterioration;
-  const criticalScore = Math.max(
-    MAX_DAMAGE - damage.nivelContencion,
-    damage.dañoInstalacion,
-    damage.riesgoBiologico,
-    MAX_DAMAGE - damage.energiaSistema,
-    MAX_DAMAGE - damage.estabilidadLaboratorio,
-  );
-  if (criticalScore >= 85) return 3;
-  if (criticalScore >= 60) return 2;
-  if (criticalScore >= 30) return 1;
-  return 0;
-}
-
-function syncGlobalDamageState() {
-  const unresolvedThreats = [
-    !state.raptorContained,
-    !state.trexContained,
-    !state.diloNeutralized,
-    !state.herdCalmed,
-    !state.ankyRedirected,
-  ].filter(Boolean).length;
-
-  const containmentPenalty =
-    (state.primaryBarrierDown ? 12 : 0) +
-    (state.secondaryBarrierDown ? 18 : 0) +
-    (state.criticalContainmentActive ? 22 : 0) +
-    (Math.max(state.threatProgress.raptor, state.threatProgress.dilo) * 6);
-  state.deterioration.nivelContencion = clamp(100 - containmentPenalty, 4, 100);
-
-  const installationBase =
-    (state.generatorDamaged ? 16 : 0) +
-    (state.trexCollisionActive ? 18 : 0) +
-    (state.secondaryBarrierDown ? 14 : 0) +
-    (state.criticalContainmentActive ? 18 : 0) +
-    (state.threatProgress.trex * 9) +
-    (state.threatProgress.herb * 6) +
-    (state.threatProgress.raptor * 5);
-  state.deterioration.dañoInstalacion = clamp(Math.max(state.deterioration.dañoInstalacion, installationBase), 0, 100);
-
-  const bioBase =
-    (state.diloNeutralized ? 6 : 18) +
-    (state.diloCountdown !== null ? 12 : 0) +
-    (state.criticalContainmentActive ? 18 : 0) +
-    unresolvedThreats * 7 +
-    (state.threatProgress.dilo * 11) +
-    (state.threatProgress.raptor * 5);
-  state.deterioration.riesgoBiologico = clamp(Math.max(state.deterioration.riesgoBiologico, bioBase), 0, 100);
-
-  const energyPenalty =
-    (hasOperationalPower() ? 0 : 30) +
-    (state.generatorDamaged ? 22 : 0) +
-    (state.reserveGeneratorOnline ? 12 : 0) +
-    (state.darkModeActive ? 16 : 0) +
-    (state.threatProgress.trex * 8);
-  state.deterioration.energiaSistema = clamp(100 - energyPenalty, 0, 100);
-
-  const stabilityPenalty =
-    Math.round(state.deterioration.dañoInstalacion * 0.32) +
-    Math.round(state.deterioration.riesgoBiologico * 0.28) +
-    Math.round((100 - state.deterioration.energiaSistema) * 0.22) +
-    (state.criticalContainmentActive ? 10 : 0);
-  state.deterioration.estabilidadLaboratorio = clamp(100 - stabilityPenalty, 0, 100);
-
-  const derivedRisk = Math.max(
-    Math.floor(state.deterioration.riesgoBiologico / 26),
-    Math.floor((100 - state.deterioration.nivelContencion) / 30),
-    Math.floor((100 - state.deterioration.estabilidadLaboratorio) / 34),
-  );
-  setBiologicalRisk(derivedRisk);
-}
-
-function applyGlobalDamage(reason, impact = {}) {
-  const damage = state.deterioration;
-  damage.nivelContencion = clamp(damage.nivelContencion - (impact.nivelContencion ?? 0), 0, 100);
-  damage.dañoInstalacion = clamp(damage.dañoInstalacion + (impact.dañoInstalacion ?? 0), 0, 100);
-  damage.riesgoBiologico = clamp(damage.riesgoBiologico + (impact.riesgoBiologico ?? 0), 0, 100);
-  damage.energiaSistema = clamp(damage.energiaSistema - (impact.energiaSistema ?? 0), 0, 100);
-  damage.estabilidadLaboratorio = clamp(damage.estabilidadLaboratorio - (impact.estabilidadLaboratorio ?? 0), 0, 100);
-  syncGlobalDamageState();
-  if (reason) {
-    damageSummaryText.textContent = reason;
-  }
-}
-
-function relieveGlobalDamage(recovery = {}) {
-  const damage = state.deterioration;
-  damage.nivelContencion = clamp(damage.nivelContencion + (recovery.nivelContencion ?? 0), 0, 100);
-  damage.dañoInstalacion = clamp(damage.dañoInstalacion - (recovery.dañoInstalacion ?? 0), 0, 100);
-  damage.riesgoBiologico = clamp(damage.riesgoBiologico - (recovery.riesgoBiologico ?? 0), 0, 100);
-  damage.energiaSistema = clamp(damage.energiaSistema + (recovery.energiaSistema ?? 0), 0, 100);
-  damage.estabilidadLaboratorio = clamp(damage.estabilidadLaboratorio + (recovery.estabilidadLaboratorio ?? 0), 0, 100);
-  syncGlobalDamageState();
-}
-
-function setMeter(valueNode, barNode, value, inverse = false) {
-  if (!valueNode || !barNode) return;
-  valueNode.textContent = `${Math.round(value)}%`;
-  const fill = inverse ? 100 - value : value;
-  barNode.style.width = `${clamp(fill, 0, 100)}%`;
-  barNode.style.filter = fill >= 75 ? "saturate(1.18)" : fill >= 45 ? "saturate(1)" : "saturate(0.84)";
-}
-
-function getDamageSummary() {
-  const tier = getDeteriorationTier();
-  if (tier === 3) {
-    return "Modo critico. Sectores offline, paneles corruptos y fallas estructurales en cadena.";
-  }
-  if (tier === 2) {
-    return "La instalacion ya muestra daños visibles: camaras fuera de servicio, energia irregular y contencion degradada.";
-  }
-  if (tier === 1) {
-    return "El laboratorio entra en deterioro progresivo. Empiezan fallos de panel, ruido metalico e interferencia.";
-  }
-  return "Instalacion operando en margen estable. Sin daños mayores visibles.";
-}
-
-function updateDeteriorationHud() {
-  syncGlobalDamageState();
-  setMeter(metricContainmentValue, metricContainmentBar, state.deterioration.nivelContencion);
-  setMeter(metricDamageValue, metricDamageBar, state.deterioration.dañoInstalacion);
-  setMeter(metricBioValue, metricBioBar, state.deterioration.riesgoBiologico);
-  setMeter(metricEnergyValue, metricEnergyBar, state.deterioration.energiaSistema);
-  setMeter(metricStabilityValue, metricStabilityBar, state.deterioration.estabilidadLaboratorio);
-  if (damageSummaryText) {
-    damageSummaryText.textContent = getDamageSummary();
-  }
-}
-
-function escalateThreatProgress(threatKey, impact = {}) {
-  state.threatProgress[threatKey] = clamp((state.threatProgress[threatKey] ?? 0) + 1, 0, 3);
-  const stage = state.threatProgress[threatKey];
-  const label = THREAT_STAGE_LABELS[threatKey]?.[stage] ?? "Amenaza escalando.";
-  applyGlobalDamage(label, impact);
-  setActiveEvent(label.toUpperCase());
-  if (threatKey === "raptor") {
-    state.primaryBarrierDown = true;
-    if (stage >= 2) state.secondaryBarrierDown = true;
-    if (stage >= 3) state.criticalContainmentActive = true;
-    pulseCrisisFilter(stage >= 2 ? "critical" : "warning", 1000);
-  }
-  if (threatKey === "dilo") {
-    if (stage >= 1) state.accessBlocked = true;
-    if (stage >= 2) state.secondaryBarrierDown = true;
-    if (stage >= 3) state.criticalContainmentActive = true;
-    pulseCrisisFilter("critical", 950);
-  }
-  if (threatKey === "trex") {
-    state.darkModeActive = stage >= 2 || state.darkModeActive;
-    state.generatorDamaged = stage >= 2 || state.generatorDamaged;
-    state.trexCollisionActive = stage >= 1 || state.trexCollisionActive;
-    if (stage >= 3) state.criticalContainmentActive = true;
-    pulseCrisisFilter("critical", 1200);
-  }
-  if (threatKey === "herb") {
-    if (stage >= 1) state.accessBlocked = true;
-    if (stage >= 2) state.secondaryBarrierDown = true;
-    if (stage >= 3) state.doorUnlocked = false;
-    pulseCrisisFilter(stage >= 2 ? "critical" : "warning", 850);
-  }
-  setCurrentAlert(label, stage >= 2 ? "error" : "warning");
-}
-
-function setBiologicalRisk(level) {
-  state.bioRiskLevel = Math.max(0, Math.min(RISK_LEVELS.length - 1, level));
-}
-
-function activarFase(phaseIdOrObject) {
-  const phase = typeof phaseIdOrObject === "string"
-    ? gamePhases.find((entry) => entry.id === phaseIdOrObject)
-    : phaseIdOrObject;
-  if (!phase || state.currentPhaseId === phase.id) return;
-
-  const previousPhase = getCurrentPhase();
-  if (previousPhase && getPendingActionsForPhase(previousPhase).length > 0) {
-    escalarAmenaza(previousPhase.consequence ?? `La amenaza de ${previousPhase.title} escaló por falta de respuesta.`);
-  }
-
-  state.currentPhaseId = phase.id;
-  state.lastDirectiveTick = state.countdownSeconds;
-  setBiologicalRisk(Math.max(state.bioRiskLevel, phase.minRisk));
-  setActiveEvent(phase.title);
-  actualizarMisionActiva();
-  setCurrentAlert(`${phase.title}. ${phase.objective}`, phase.minRisk >= 2 ? "error" : "warning");
-}
-
-function completarAccion(actionId) {
-  const phase = getCurrentPhase();
-  const action = phase.requiredActions.find((entry) => entry.id === actionId);
-  if (!action) return;
-  const actionState = getPhaseActionState(phase.id);
-  if (actionState[actionId]) return;
-  actionState[actionId] = true;
-  state.lastDirectiveTick = state.countdownSeconds;
-
-  if (getPendingActionsForPhase(phase).length === 0) {
-    setCurrentAlert(`${phase.title} asegurada. Preparando siguiente intervención.`, "success");
-  } else {
-    setCurrentAlert(`Acción completada: ${action.label}. Continúa con la siguiente intervención.`, "success");
-  }
-  actualizarMisionActiva();
-}
-
-function escalarAmenaza(reason = "La amenaza escala por falta de respuesta.") {
-  setBiologicalRisk(state.bioRiskLevel + 1);
-  state.lastDirectiveTick = state.countdownSeconds;
-  applyGlobalDamage(reason, {
-    nivelContencion: 8,
-    dañoInstalacion: 5,
-    riesgoBiologico: 8,
-    energiaSistema: 3,
-    estabilidadLaboratorio: 6,
-  });
-  pulseCrisisFilter(state.bioRiskLevel >= 2 ? "critical" : "warning", state.bioRiskLevel >= 2 ? 1100 : 700);
-  setCurrentAlert(reason, "error");
-  actualizarMisionActiva();
-}
-
-function actualizarMisionActiva() {
-  const directive = getDirectiveForCurrentState();
-  if (missionActivePhase) missionActivePhase.textContent = directive.event;
-  if (missionActiveObjective) missionActiveObjective.textContent = directive.objective;
-  if (missionActiveAction) missionActiveAction.textContent = directive.command;
-  if (missionActiveFailure) missionActiveFailure.textContent = directive.failure;
-  if (bioRiskState) bioRiskState.textContent = directive.risk;
-  if (containmentSummaryState) containmentSummaryState.textContent = getContainmentSummaryText();
-  if (missionCriticalTimer) missionCriticalTimer.textContent = directive.timer;
-  if (missionPriorityState) missionPriorityState.textContent = getPriorityLabel();
-  if (activeMissionThreat) activeMissionThreat.textContent = directive.event;
-  if (activeMissionObjective) activeMissionObjective.textContent = directive.objective;
-  if (activeMissionHint) activeMissionHint.textContent = directive.command;
-  if (activeMissionContainment) activeMissionContainment.textContent = getContainmentSummaryText();
-  if (activeMissionRisk) activeMissionRisk.textContent = directive.risk;
-  if (activeMissionTimer) activeMissionTimer.textContent = directive.timer;
-  if (missionActionButton) {
-    missionActionButton.disabled = false;
-    missionActionButton.textContent = "SOLICITAR PISTA";
-    missionActionButton.dataset.command = "hint";
-  }
-}
-
-function refreshAlertDirectivePanel() {
-  const directive = getDirectiveForCurrentState();
-  if (currentAlertText) currentAlertText.textContent = `${directive.title}: ${directive.event}`;
-  if (alertEventText) alertEventText.textContent = directive.event;
-  if (alertObjectiveText) alertObjectiveText.textContent = directive.objective;
-  if (alertCommandText) alertCommandText.textContent = directive.command;
-  if (alertFailureText) alertFailureText.textContent = directive.failure;
-  if (alertTimerText) alertTimerText.textContent = directive.timer;
-}
-
-function iniciarDirectorEventos() {
-  if (state.directorStarted) return;
-  state.directorStarted = true;
-  state.currentPhaseId = "phase1";
-  state.lastDirectiveTick = state.countdownSeconds;
-  setBiologicalRisk(0);
-  actualizarMisionActiva();
-  setCurrentAlert("FASE 1 // ARRANQUE. Activa monitoreo general para habilitar la respuesta del sistema.", "warning");
-}
-
-function verificarCondicionesDeVictoria() {
-  return getMissingEscapeProtocols().length === 0 && state.doorUnlocked && state.escaped;
-}
-
-function verificarCondicionesDeDerrota() {
-  return (
-    state.countdownSeconds === 0 ||
-    state.deterioration.estabilidadLaboratorio <= 0 ||
-    state.deterioration.nivelContencion <= 0 ||
-    state.deterioration.dañoInstalacion >= 100 ||
-    (state.bioRiskLevel >= 3 && !state.diloNeutralized && state.diloCountdown !== null && state.diloCountdown <= 15) ||
-    (state.criticalContainmentActive && state.bioRiskLevel >= 3 && state.countdownSeconds <= 30 && !state.escaped)
-  );
-}
-
-function degradeContainment(level, message, mode = "error") {
-  if (level === 1) {
-    state.primaryBarrierDown = true;
-  }
-  if (level === 2) {
-    state.secondaryBarrierDown = true;
-  }
-  if (level >= 3) {
-    state.criticalContainmentActive = true;
-  }
-  state.barriersRestored = false;
-  applyGlobalDamage(message, {
-    nivelContencion: level * 10,
-    dañoInstalacion: level * 6,
-    riesgoBiologico: level * 8,
-    estabilidadLaboratorio: level * 7,
-  });
-  setActiveEvent(message);
-  pulseCrisisFilter(level >= 2 ? "critical" : "warning", level >= 2 ? 1200 : 700);
-  setCurrentAlert(message, mode);
-}
-
-function reproducirColisionBiologica() {
-  clonePlay(audioAlerta, 0.42);
-  clonePlay(dinoSounds.trex, 0.55);
-  clonePlay(dinoSounds.brachio, 0.48);
-}
-
-function updateFacilityMood() {
-  const severity = getDeteriorationTier();
-  document.body.classList.toggle("state-power-failure", state.darkModeActive);
-  document.body.classList.toggle("state-danger", state.primaryBarrierDown || state.secondaryBarrierDown || state.trexCollisionActive);
-  document.body.classList.toggle("state-critical", state.criticalContainmentActive || state.countdownSeconds <= 180 || state.gameOver);
-  document.body.classList.toggle("state-red-alert", severity >= 2 || state.criticalContainmentActive);
-  document.body.classList.toggle("state-omega", state.omegaReleased);
-  document.body.classList.toggle("state-severity-1", severity === 1);
-  document.body.classList.toggle("state-severity-2", severity === 2);
-  document.body.classList.toggle("state-severity-3", severity >= 3);
-  document.body.classList.toggle("effect-raptor", state.threatProgress.raptor >= 1 && !state.raptorContained);
-  document.body.classList.toggle("effect-dilo", state.threatProgress.dilo >= 1 && !state.diloNeutralized);
-  document.body.classList.toggle("effect-trex", state.threatProgress.trex >= 1 && !state.trexContained);
-  document.body.classList.toggle("effect-herb", state.threatProgress.herb >= 1 && (!state.herdCalmed || !state.ankyRedirected));
-  if (terminalDamageWarning && terminalDamageWarningText) {
-    const visible = severity >= 2 || state.criticalContainmentActive;
-    terminalDamageWarning.classList.toggle("hidden", !visible);
-    terminalDamageWarningText.textContent =
-      state.criticalContainmentActive ? "NUCLEO INESTABLE // MULTIPLES SECTORES OFFLINE" :
-      severity >= 3 ? "COLAPSO ESTRUCTURAL INMINENTE" :
-      "DAÑO VISIBLE // CONTENCION DEGRADADA";
-  }
 }
 
 function showAlertPanel(message, mode = "active") {
@@ -1418,31 +384,21 @@ function setAlertSilence(durationMs = 20000) {
   }, durationMs + 50);
 }
 
+function speak(text, onend) {
+  if (onend) onend();
+}
+
 function initializeScenario() {
   state.protocolStarted = false;
-  state.introStarted = false;
-  state.introFinished = false;
-  state.bootStarted = false;
   state.ambientMuted = false;
   state.ambientPaused = false;
   state.powerOnline = false;
-  state.monitoringOnline = false;
   state.generatorDamaged = false;
   state.generatorRepaired = false;
-  state.reserveGeneratorOnline = false;
   state.raptorContained = false;
   state.trexContained = false;
   state.diloNeutralized = false;
   state.barriersRestored = false;
-  state.primaryBarrierDown = false;
-  state.secondaryBarrierDown = false;
-  state.criticalContainmentActive = false;
-  state.defenseModeActive = false;
-  state.accessBlocked = false;
-  state.darkModeActive = false;
-  state.diloCountdown = null;
-  state.activeEvent = "MONITOREO ESTABLE";
-  state.trexCollisionActive = false;
   state.herdCalmed = false;
   state.ankyRedirected = false;
   state.doorUnlocked = false;
@@ -1450,64 +406,18 @@ function initializeScenario() {
   state.cinematicStarted = false;
   state.gameOver = false;
   state.finalOutcome = null;
-  state.finalVideoCompleted = false;
-  state.bioRiskLevel = 0;
-  state.currentPhaseId = "phase1";
-  state.phaseActionState = {};
-  state.directorStarted = false;
-  state.lastDirectiveTick = 900;
   state.alertsSilencedUntil = 0;
   state.currentDinoSound = null;
-  if (state.timerId) {
-    window.clearInterval(state.timerId);
-    state.timerId = null;
-  }
   if (state.alertPanelTimer) {
     window.clearTimeout(state.alertPanelTimer);
     state.alertPanelTimer = null;
   }
   state.attempts = 0;
   state.activeZone = "raptor";
-  state.reserveGeneratorActivated = false;
-  state.generatorSequenceReady = false;
-  state.generatorLogReviewed = false;
-  state.powerLogReviewed = false;
-  state.diloLogReviewed = false;
-  state.toxinKeyReviewed = false;
-  state.raptorKeyReviewed = false;
-  state.trexKeyReviewed = false;
-  state.tacticalLogReviewed = false;
-  state.routeEscapeLiberada = false;
+  state.countdownSeconds = 900;
   state.omegaReleased = false;
   state.omegaCinematicPlaying = false;
   state.omegaVideoSeen = false;
-  state.chimeraContained = false;
-  state.trexDecisionRequired = false;
-  state.trexDecisionResolved = false;
-  state.trexDecisionSolution = "";
-  state.brachioSectorSecured = false;
-  state.diversionRouteOpened = false;
-  state.diloFailedAttempts = 0;
-  state.hintProgress = {};
-  state.fileAccess = {};
-  state.countdownSeconds = 900;
-  state.threatPulseTick = 0;
-  state.lastImpactSoundAt = 0;
-  state.lastClawSoundAt = 0;
-  state.userScrolledTerminal = false;
-  state.deterioration = {
-    nivelContencion: 100,
-    dañoInstalacion: 0,
-    riesgoBiologico: 0,
-    energiaSistema: 100,
-    estabilidadLaboratorio: 100,
-  };
-  state.threatProgress = {
-    raptor: 0,
-    dilo: 0,
-    trex: 0,
-    herb: 0,
-  };
   state.timelineFlags = {
     generator: false,
     sensors: false,
@@ -1517,81 +427,41 @@ function initializeScenario() {
     barrier: false,
     herd: false,
     anky: false,
-    collision: false,
-    secondaryBarrier: false,
+    omega: false,
     collapse: false,
   };
-  const difficulty = getDifficultySettings();
   state.raptorCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
   state.trexCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
-  state.raptorRotors = [
-    randomDigit(1, difficulty.raptorRotorMax),
-    randomDigit(1, difficulty.raptorRotorMax),
-    randomDigit(1, difficulty.raptorRotorMax),
-  ];
-  state.trexRotors = [
-    randomDigit(1, difficulty.trexRotorMax),
-    randomDigit(1, difficulty.trexRotorMax),
-    randomDigit(1, difficulty.trexRotorMax),
-  ];
+  state.raptorRotors = [randomDigit(1, 4), randomDigit(1, 4), randomDigit(1, 4)];
+  state.trexRotors = [randomDigit(1, 4), randomDigit(1, 4), randomDigit(1, 4)];
   setCipherTarget("raptor");
-  detenerTodosLosSonidos();
+  stopAmbient();
   hideAlertPanel();
-  focusLock.classList.add("hidden");
-  focusLock.setAttribute("aria-hidden", "true");
-  mapModal.classList.add("hidden");
-  mapModal.setAttribute("aria-hidden", "true");
-  input.value = "";
   if (escapeOverlay) {
     escapeOverlay.className = "escape-overlay hidden";
     escapeOverlay.setAttribute("aria-hidden", "true");
   }
-  if (omegaOverlay) {
-    omegaOverlay.className = "omega-overlay hidden";
-    omegaOverlay.setAttribute("aria-hidden", "true");
-  }
   if (escapeVideo) {
+    const source = escapeVideo.querySelector("source");
+    if (source) source.src = "assets/video/ESCAPE.MP4";
+    escapeVideo.load();
     escapeVideo.pause();
     escapeVideo.currentTime = 0;
-  }
-  if (omegaVideo) {
-    omegaVideo.pause();
-    omegaVideo.currentTime = 0;
-  }
-  if (escapeVideoSource) {
-    escapeVideoSource.src = "assets/video/ESCAPE.MP4";
-    escapeVideo.load();
-  }
-  if (omegaVideoSource) {
-    omegaVideoSource.src = "assets/video/Chimerasaurus Escape.MP4";
-    omegaVideo.load();
-  }
-  if (escapeOverlayLabel) {
-    escapeOverlayLabel.textContent = "PROTOCOLO FINAL";
-  }
-  if (escapeOverlayTitle) {
-    escapeOverlayTitle.textContent = "ES MOMENTO DE SALIR";
-  }
-  if (escapeOverlayText) {
-    escapeOverlayText.textContent = "La ruta exterior esta abierta. Abandona el laboratorio antes del cierre total.";
-  }
-  if (escapeOverlayTime) {
-    escapeOverlayTime.textContent = "Lograste escapar en 00:00";
-    escapeOverlayTime.classList.add("hidden");
   }
   if (restartScenarioButton) {
     restartScenarioButton.classList.add("hidden");
   }
-  if (omegaOverlayLabel) omegaOverlayLabel.textContent = "NIVEL OMEGA ACTIVADO";
-  if (omegaOverlayTitle) omegaOverlayTitle.textContent = "CHIMERASAURUS REX HA ROTO LA CAPSULA DE CONTENCION";
-  if (omegaOverlayText) omegaOverlayText.textContent = "Contencion total fallida. Supervivencia prioritaria. El temporizador sigue corriendo.";
-  if (difficultySelect) {
-    difficultySelect.value = state.difficulty;
-    difficultySelect.disabled = state.protocolStarted;
+  if (omegaOverlay) {
+    omegaOverlay.classList.add("hidden");
+    omegaOverlay.setAttribute("aria-hidden", "true");
   }
-  bootOverlay.classList.add("hidden");
-  bootOverlay.setAttribute("aria-hidden", "true");
-  updateFacilityMood();
+  if (omegaVideo) {
+    if (omegaVideoSource) omegaVideoSource.src = "assets/video/Chimerasaurus Escape.MP4";
+    omegaVideo.load();
+    omegaVideo.pause();
+    omegaVideo.currentTime = 0;
+  }
+  document.body.classList.remove("state-omega");
 }
 
 function getCipherRotorsForTarget(target) {
@@ -1618,43 +488,29 @@ function getFiles() {
   return {
     "README.TXT": [
       "JURASSIC UNIX CONTROL // PROTOCOLO DE EMERGENCIA",
-      "1. Reactiva la energia principal consultando registros; el sistema no entrega protocolos completos en modo operativo.",
-      "2. Si la red cae, revisa POWER.LOG y GENERATOR.LOG, repara la linea y restaura energia en ese orden.",
-      "3. Conten al Velociraptor resolviendo rotores desde RAPTOR.KEY.",
-      "4. Evalua la respuesta inicial del evento T-Rex vs Brachiosaurus antes de sellar el corredor.",
-      "5. Cruza DILO.LOG con TOXIN.KEY para cerrar el acceso principal.",
-      "6. Restaura barreras antes de separar la manada.",
-      "7. Libera la ruta de escape y evacua solo si no faltan protocolos.",
+      "1. Reactiva la energia principal.",
+      "2. Repara el generador si vuelve a caer la red.",
+      "3. Conten al Velociraptor mediante rotores.",
+      "4. Conten al Tyrannosaurus rex mediante rotores.",
+      "5. Estabiliza el conflicto entre herbivoros.",
+      "6. Redirige al Ankylosaurus fuera del corredor logistico.",
+      "7. Abre la salida y evacua antes del colapso total.",
     ],
     "POWER.LOG": [
-      "SUBESTACION OESTE // RST-POWER-73",
-      "El protocolo de restauracion comienza con `restore power`.",
-      "No intentes restaurar la red si el generador principal sigue dañado.",
+      "SUBESTACION OESTE: codigo de restauracion -> RST-POWER-73",
+      "Comando: restore power RST-POWER-73",
     ],
     "GENERATOR.LOG": [
       "GENERADOR DE RESPALDO // ESTADO DE EMERGENCIA",
-      "Linea de reinicio manual: GEN-RESTART-84",
-      "Primero repara la linea. Despues restaura la energia principal.",
-      "Si el generador cae, la red de contencion volvera a inestabilizarse.",
+      "Codigo de reparacion manual: GEN-RESTART-84",
+      "Comando: repair generator GEN-RESTART-84",
+      "Nota: si el generador cae, la red de contencion volvera a inestabilizarse.",
     ],
     "BARRIER.SYS": [
       "CONTENCION // BARRERAS PARCIALES",
       "Codigo de restauracion: BARRIER-RESTORE-31",
       "Comando: restore barrier BARRIER-RESTORE-31",
       "Nota: restaura cercos y barreras antes de abrir la compuerta norte.",
-    ],
-    "BACKUP.LOG": [
-      "GENERADOR DE RESERVA // MANUAL DE EMERGENCIA",
-      "Activacion rapida disponible para sostener terminal y compuertas.",
-      "El comando comienza con `activate backup`.",
-      "Estado: entrega energia parcial para defensa, terminal y compuertas.",
-      "Nota: no sustituye la reparacion estructural del generador principal.",
-    ],
-    "DEFENSE.SYS": [
-      "DEFENSA INTERNA // MODULO REACTIVO",
-      "Comando: activate defense",
-      "Comando auxiliar: restart containment",
-      "Uso: frena avance de especies cuando una barrera cae o el nucleo entra en riesgo.",
     ],
     "ENIGMA.MANUAL": [
       "MANUAL DE DESCIFRADO // SISTEMA DE ROTORES",
@@ -1665,57 +521,34 @@ function getFiles() {
     ],
     "RAPTOR.KEY": [
       "PROTOCOLO ENIGMA R-01 // VELOCIRAPTOR",
-      `ROTOR I: ${encodeRotorLetter(r1, rr1)} // retrocede ${rr1}`,
-      `ROTOR II: ${encodeRotorLetter(r2, rr2)} // retrocede ${rr2}`,
-      `ROTOR III: ${encodeRotorLetter(r3, rr3)} // retrocede ${rr3}`,
-      state.difficulty === "hard" ? "No se muestra la plantilla final del comando." : "El protocolo termina con tres digitos consecutivos.",
+      `ROTOR I: ${encodeRotorLetter(r1, rr1)} = ${letterIndex(encodeRotorLetter(r1, rr1))} // gira ${rr1}`,
+      `ROTOR II: ${encodeRotorLetter(r2, rr2)} = ${letterIndex(encodeRotorLetter(r2, rr2))} // gira ${rr2}`,
+      `ROTOR III: ${encodeRotorLetter(r3, rr3)} = ${letterIndex(encodeRotorLetter(r3, rr3))} // gira ${rr3}`,
+      "Comando final: contain raptor ###",
     ],
     "TREX.KEY": [
       "PROTOCOLO ENIGMA C-07 // TYRANNOSAURUS REX",
-      `ROTOR I: ${encodeRotorLetter(t1, tr1)} // retrocede ${tr1}`,
-      `ROTOR II: ${encodeRotorLetter(t2, tr2)} // retrocede ${tr2}`,
-      `ROTOR III: ${encodeRotorLetter(t3, tr3)} // retrocede ${tr3}`,
-      state.difficulty === "hard" ? "Resuelve la clave sin plantilla final." : "La clave final debe concatenarse a un protocolo de contencion manual.",
+      `ROTOR I: ${encodeRotorLetter(t1, tr1)} = ${letterIndex(encodeRotorLetter(t1, tr1))} // gira ${tr1}`,
+      `ROTOR II: ${encodeRotorLetter(t2, tr2)} = ${letterIndex(encodeRotorLetter(t2, tr2))} // gira ${tr2}`,
+      `ROTOR III: ${encodeRotorLetter(t3, tr3)} = ${letterIndex(encodeRotorLetter(t3, tr3))} // gira ${tr3}`,
+      "Comando final: contain trex ###",
     ],
     "DILO.LOG": [
       "ACCESO PRINCIPAL // DILOPHOSAURUS",
-      "Prefijo de compuerta: GATE-DILO",
-      "El protocolo empieza con `lock dilo`.",
-      "La clave numerica fue aislada fuera de este registro.",
-      "Evento de riesgo veloz: neutraliza la amenaza antes de que alcance el vestibulo.",
-    ],
-    "TOXIN.KEY": [
-      "TOXIN FILTER // ACCESO ESTE",
-      "Sufijo aislado de compuerta: 19",
-      "Cruza este dato con DILO.LOG para cerrar el acceso principal.",
+      "Compuerta de bloqueo rápido: GATE-DILO-19",
+      "Comando: lock dilo GATE-DILO-19",
+      "Evento de riesgo veloz: neutraliza la amenaza antes de que alcance el vestíbulo.",
     ],
     "HERD.LOG": [
       "SECTOR C // CONFLICTO ENTRE HERBIVOROS",
       "Especies implicadas: Triceratops adulto y Ankylosaurus subadulto.",
-      "Protocolo de separacion: HERD-SPLIT-41",
-      "No ejecutar mientras las barreras sigan comprometidas.",
+      "Protocolo de separación: HERD-SPLIT-41",
+      "Comando: separate herd HERD-SPLIT-41",
     ],
     "ANKY.KEY": [
       "CORREDOR L-05 // REDIRECCION DE ANKYLOSAURUS",
       "Ruta de desvio: ANKY-PORT-55",
-      "El protocolo comienza con `redirect anky`.",
-    ],
-    "TACTICAL.LOG": [
-      "PROTOCOLO DE TRIAGE // T-REX VS BRACHIOSAURUS",
-      "Si la energia cae por debajo de 42%, abre una ruta de desvio inmediata.",
-      "Si el daño estructural llega a 46% o mas, refuerza el sector de Brachiosaurus.",
-      "Si ambos valores siguen por debajo del umbral, prioriza la contencion del T-Rex.",
-      `Respuesta tactica esperada ahora: ${state.tacticalLogReviewed ? state.trexDecisionSolution || "pendiente" : "comparar HUD con umbrales"}`,
-    ],
-    "BRACHIO.SYS": [
-      "SECTOR BRACHIOSAURUS // BRACHIO-SHIELD-77",
-      "El protocolo comienza con `reinforce brachio`.",
-      "Usalo cuando el daño de instalacion supere el umbral tactico.",
-    ],
-    "DIVERSION.MAP": [
-      "RUTA DE DESVIO NORTE // ROUTE-BRAVO-22",
-      "El protocolo comienza con `open diversion`.",
-      "Usalo cuando la energia visible ya no soporte una contencion frontal.",
+      "Comando: redirect anky ANKY-PORT-55",
     ],
     "RAPTOR.DAT": [
       "VELOCIRAPTOR // EXPEDIENTE BIOLOGICO",
@@ -1755,14 +588,7 @@ function getFiles() {
     "DOOR.SYS": [
       "PUERTA DE EVACUACION LAB-B",
       "Codigo maestro: DOOR-LOCK-42",
-      "La puerta no abre si falta energia, barreras, ruta de escape o contencion completa.",
-    ],
-    "CONTAINMENT.SYS": [
-      "ESTADOS DE CONTENCION",
-      "1. Primera barrera: frena contacto inicial.",
-      "2. Segunda barrera: protege el nucleo.",
-      "3. Contencion critica: ultima capa antes del colapso operativo.",
-      "Acciones: activate defense / restart containment / restore barrier BARRIER-RESTORE-31",
+      "Comando: unlock door DOOR-LOCK-42",
     ],
     "CREW.LOG": [
       "BITACORA // 2024-2026",
@@ -1783,9 +609,9 @@ const speciesZones = {
     sector: "SUBESTACION OESTE",
     name: "Sistema electrico",
     image: "Señales/Señal.jpg",
-    status: () => state.generatorDamaged ? state.reserveGeneratorOnline ? "RESPALDO ACTIVO" : "GENERADOR DAÑADO" : hasOperationalPower() ? "ENERGIA ESTABLE" : "OFFLINE",
-    risk: () => state.criticalContainmentActive ? "EXTREMO" : state.generatorDamaged ? "CRITICO" : hasOperationalPower() ? "MODERADO" : "ALTO",
-    activity: () => state.generatorDamaged ? state.reserveGeneratorOnline ? "POTENCIA PARCIAL" : "LINEA DE RESPALDO INTERRUMPIDA" : hasOperationalPower() ? "RED ESTABLE" : "CIRCUITO CAIDO",
+    status: () => state.generatorDamaged ? "GENERADOR DAÑADO" : state.powerOnline ? "ENERGIA ESTABLE" : "OFFLINE",
+    risk: () => state.generatorDamaged ? "CRITICO" : state.powerOnline ? "MODERADO" : "ALTO",
+    activity: () => state.generatorDamaged ? "LINEA DE RESPALDO INTERRUMPIDA" : state.powerOnline ? "RED ESTABLE" : "CIRCUITO CAIDO",
     traits: () => "Nodo central, distribucion a cercos electricos y sistemas de compuerta.",
     riskLevel: () => state.generatorDamaged ? "Nivel IV: daño estructural en infraestructura." : "Nivel III: dependencia critica del sistema.",
     description: () => state.generatorDamaged ? "El generador fue dañado por un impacto de gran masa en el sector B-02." : "La subestacion sostiene la contencion de la instalacion.",
@@ -1798,9 +624,9 @@ const speciesZones = {
     sector: "PADDOCK R-01",
     name: "Velociraptor",
     image: "Dinosaurios/Creatacico/Velociraptor.jpeg",
-    status: () => state.raptorContained ? "CONTENIDO" : state.threatProgress.raptor >= 3 ? "NUCLEO AMENAZADO" : state.threatProgress.raptor >= 2 ? "CORREDOR INVADIDO" : state.primaryBarrierDown ? "CERCA DEL NUCLEO" : "ACTIVIDAD HOSTIL",
-    risk: () => state.raptorContained ? "MEDIO" : state.secondaryBarrierDown || state.threatProgress.raptor >= 2 ? "EXTREMO" : "CRITICO",
-    activity: () => state.raptorContained ? "RUTA CANCELADA" : state.threatProgress.raptor >= 2 ? "CAMARAS DESTRUIDAS" : state.primaryBarrierDown ? "PRIMERA LINEA ROTA" : "MOVIMIENTO NO AUTORIZADO",
+    status: () => state.raptorContained ? "CONTENIDO" : "ACTIVIDAD HOSTIL",
+    risk: () => state.raptorContained ? "MEDIO" : "CRITICO",
+    activity: () => state.raptorContained ? "RUTA CANCELADA" : "MOVIMIENTO NO AUTORIZADO",
     traits: () => "Cazador social, velocidad elevada, respuesta coordinada.",
     riskLevel: () => "Nivel V: depredador letal en entorno de laboratorio.",
     description: () => state.raptorContained ? "El paddock fue aislado con cerco secundario." : "Sensores térmicos confirman patrullaje cerca del cerco interno.",
@@ -1813,9 +639,9 @@ const speciesZones = {
     sector: "CORREDOR C-07",
     name: "Tyrannosaurus rex",
     image: "Dinosaurios/Creatacico/Tyrannosaurus rex.webp",
-    status: () => state.trexContained ? "REDIRIGIDO" : state.threatProgress.trex >= 3 ? "COLAPSO PARCIAL" : "APROXIMACION DIRECTA",
-    risk: () => state.trexContained ? "ALTO" : state.threatProgress.trex >= 2 ? "MAXIMO" : "EXTREMO",
-    activity: () => state.trexContained ? "COMPUERTAS SUR CERRADAS" : state.threatProgress.trex >= 2 ? "APAGONES Y VIBRACION" : "VIBRACION DE SUELO DETECTADA",
+    status: () => state.trexContained ? "REDIRIGIDO" : "APROXIMACION DIRECTA",
+    risk: () => state.trexContained ? "ALTO" : "EXTREMO",
+    activity: () => state.trexContained ? "COMPUERTAS SUR CERRADAS" : "VIBRACION DE SUELO DETECTADA",
     traits: () => "Depredador apex, impacto estructural, intimidacion visual extrema.",
     riskLevel: () => "Nivel V: capacidad de colapso estructural.",
     description: () => state.trexContained ? "El corredor sur ha sido aislado." : "Huella masiva acercandose al laboratorio.",
@@ -1828,9 +654,9 @@ const speciesZones = {
     sector: "SECTOR E-03",
     name: "Dilophosaurus",
     image: "Dinosaurios/Jurasico/Dilophosaurus.webp",
-    status: () => state.diloNeutralized ? "BLOQUEADO" : state.threatProgress.dilo >= 3 ? "PROPAGACION CONFIRMADA" : "LECTURA IRREGULAR",
-    risk: () => state.diloNeutralized ? "MODERADO" : state.threatProgress.dilo >= 2 ? "CRITICO" : "ALTO",
-    activity: () => state.diloNeutralized ? "CORREDOR SELLADO" : state.threatProgress.dilo >= 2 ? "PANELES CORRUPTOS" : "INTERFERENCIA VISUAL",
+    status: () => "LECTURA IRREGULAR",
+    risk: () => "ALTO",
+    activity: () => "INTERFERENCIA VISUAL",
     traits: () => "Carnivoro ligero, cobertura vegetal, movilidad silenciosa.",
     riskLevel: () => "Nivel IV: contacto visual reducido.",
     description: () => "Los sensores del sector este siguen registrando movimientos incompletos.",
@@ -1843,9 +669,9 @@ const speciesZones = {
     sector: "VALLE SUR",
     name: "Triceratops y Parasaurolophus",
     image: "Dinosaurios/Creatacico/Triceratops.jpeg",
-    status: () => state.herdCalmed ? "MANADA ESTABLE" : state.threatProgress.herb >= 3 ? "RUTAS DESTRUIDAS" : "CONFLICTO TERRITORIAL",
-    risk: () => state.herdCalmed ? "MEDIO" : state.threatProgress.herb >= 2 ? "CRITICO" : "ALTO",
-    activity: () => state.herdCalmed ? "RUTA REABRIERTA" : state.threatProgress.herb >= 2 ? "COMPUERTAS IMPACTADAS" : "ESTAMPIDA PARCIAL",
+    status: () => state.herdCalmed ? "MANADA ESTABLE" : "CONFLICTO TERRITORIAL",
+    risk: () => state.herdCalmed ? "MEDIO" : "ALTO",
+    activity: () => state.herdCalmed ? "RUTA REABRIERTA" : "ESTAMPIDA PARCIAL",
     traits: () => "Herbivoros de manada, defensa por carga y bloqueo de corredor.",
     riskLevel: () => "Nivel III: riesgo defensivo y logístico.",
     description: () => state.herdCalmed ? "El valle sur vuelve a ser transitable." : "El conflicto entre herbivoros compromete la evacuacion.",
@@ -1908,7 +734,7 @@ const speciesZones = {
     activity: () => state.omegaReleased ? "COLAPSO MULTISECTORIAL" : "LECTURA SUPRIMIDA",
     traits: () => "Hibrido experimental con rasgos de T-Rex, Velociraptor, Triceratops y Stegosaurus.",
     riskLevel: () => "Nivel OMEGA: amenaza terminal para toda la instalacion.",
-    description: () => state.omegaReleased ? "El hibrido ya esta suelto. Cualquier demora acelera el colapso del laboratorio." : "La lectura fue sellada por protocolos negros.",
+    description: () => state.omegaReleased ? "El hibrido ya esta suelto. Cada segundo aumenta la presion sobre la evacuacion." : "El expediente fue bloqueado por protocolo negro.",
     incidents: () => [
       "REGISTRO CLASIFICADO // No divulgar al personal base.",
       "PROTOCOLO NEGRO // Capsula sellada por riesgo de extincion local.",
@@ -1918,9 +744,9 @@ const speciesZones = {
     sector: "MUELLE DE CARGA",
     name: "Salida marítima",
     image: "Señales/Maritima.jpg",
-    status: () => state.escaped ? "RUTA UTILIZADA" : state.criticalContainmentActive ? "NUCLEO INSEGURO" : "RUTA INSEGURA",
-    risk: () => state.escaped ? "CONTROLADO" : state.criticalContainmentActive ? "EXTREMO" : "ALTO",
-    activity: () => state.escaped ? "EVACUACION COMPLETADA" : state.doorUnlocked ? "RUTA ABIERTA" : "ACCESO RESTRINGIDO",
+    status: () => state.escaped ? "RUTA UTILIZADA" : "RUTA INSEGURA",
+    risk: () => state.escaped ? "CONTROLADO" : "ALTO",
+    activity: () => state.escaped ? "EVACUACION COMPLETADA" : "ACCESO RESTRINGIDO",
     traits: () => "Punto logístico costero y última vía de salida segura.",
     riskLevel: () => "Nivel III: punto crítico de evacuación.",
     description: () => state.escaped ? "La instalación fue abandonada con éxito." : "La ruta exterior aún no está liberada.",
@@ -1953,8 +779,55 @@ function setMissionState(element, label, mode) {
 }
 
 function updateObjective() {
-  const directive = getDirectiveForCurrentState();
-  objectiveText.textContent = `${directive.objective} // ${directive.command}`;
+  if (state.gameOver) {
+    objectiveText.textContent = "Escenario perdido. El laboratorio ha colapsado bajo ataque masivo.";
+    return;
+  }
+  if (state.omegaReleased && !state.escaped) {
+    objectiveText.textContent = state.doorUnlocked
+      ? "NIVEL OMEGA ACTIVO. La salida sigue abierta: ejecuta escape antes del colapso total."
+      : "NIVEL OMEGA ACTIVO. Chimerasaurus Rex liberado. Mantén el control y libera la salida.";
+    return;
+  }
+  if (!state.powerOnline) {
+    objectiveText.textContent = state.generatorDamaged
+      ? "El generador fue dañado. Revisa GENERATOR.LOG y repara la línea de respaldo."
+      : "Restaura la energía principal para recuperar el control de la instalación.";
+    return;
+  }
+  if (!state.raptorContained) {
+    objectiveText.textContent = "Abre RAPTOR.KEY y contiene al Velociraptor con los rotores.";
+    return;
+  }
+  if (!state.trexContained) {
+    objectiveText.textContent = "Abre TREX.KEY y contiene al T-Rex antes de que alcance el laboratorio.";
+    return;
+  }
+  if (!state.diloNeutralized) {
+    objectiveText.textContent = "Dilophosaurus detectado cerca del acceso principal. Revisa DILO.LOG y bloquea compuertas.";
+    return;
+  }
+  if (!state.barriersRestored) {
+    objectiveText.textContent = "El sistema de contención está parcialmente desactivado. Restaura las barreras.";
+    return;
+  }
+  if (!state.herdCalmed) {
+    objectiveText.textContent = "ALERTA: conflicto entre herbívoros detectado en Sector C. Activa el protocolo de separación.";
+    return;
+  }
+  if (!state.ankyRedirected) {
+    objectiveText.textContent = "Un Ankylosaurus bloquea la ruta logística. Revisa ANKY.KEY y redirígelo.";
+    return;
+  }
+  if (!state.doorUnlocked) {
+    objectiveText.textContent = "Con todas las amenazas controladas, abre la salida norte.";
+    return;
+  }
+  if (!state.escaped) {
+    objectiveText.textContent = "Todo listo. Ejecuta escape para completar la evacuación.";
+    return;
+  }
+  objectiveText.textContent = "Sistema estabilizado. Escape exitoso.";
 }
 
 function formatCountdown(totalSeconds) {
@@ -1963,62 +836,38 @@ function formatCountdown(totalSeconds) {
   return `${minutes}:${seconds}`;
 }
 
-function calcularTiempoEscape() {
-  const elapsedSeconds = Math.max(0, 900 - state.countdownSeconds);
-  return formatCountdown(elapsedSeconds);
-}
-
 function setCurrentAlert(text, className = "warning") {
-  const directive = getDirectiveForCurrentState(text);
-  const header = className === "error" ? "ALERTA CRITICA" : className === "success" ? "SITUACION CONTROLADA" : "ALERTA OPERATIVA";
-  currentAlertText.textContent = `${header}: ${directive.event}`;
-  if (alertEventText) alertEventText.textContent = directive.event;
-  if (alertObjectiveText) alertObjectiveText.textContent = directive.objective;
-  if (alertCommandText) alertCommandText.textContent = directive.command;
-  if (alertFailureText) alertFailureText.textContent = directive.failure;
-  if (alertTimerText) alertTimerText.textContent = directive.timer;
-  addLine(`${header}: ${directive.event}`, className);
-  addLine(`OBJETIVO: ${directive.objective}`, className === "success" ? "success" : "warning");
-  addLine(`PISTA: ${directive.command}`, "success");
-  addLine(`RIESGO: ${directive.failure}`, className === "success" ? "success" : "error");
-  addLine(`TIEMPO: ${directive.timer}`, className === "error" ? "error" : "warning");
+  currentAlertText.textContent = text;
+  addLine(`ALERTA DE SISTEMA: ${text}`, className);
   const mode = className === "error" ? "critical" : className === "success" ? "controlled" : "active";
-  showAlertPanel(`${directive.event} // ${directive.command}`, mode);
+  showAlertPanel(text, mode);
   if (mode === "controlled") {
-    detenerAlerta(directive.event);
+    detenerAlerta(text);
   }
 }
 
 function updateMissionStates() {
-  setMissionState(missionPower, hasOperationalPower() ? "COMPLETA" : "ACTIVA", hasOperationalPower() ? "is-done" : "is-active");
-  setMissionState(missionGenerator, state.generatorRepaired ? "COMPLETA" : state.generatorDamaged ? state.reserveGeneratorOnline ? "RESPALDO ACTIVO" : "ACTIVA" : "MONITOREO", state.generatorRepaired ? "is-done" : state.generatorDamaged ? "is-active" : "is-locked");
-  setMissionState(missionRaptor, !hasOperationalPower() ? "BLOQUEADA" : state.raptorContained ? "COMPLETA" : state.primaryBarrierDown ? "CRITICA" : "ACTIVA", !hasOperationalPower() ? "is-locked" : state.raptorContained ? "is-done" : "is-active");
+  setMissionState(missionPower, state.powerOnline ? "COMPLETA" : "ACTIVA", state.powerOnline ? "is-done" : "is-active");
+  setMissionState(missionGenerator, state.generatorRepaired ? "COMPLETA" : state.generatorDamaged ? "ACTIVA" : "MONITOREO", state.generatorRepaired ? "is-done" : state.generatorDamaged ? "is-active" : "is-locked");
+  setMissionState(missionRaptor, !state.powerOnline ? "BLOQUEADA" : state.raptorContained ? "COMPLETA" : "ACTIVA", !state.powerOnline ? "is-locked" : state.raptorContained ? "is-done" : "is-active");
   setMissionState(missionTrex, !state.raptorContained ? "BLOQUEADA" : state.trexContained ? "COMPLETA" : "ACTIVA", !state.raptorContained ? "is-locked" : state.trexContained ? "is-done" : "is-active");
   setMissionState(missionDilo, !state.trexContained ? "BLOQUEADA" : state.diloNeutralized ? "COMPLETA" : "ACTIVA", !state.trexContained ? "is-locked" : state.diloNeutralized ? "is-done" : "is-active");
-  setMissionState(missionBarrier, !state.diloNeutralized ? "BLOQUEADA" : state.criticalContainmentActive ? "CRITICA" : state.barriersRestored && !state.primaryBarrierDown && !state.secondaryBarrierDown ? "COMPLETA" : "ACTIVA", !state.diloNeutralized ? "is-locked" : state.barriersRestored && !state.primaryBarrierDown && !state.secondaryBarrierDown && !state.criticalContainmentActive ? "is-done" : "is-active");
+  setMissionState(missionBarrier, !state.diloNeutralized ? "BLOQUEADA" : state.barriersRestored ? "COMPLETA" : "ACTIVA", !state.diloNeutralized ? "is-locked" : state.barriersRestored ? "is-done" : "is-active");
   setMissionState(missionHerd, !state.barriersRestored ? "BLOQUEADA" : state.herdCalmed ? "COMPLETA" : "ACTIVA", !state.barriersRestored ? "is-locked" : state.herdCalmed ? "is-done" : "is-active");
   setMissionState(missionAnky, !state.herdCalmed ? "BLOQUEADA" : state.ankyRedirected ? "COMPLETA" : "ACTIVA", !state.herdCalmed ? "is-locked" : state.ankyRedirected ? "is-done" : "is-active");
-  setMissionState(missionDoor, !state.ankyRedirected || !state.routeEscapeLiberada ? "BLOQUEADA" : state.doorUnlocked ? "COMPLETA" : "ACTIVA", !state.ankyRedirected || !state.routeEscapeLiberada ? "is-locked" : state.doorUnlocked ? "is-done" : "is-active");
+  setMissionState(missionDoor, !state.ankyRedirected ? "BLOQUEADA" : state.doorUnlocked ? "COMPLETA" : "ACTIVA", !state.ankyRedirected ? "is-locked" : state.doorUnlocked ? "is-done" : "is-active");
   setMissionState(missionEscape, !state.doorUnlocked ? "BLOQUEADA" : state.escaped ? "COMPLETA" : "ACTIVA", !state.doorUnlocked ? "is-locked" : state.escaped ? "is-done" : "is-active");
 }
 
 function updateThreatMap() {
   threatRaptor.classList.toggle("is-contained", state.raptorContained);
   threatTrex.classList.toggle("is-contained", state.trexContained);
-  threatDilo.classList.toggle("is-contained", state.diloNeutralized || state.escaped);
+  threatDilo.classList.toggle("is-contained", state.escaped);
 
   if (state.omegaReleased) {
     labThreatState.textContent = "CHIMERASAURUS REX LIBERADO // NIVEL OMEGA";
-  } else if (state.criticalContainmentActive) {
-    labThreatState.textContent = "NUCLEO EN CONTENCION CRITICA";
-  } else if (state.secondaryBarrierDown) {
-    labThreatState.textContent = "SEGUNDA BARRERA COMPROMETIDA";
-  } else if (state.trexCollisionActive) {
-    labThreatState.textContent = "COLISION BIOLOGICA MASIVA DETECTADA";
   } else if (state.generatorDamaged) {
     labThreatState.textContent = "GENERADOR DAÑADO // RIESGO ESTRUCTURAL";
-  } else if (state.primaryBarrierDown && !state.raptorContained) {
-    labThreatState.textContent = "RAPTOR CERCA DEL NUCLEO";
   } else if (!state.diloNeutralized) {
     labThreatState.textContent = "DILOPHOSAURUS CERCA DEL ACCESO PRINCIPAL";
   } else if (!state.barriersRestored) {
@@ -2082,54 +931,36 @@ function updateActionButtons() {
   for (const button of actionButtons) {
     const command = button.dataset.command;
     let disabled = false;
-    if (command === "restore power RST-POWER-73" && state.powerOnline && !state.generatorDamaged) disabled = true;
+    if (command === "restore power RST-POWER-73" && state.powerOnline) disabled = true;
     if (command === "repair generator GEN-RESTART-84" && (!state.generatorDamaged || state.generatorRepaired)) disabled = true;
-    if (command === "activate backup generator" && (state.reserveGeneratorOnline || !state.generatorDamaged)) disabled = true;
-    if (command === "lock dilo GATE-DILO-19" && state.diloNeutralized) disabled = true;
-    if (command === "restore barrier BARRIER-RESTORE-31" && (!state.diloNeutralized || (state.barriersRestored && !state.primaryBarrierDown && !state.secondaryBarrierDown && !state.criticalContainmentActive))) disabled = true;
-    if (command === "activate defense" && (!state.primaryBarrierDown && !state.secondaryBarrierDown && !state.criticalContainmentActive)) disabled = true;
-    if (command === "redirect power" && !state.generatorDamaged) disabled = true;
-    if (command === "block access" && state.diloNeutralized && state.accessBlocked) disabled = true;
-    if (command === "restart containment" && !state.criticalContainmentActive && !state.secondaryBarrierDown) disabled = true;
+    if (command === "lock dilo GATE-DILO-19" && (!state.trexContained || state.diloNeutralized)) disabled = true;
+    if (command === "restore barrier BARRIER-RESTORE-31" && (!state.diloNeutralized || state.barriersRestored)) disabled = true;
     if (command === "separate herd HERD-SPLIT-41" && (!state.barriersRestored || state.herdCalmed)) disabled = true;
     if (command === "redirect anky ANKY-PORT-55" && (!state.herdCalmed || state.ankyRedirected)) disabled = true;
-    if (command === "unlock door DOOR-LOCK-42" && (!state.raptorContained || !state.trexContained || !state.diloNeutralized || !state.barriersRestored || !state.herdCalmed || !state.ankyRedirected || !state.routeEscapeLiberada || state.generatorDamaged || state.primaryBarrierDown || state.secondaryBarrierDown || state.criticalContainmentActive || state.doorUnlocked)) disabled = true;
+    if (command === "unlock door DOOR-LOCK-42" && (!state.raptorContained || !state.trexContained || !state.diloNeutralized || !state.barriersRestored || !state.herdCalmed || !state.ankyRedirected || state.generatorDamaged || state.doorUnlocked)) disabled = true;
     if (command === "escape" && (!state.doorUnlocked || state.escaped)) disabled = true;
     button.disabled = disabled;
   }
 }
 
 function updateHud() {
-  if (difficultyState) difficultyState.textContent = getDifficultySettings().label;
-  powerState.textContent = hasOperationalPower() ? (state.generatorDamaged ? "RESERVA" : "ONLINE") : "OFFLINE";
-  powerState.style.color = hasOperationalPower() ? "#9cff57" : "";
+  powerState.textContent = state.powerOnline ? "ONLINE" : "OFFLINE";
+  powerState.style.color = state.powerOnline ? "#9cff57" : "";
   raptorState.textContent = state.raptorContained ? "INACTIVA" : "ACTIVA";
   raptorState.style.color = state.raptorContained ? "#9cff57" : "";
   doorState.textContent = state.doorUnlocked ? "ABIERTA" : "BLOQUEADA";
   doorState.style.color = state.doorUnlocked ? "#9cff57" : "";
   escapeState.textContent = state.escaped ? "COMPLETA" : "PENDIENTE";
   escapeState.style.color = state.escaped ? "#9cff57" : "";
-  threatLevelState.textContent = state.gameOver ? "COLAPSO" : RISK_LEVELS[state.bioRiskLevel];
-  if (deckPowerState) deckPowerState.textContent = hasOperationalPower() ? (state.generatorDamaged ? "RESERVA" : "ONLINE") : "OFFLINE";
-  if (deckThreatState) deckThreatState.textContent = state.omegaReleased ? "OMEGA" : (state.gameOver ? "COLAPSO" : RISK_LEVELS[state.bioRiskLevel]);
-  if (deckEscapeState) deckEscapeState.textContent = state.escaped ? "COMPLETA" : state.routeEscapeLiberada ? "LIBERADA" : "PENDIENTE";
-  if (deckEventState) deckEventState.textContent = state.activeEvent;
+  threatLevelState.textContent = state.gameOver ? "COLAPSO" : state.omegaReleased ? "OMEGA" : state.generatorDamaged || !state.trexContained || !state.diloNeutralized || !state.barriersRestored ? "CRITICO" : !state.herdCalmed || !state.ankyRedirected ? "ALTO" : state.doorUnlocked ? "CONTROLADO" : "MEDIO";
   countdownState.textContent = formatCountdown(state.countdownSeconds);
   countdownState.style.color = state.countdownSeconds <= 120 ? "#ff5a4f" : state.countdownSeconds <= 300 ? "#ffd166" : "";
-  if (primaryBarrierState) primaryBarrierState.textContent = state.primaryBarrierDown ? "COMPROMETIDA" : "ESTABLE";
-  if (secondaryBarrierState) secondaryBarrierState.textContent = state.secondaryBarrierDown ? "COMPROMETIDA" : "ESTABLE";
-  if (criticalContainmentState) criticalContainmentState.textContent = state.criticalContainmentActive ? "ACTIVA" : "CONTROLADA";
-  if (reservePowerState) reservePowerState.textContent = state.reserveGeneratorOnline ? "ACTIVO" : "STANDBY";
-  if (activeEventState) activeEventState.textContent = state.activeEvent;
+  document.body.classList.toggle("state-omega", state.omegaReleased);
 
-  setZoneState(zonePowerState, hasOperationalPower() ? (state.generatorDamaged ? "RESERVA" : "ONLINE") : "OFFLINE", hasOperationalPower() ? "online" : "offline");
+  setZoneState(zonePowerState, state.powerOnline ? "ONLINE" : "OFFLINE", state.powerOnline ? "online" : "offline");
   setZoneState(zoneRaptorState, state.raptorContained ? "ASEGURADA" : "ACTIVA", state.raptorContained ? "safe" : "danger");
   setZoneState(zoneDoorState, state.doorUnlocked ? "ABIERTA" : "BLOQUEADA", state.doorUnlocked ? "open" : "locked");
-  setZoneState(
-    zoneEscapeState,
-    state.escaped ? "COMPLETA" : state.routeEscapeLiberada ? "LIBERADA" : "PENDIENTE",
-    state.escaped ? "done" : state.routeEscapeLiberada ? "open" : "pending",
-  );
+  setZoneState(zoneEscapeState, state.escaped ? "COMPLETA" : "PENDIENTE", state.escaped ? "done" : "pending");
 
   updateObjective();
   updateMissionStates();
@@ -2139,36 +970,21 @@ function updateHud() {
   updateActionButtons();
   updateCipherHelper();
   updateAmbientButtons();
-  refreshAlertDirectivePanel();
-  updateDeteriorationHud();
-  updateFacilityMood();
-  actualizarMisionActiva();
 }
 
-function shouldStickTerminalScroll() {
-  if (!output) return true;
-  const threshold = 44;
-  return output.scrollHeight - output.scrollTop - output.clientHeight <= threshold;
-}
-
-function scrollToBottom(force = false) {
-  if (!output) return;
-  if (!force && state.userScrolledTerminal && !shouldStickTerminalScroll()) return;
+function scrollToBottom() {
   output.scrollTop = output.scrollHeight;
 }
 
 function addLine(text = "", className = "") {
-  const shouldAutoScroll = shouldStickTerminalScroll();
   const line = document.createElement("div");
   line.className = `line ${className}`.trim();
   line.textContent = text;
   output.appendChild(line);
-  if (shouldAutoScroll) state.userScrolledTerminal = false;
   scrollToBottom();
 }
 
 function addFileLine(fileName) {
-  const shouldAutoScroll = shouldStickTerminalScroll();
   const line = document.createElement("div");
   line.className = "line file-row";
   const button = document.createElement("button");
@@ -2178,22 +994,18 @@ function addFileLine(fileName) {
   button.dataset.command = `cat ${fileName}`;
   line.appendChild(button);
   output.appendChild(line);
-  if (shouldAutoScroll) state.userScrolledTerminal = false;
   scrollToBottom();
 }
 
 function typeLine(text, className = "") {
   return new Promise((resolve) => {
-    const shouldAutoScroll = shouldStickTerminalScroll();
     const line = document.createElement("div");
     line.className = `line ${className} cursor`.trim();
     output.appendChild(line);
     let index = 0;
     const timer = window.setInterval(() => {
       line.textContent = text.slice(0, index + 1);
-      if (index % 3 === 0 && text[index] && text[index] !== " ") clonePlay(typingSound, 0.18);
       index += 1;
-      if (shouldAutoScroll) state.userScrolledTerminal = false;
       scrollToBottom();
       if (index >= text.length) {
         window.clearInterval(timer);
@@ -2216,14 +1028,12 @@ async function runBootSequence() {
   if (state.bootStarted) return;
   state.bootStarted = true;
   bootOverlay.classList.add("hidden");
-  bootOverlay.setAttribute("aria-hidden", "true");
   for (const message of bootMessages) {
     await typeLine(message, "success");
   }
   await typeLine("Objetivo: estabilizar la instalación o escapar antes del colapso total.", "warning");
-  setActiveEvent("OPERADOR ENLAZADO // CONTINGENCIA ABIERTA");
-  iniciarDirectorEventos();
   setCurrentAlert("Operador enlazado. Todos los sistemas de emergencia quedan bajo tu control.", "success");
+  speak(narrationLines.briefing);
   input.focus();
 }
 
@@ -2233,39 +1043,112 @@ function parseCommand(rawCommand) {
 
 function showStatus() {
   return printLines([
-    `Dificultad: ${getDifficultySettings().label}`,
-    `Nivel contencion: ${Math.round(state.deterioration.nivelContencion)}%`,
-    `Daño instalacion: ${Math.round(state.deterioration.dañoInstalacion)}%`,
-    `Riesgo biologico global: ${Math.round(state.deterioration.riesgoBiologico)}%`,
-    `Energia sistema: ${Math.round(state.deterioration.energiaSistema)}%`,
-    `Estabilidad laboratorio: ${Math.round(state.deterioration.estabilidadLaboratorio)}%`,
-    `Energia: ${hasOperationalPower() ? "ONLINE" : "OFFLINE"}`,
-    `Generador principal: ${state.generatorDamaged ? "DAÑADO" : state.generatorRepaired ? "REPARADO" : "ESTABLE"}`,
-    `Generador reserva: ${state.reserveGeneratorOnline ? "ACTIVO" : "STANDBY"}`,
-    `Primera barrera: ${state.primaryBarrierDown ? "COMPROMETIDA" : "ESTABLE"}`,
-    `Segunda barrera: ${state.secondaryBarrierDown ? "COMPROMETIDA" : "ESTABLE"}`,
-    `Contencion critica: ${state.criticalContainmentActive ? "ACTIVA" : "CONTROLADA"}`,
+    `Energia: ${state.powerOnline ? "ONLINE" : "OFFLINE"}`,
+    `Generador: ${state.generatorDamaged ? "DAÑADO" : state.generatorRepaired ? "REPARADO" : "ESTABLE"}`,
     `Raptor: ${state.raptorContained ? "CONTENIDO" : "ACTIVO"}`,
     `T-Rex: ${state.trexContained ? "CONTENIDO" : "ACTIVO"}`,
     `Dilophosaurus: ${state.diloNeutralized ? "NEUTRALIZADO" : "ACTIVO"}`,
+    `Chimerasaurus: ${state.omegaReleased ? "LIBERADO" : "NO DETECTADO"}`,
     `Barreras: ${state.barriersRestored ? "RESTAURADAS" : "COMPROMETIDAS"}`,
     `Herbivoros: ${state.herdCalmed ? "SEPARADOS" : "EN CONFLICTO"}`,
     `Ankylosaurus: ${state.ankyRedirected ? "REDIRIGIDO" : "BLOQUEANDO RUTA"}`,
-    `Chimerasaurus: ${state.omegaReleased ? "LIBERADO" : "NO DETECTADO"}`,
-    `Ruta de escape: ${state.routeEscapeLiberada ? "LIBERADA" : "PENDIENTE"}`,
     `Puerta: ${state.doorUnlocked ? "ABIERTA" : "BLOQUEADA"}`,
-    `Evento activo: ${state.activeEvent}`,
     `Evacuacion: ${state.escaped ? "COMPLETADA" : "PENDIENTE"}`,
   ], "success");
 }
 
-function reproducirVideoFinal(path) {
-  if (!escapeVideo || !escapeVideoSource) return Promise.resolve(false);
-  escapeVideo.pause();
-  escapeVideoSource.src = path;
-  escapeVideo.load();
+function triggerGameOver() {
+  if (state.gameOver || state.escaped) return;
+  state.gameOver = true;
+  if (state.timerId) {
+    window.clearInterval(state.timerId);
+    state.timerId = null;
+  }
+  stopAmbient();
+  if (state.currentDinoSound) {
+    state.currentDinoSound.pause();
+    state.currentDinoSound.currentTime = 0;
+  }
+  playAlert();
+  if (state.omegaReleased) {
+    clonePlay(dinoSounds.chimera, 0.68);
+    reproducirGarrasAleatorio(true);
+  }
+  setCurrentAlert("Ataque masivo no contenido. El laboratorio ha sido comprometido.", "error");
+  startFailureCinematic();
+  updateHud();
+}
+
+function startEscapeCinematic() {
+  if (state.cinematicStarted || !escapeOverlay || !escapeVideo) return;
+  state.cinematicStarted = true;
+  state.finalOutcome = "success";
+  detenerSonido("alerta");
+  hideAlertPanel();
+  stopAmbient();
+  if (state.currentDinoSound) {
+    state.currentDinoSound.pause();
+    state.currentDinoSound.currentTime = 0;
+    state.currentDinoSound = null;
+  }
+  escapeOverlay.className = "escape-overlay";
+  escapeOverlay.classList.remove("hidden");
+  escapeOverlay.setAttribute("aria-hidden", "false");
+  escapeOverlayTitle.textContent = "ES MOMENTO DE SALIR";
+  escapeOverlayText.textContent = "La ruta exterior está abierta. Corre hacia la salida antes del cierre total.";
+  restartScenarioButton?.classList.add("hidden");
+  const source = escapeVideo.querySelector("source");
+  if (source) {
+    source.src = "assets/video/ESCAPE.MP4";
+    escapeVideo.load();
+  }
   escapeVideo.currentTime = 0;
-  return escapeVideo.play().then(() => true).catch(() => false);
+  escapeVideo.play().catch(() => {
+    escapeOverlayText.textContent = "No fue posible reproducir ESCAPE.MP4. La misión se considera completada.";
+    finishEscapeCinematic();
+  });
+}
+
+function finishEscapeCinematic() {
+  if (!escapeOverlayTitle || !escapeOverlayText) return;
+  escapeOverlayTitle.textContent = "LOGRASTE ESCAPAR";
+  escapeOverlayText.textContent = "Misión completada. Jurassic UNIX Control registra evacuación exitosa.";
+}
+
+function startFailureCinematic() {
+  if (state.cinematicStarted || !escapeOverlay || !escapeVideo) return;
+  state.cinematicStarted = true;
+  state.finalOutcome = "failure";
+  hideAlertPanel();
+  stopAmbient();
+  if (state.currentDinoSound) {
+    state.currentDinoSound.pause();
+    state.currentDinoSound.currentTime = 0;
+    state.currentDinoSound = null;
+  }
+  escapeOverlay.className = "escape-overlay escape-overlay--failure";
+  escapeOverlay.classList.remove("hidden");
+  escapeOverlay.setAttribute("aria-hidden", "false");
+  escapeOverlayTitle.textContent = "NO LOGRASTE ESCAPAR";
+  escapeOverlayText.textContent = "El laboratorio ha sido comprometido. La evacuación falló y la instalación quedó perdida.";
+  restartScenarioButton?.classList.add("hidden");
+  const source = escapeVideo.querySelector("source");
+  if (source) {
+    source.src = "assets/video/Falla.mp4";
+    escapeVideo.load();
+  }
+  escapeVideo.currentTime = 0;
+  escapeVideo.play().catch(() => {
+    escapeOverlayText.textContent = "No fue posible reproducir assets/video/Falla.mp4.";
+    finishFailureCinematic();
+  });
+}
+
+function finishFailureCinematic() {
+  if (!escapeOverlayTitle || !escapeOverlayText) return;
+  escapeOverlayTitle.textContent = "MISION FALLIDA";
+  escapeOverlayText.textContent = "El laboratorio quedó perdido. Reinicia el escenario para intentarlo de nuevo.";
+  restartScenarioButton?.classList.remove("hidden");
 }
 
 function reproducirVideoOmega() {
@@ -2283,11 +1166,12 @@ function mostrarEventoOmega() {
   omegaOverlay.classList.remove("hidden");
   omegaOverlay.setAttribute("aria-hidden", "false");
   omegaOverlayLabel.textContent = "NIVEL OMEGA ACTIVADO";
-  omegaOverlayTitle.textContent = "CHIMERASAURUS REX HA ROTO LA CAPSULA DE CONTENCION";
-  omegaOverlayText.textContent = "Contencion total fallida. Supervivencia prioritaria. El juego continua al terminar el video.";
+  omegaOverlayTitle.textContent = "CHIMERASAURUS REX LIBERADO";
+  omegaOverlayText.textContent = "CAPSULA DE CONTENCION ROTA. El evento es intermedio y el temporizador sigue corriendo.";
   playAlert(0.8);
   clonePlay(dinoSounds.chimera, 0.62);
   reproducirGarrasAleatorio(true);
+  speak(narrationLines.omega);
   reproducirVideoOmega().then((played) => {
     if (!played) {
       omegaOverlayText.textContent = "No fue posible reproducir assets/video/Chimerasaurus Escape.MP4.";
@@ -2299,424 +1183,103 @@ function mostrarEventoOmega() {
 function cerrarEventoOmega() {
   state.omegaCinematicPlaying = false;
   state.omegaVideoSeen = true;
-  if (omegaOverlay) {
-    omegaOverlay.classList.add("hidden");
-    omegaOverlay.setAttribute("aria-hidden", "true");
-  }
+  omegaOverlay?.classList.add("hidden");
+  omegaOverlay?.setAttribute("aria-hidden", "true");
   if (omegaVideo) {
     omegaVideo.pause();
   }
-  setCurrentAlert("CHIMERASAURUS REX LIBERADO. Contencion total fallida. Supervivencia prioritaria.", "error");
-}
-
-function mostrarPantallaFinal({ mode, label, title, text, videoPath }) {
-  if (!escapeOverlay || !escapeOverlayTitle || !escapeOverlayText) return;
-  state.cinematicStarted = true;
-  state.finalOutcome = mode;
-  state.finalVideoCompleted = false;
-  escapeOverlay.className = `escape-overlay escape-overlay--${mode}`;
-  escapeOverlay.setAttribute("aria-hidden", "false");
-  if (escapeOverlayLabel) {
-    escapeOverlayLabel.textContent = label;
-  }
-  escapeOverlayTitle.textContent = title;
-  escapeOverlayText.textContent = text;
-  escapeOverlayTime?.classList.add("hidden");
-  restartScenarioButton?.classList.add("hidden");
-  if (state.omegaReleased) {
-    clonePlay(dinoSounds.chimera, mode === "failure" ? 0.65 : 0.48);
-    reproducirGarrasAleatorio(true);
-  }
-  reproducirVideoFinal(videoPath).then((played) => {
-    if (!played) {
-      escapeOverlayText.textContent = `No fue posible reproducir ${videoPath}.`;
-      if (mode === "success") {
-        finalizarEscapeExitoso(true);
-      } else {
-        finalizarEscapeFallido(true);
-      }
-    }
-  });
-}
-
-function finalizarEscapeExitoso(skipVideoEnd = false) {
-  if (state.finalOutcome === "success" && state.finalVideoCompleted && !skipVideoEnd) return;
-  state.finalOutcome = "success";
-  state.finalVideoCompleted = true;
-  if (escapeOverlayLabel) {
-    escapeOverlayLabel.textContent = "MISION COMPLETADA";
-  }
-  if (escapeOverlayTitle) {
-    escapeOverlayTitle.textContent = "LOGRASTE ESCAPAR";
-  }
-  if (escapeOverlayText) {
-    escapeOverlayText.textContent = "La evacuacion fue confirmada. Jurassic UNIX Control registra salida exitosa.";
-  }
-  if (escapeOverlayTime) {
-    escapeOverlayTime.textContent = `Lograste escapar en ${calcularTiempoEscape()}`;
-    escapeOverlayTime.classList.remove("hidden");
-  }
-  restartScenarioButton?.classList.remove("hidden");
-}
-
-function finalizarEscapeFallido(skipVideoEnd = false) {
-  if (state.finalOutcome === "failure" && state.finalVideoCompleted && !skipVideoEnd) return;
-  state.finalOutcome = "failure";
-  state.finalVideoCompleted = true;
-  if (escapeOverlayLabel) {
-    escapeOverlayLabel.textContent = "MISION FALLIDA";
-  }
-  if (escapeOverlayTitle) {
-    escapeOverlayTitle.textContent = "NO LOGRASTE ESCAPAR";
-  }
-  if (escapeOverlayText) {
-    escapeOverlayText.textContent = "El laboratorio ha sido comprometido. La evacuacion fallo y la instalacion quedo perdida.";
-  }
-  escapeOverlayTime?.classList.add("hidden");
-  restartScenarioButton?.classList.remove("hidden");
-}
-
-function triggerGameOver() {
-  if (state.gameOver || state.escaped) return;
-  state.gameOver = true;
-  if (state.timerId) {
-    window.clearInterval(state.timerId);
-    state.timerId = null;
-  }
-  detenerTodosLosSonidos();
-  if (state.omegaReleased) {
-    clonePlay(dinoSounds.chimera, 0.68);
-    reproducirGarrasAleatorio(true);
-  }
-  hideAlertPanel();
-  setCurrentAlert("Ataque masivo no contenido. El laboratorio ha sido comprometido.", "error");
-  mostrarPantallaFinal({
-    mode: "failure",
-    label: "SISTEMA COLAPSADO",
-    title: "FALLO DE EVACUACION",
-    text: "El laboratorio ha sido comprometido. Mantente en cubierta mientras se reproduce el cierre final.",
-    videoPath: "assets/video/Falla.mp4",
-  });
-  updateHud();
-}
-
-function applyPassiveDeterioration() {
-  const unresolved = {
-    raptor: !state.raptorContained && state.timelineFlags.raptor,
-    dilo: !state.diloNeutralized && (state.timelineFlags.dilo || state.diloCountdown !== null),
-    trex: !state.trexContained && state.timelineFlags.trex,
-    herb: (!state.herdCalmed && state.timelineFlags.herd) || (!state.ankyRedirected && state.timelineFlags.anky),
-  };
-
-  let pressure = 0;
-  Object.values(unresolved).forEach((flag) => {
-    if (flag) pressure += 1;
-  });
-
-  if (!pressure) return;
-
-  applyGlobalDamage("Las amenazas activas siguen deteriorando la instalacion.", {
-    nivelContencion: pressure >= 3 ? 2 : 1,
-    dañoInstalacion: pressure >= 2 ? 2 : 1,
-    riesgoBiologico: pressure,
-    energiaSistema: state.generatorDamaged ? 2 : 1,
-    estabilidadLaboratorio: pressure >= 3 ? 2 : 1,
-  });
-
-  if (state.threatPulseTick % 14 === 0 && unresolved.raptor) {
-    escalateThreatProgress("raptor", { nivelContencion: 6, dañoInstalacion: 4, riesgoBiologico: 5, estabilidadLaboratorio: 5 });
-  }
-  if (state.threatPulseTick % 18 === 0 && unresolved.dilo) {
-    escalateThreatProgress("dilo", { nivelContencion: 5, dañoInstalacion: 3, riesgoBiologico: 8, estabilidadLaboratorio: 4 });
-  }
-  if (state.threatPulseTick % 20 === 0 && unresolved.trex) {
-    escalateThreatProgress("trex", { nivelContencion: 5, dañoInstalacion: 9, energiaSistema: 7, estabilidadLaboratorio: 8 });
-  }
-  if (state.threatPulseTick % 22 === 0 && unresolved.herb) {
-    escalateThreatProgress("herb", { nivelContencion: 3, dañoInstalacion: 6, riesgoBiologico: 2, estabilidadLaboratorio: 5 });
-  }
-}
-
-function playDynamicDamageSound() {
-  const severity = getDeteriorationTier();
-  if (severity === 0) return;
-  if (state.threatPulseTick - state.lastImpactSoundAt < (severity >= 3 ? 5 : 9)) return;
-  state.lastImpactSoundAt = state.threatPulseTick;
-
-  if (state.threatProgress.trex >= 2 && !state.trexContained) {
-    clonePlay(audioRex, severity >= 3 ? 0.46 : 0.3);
-    clonePlay(audioAlerta, 0.28);
-    return;
-  }
-  if (state.threatProgress.raptor >= 2 && !state.raptorContained) {
-    clonePlay(audioRaptor, 0.24);
-    clonePlay(audioAlerta, 0.22);
-    return;
-  }
-  if (state.threatProgress.dilo >= 1 && !state.diloNeutralized) {
-    clonePlay(audioAlerta, 0.18);
-    clonePlay(typingSound, 0.12);
-    return;
-  }
-  clonePlay(audioAlerta, severity >= 3 ? 0.3 : 0.18);
+  setCurrentAlert("NIVEL OMEGA ACTIVADO. CHIMERASAURUS REX LIBERADO. CAPSULA DE CONTENCION ROTA.", "error");
 }
 
 function processTimedThreats() {
   if (!state.bootStarted || state.gameOver || state.escaped) return;
 
-  const difficulty = getDifficultySettings();
   state.countdownSeconds = Math.max(0, state.countdownSeconds - 1);
-  if (difficulty.countdownExtraDrainEvery > 0 && state.threatPulseTick > 0 && state.threatPulseTick % difficulty.countdownExtraDrainEvery === 0) {
-    consumeTimePenalty(difficulty.countdownExtraDrainAmount);
-  }
-  state.threatPulseTick += 1;
-
-  const targetPhase =
-    gamePhases.find((phase) => state.countdownSeconds <= phase.startAt) ?? gamePhases[0];
-  if (targetPhase.id !== state.currentPhaseId) {
-    activarFase(targetPhase);
-  }
-
-  if (state.lastDirectiveTick - state.countdownSeconds >= difficulty.directiveWindow) {
-    const phase = getCurrentPhase();
-    const pendingAction = getPendingActionsForPhase(phase)[0];
-    state.lastDirectiveTick = state.countdownSeconds;
-    if (pendingAction) {
-      applyGlobalDamage(`Alerta ignorada: ${pendingAction.label}.`, {
-        nivelContencion: 4,
-        dañoInstalacion: 3,
-        riesgoBiologico: 4,
-        energiaSistema: 2,
-        estabilidadLaboratorio: 4,
-      });
-      setCurrentAlert(`Acción requerida: ${pendingAction.label}.`, state.bioRiskLevel >= 2 ? "error" : "warning");
-    } else {
-      const nextPhase = gamePhases.find((entry) => entry.startAt < phase.startAt);
-      if (nextPhase) {
-        setCurrentAlert(`Fase asegurada. Prepárate para ${nextPhase.title.toLowerCase()}.`, "warning");
-      }
-    }
-  }
-
-  if (state.diloCountdown !== null && !state.diloNeutralized) {
-    state.diloCountdown = Math.max(0, state.diloCountdown - 1);
-    if (difficulty.diloDrainEvery > 0 && state.threatPulseTick % difficulty.diloDrainEvery === 0) {
-      state.diloCountdown = Math.max(0, state.diloCountdown - difficulty.diloDrainAmount);
-    }
-    if ([60, 30, 10].includes(state.diloCountdown)) {
-      pulseCrisisFilter("critical", 900);
-      playAlert(0.72);
-      setCurrentAlert(`Dilophosaurus infiltrado. Codigo requerido antes de propagacion (${formatCountdown(state.diloCountdown)}).`, "error");
-    }
-    if (state.diloCountdown === 0) {
-      state.diloCountdown = null;
-      state.accessBlocked = false;
-      degradeContainment(2, "Propagacion de Dilophosaurus confirmada. Segunda barrera comprometida.", "error");
-      state.criticalContainmentActive = true;
-    }
-  }
 
   if (state.countdownSeconds <= 840 && !state.timelineFlags.sensors) {
     state.timelineFlags.sensors = true;
     playAlert(0.55);
-    setActiveEvent("ANOMALIA ACUSTICA EN SECTORES E-03 Y R-01");
     setCurrentAlert("Frecuencia acustica no identificada. Sensores alterados en sectores E-03 y R-01.", "warning");
   }
 
-  if (state.countdownSeconds <= 780 && !state.timelineFlags.raptor) {
+  if (state.countdownSeconds <= 720 && !state.timelineFlags.raptor) {
     state.timelineFlags.raptor = true;
-    state.primaryBarrierDown = true;
-    state.barriersRestored = false;
-    state.threatProgress.raptor = Math.max(state.threatProgress.raptor, 1);
-    applyGlobalDamage("Velociraptor rompe la primera barrera y deja daños visibles en el paddock.", {
-      nivelContencion: 12,
-      dañoInstalacion: 8,
-      riesgoBiologico: 10,
-      estabilidadLaboratorio: 9,
-    });
     playAlert();
     playDinoSound("raptor");
-    setActiveEvent("PRIMERA BARRERA COMPROMETIDA");
-    pulseCrisisFilter("critical", 850);
-    setCurrentAlert("Primera barrera comprometida. Velociraptor acercándose al núcleo.", "error");
+    speak(narrationLines.raptor);
+    setCurrentAlert("Movimiento detectado en Sector B. Velociraptor en perímetro interno.", "error");
   }
 
-  if (state.countdownSeconds <= 720 && !state.timelineFlags.trex) {
+  if (state.countdownSeconds <= 630 && !state.timelineFlags.trex) {
     state.timelineFlags.trex = true;
-    state.threatProgress.trex = Math.max(state.threatProgress.trex, 1);
-    applyGlobalDamage("T-Rex detectado. Primer impacto de masa sobre el corredor exterior.", {
-      nivelContencion: 6,
-      dañoInstalacion: 12,
-      energiaSistema: 5,
-      estabilidadLaboratorio: 11,
-    });
-    playAlert(0.58);
-    playDinoSound("trex", 0.5);
-    setActiveEvent("T-REX EN APROXIMACION AL CORREDOR C-07");
+    playAlert();
+    playDinoSound("trex", 0.65);
+    speak(narrationLines.trex);
     setCurrentAlert("Huella de gran masa confirmada. Tyrannosaurus rex aproximándose al corredor C-07.", "error");
-  }
-
-  if (state.countdownSeconds <= 660 && !state.timelineFlags.herd) {
-    state.timelineFlags.herd = true;
-    state.threatProgress.herb = Math.max(state.threatProgress.herb, 1);
-    applyGlobalDamage("Los herbivoros empiezan a dañar compuertas y a bloquear rutas secundarias.", {
-      nivelContencion: 4,
-      dañoInstalacion: 7,
-      riesgoBiologico: 3,
-      estabilidadLaboratorio: 6,
-    });
-    playAlert(0.6);
-    playDinoSound("herb", 0.55);
-    setActiveEvent("CONFLICTO ENTRE HERBIVOROS");
-    setCurrentAlert("Conflicto entre herbívoros en curso. Triceratops y Ankylosaurus están dañando compuertas.", "warning");
   }
 
   if (state.countdownSeconds <= 540 && !state.timelineFlags.generator) {
     state.timelineFlags.generator = true;
     state.generatorDamaged = true;
     state.powerOnline = false;
-    state.darkModeActive = true;
-    applyGlobalDamage("Impacto estructural sobre el generador principal. La energia cae y el laboratorio se degrada.", {
-      dañoInstalacion: 14,
-      energiaSistema: 22,
-      estabilidadLaboratorio: 12,
-    });
     playAlert();
     playDinoSound("brachio", 0.55);
-    setActiveEvent("ENERGIA CRITICA // GENERADOR PRINCIPAL OFFLINE");
-    pulseCrisisFilter("critical", 1200);
-    setCurrentAlert("ENERGÍA CRÍTICA. GENERADOR PRINCIPAL OFFLINE.", "error");
+    speak(narrationLines.generator);
+    setCurrentAlert("Generador dañado. Impacto estructural en B-02 y caída de energía de respaldo.", "error");
   }
 
-  if (state.countdownSeconds <= 420 && !state.timelineFlags.dilo) {
-    state.timelineFlags.dilo = true;
-    state.diloCountdown = 90;
-    state.accessBlocked = false;
-    state.threatProgress.dilo = Math.max(state.threatProgress.dilo, 1);
-    applyGlobalDamage("Dilophosaurus infiltra sectores humedos y contamina paneles de control.", {
-      nivelContencion: 8,
-      dañoInstalacion: 5,
-      riesgoBiologico: 14,
-      estabilidadLaboratorio: 8,
-    });
+  if (state.countdownSeconds <= 450 && !state.timelineFlags.barrier) {
+    state.timelineFlags.barrier = true;
     playAlert(0.65);
+    setCurrentAlert("Sistema de contención parcialmente desactivado. Barreras del sector este sin respuesta.", "error");
+  }
+
+  if (state.countdownSeconds <= 300 && !state.timelineFlags.dilo) {
+    state.timelineFlags.dilo = true;
+    playAlert(0.6);
     playDinoSound("dilo", 0.6);
-    setActiveEvent("DILOPHOSAURUS INFILTRADO");
-    pulseCrisisFilter("critical", 1000);
-    setCurrentAlert("Dilophosaurus infiltrado. Ingresar código de contención antes de propagación.", "error");
+    setCurrentAlert("Dilophosaurus detectado cerca del acceso principal.", "error");
   }
 
-  if (state.countdownSeconds <= 300 && !state.timelineFlags.collision) {
-    state.timelineFlags.collision = true;
-    state.trexCollisionActive = true;
-    state.trexDecisionRequired = true;
-    state.trexDecisionResolved = false;
-    state.trexDecisionSolution = getTrexDecisionSolution();
-    state.routeEscapeLiberada = false;
-    state.generatorDamaged = true;
-    state.darkModeActive = true;
-    state.threatProgress.trex = Math.max(state.threatProgress.trex, 2);
-    applyGlobalDamage("Colision biologica masiva. Se pierden camaras y sectores completos entran en daño severo.", {
-      nivelContencion: 12,
-      dañoInstalacion: 18,
-      energiaSistema: 16,
-      estabilidadLaboratorio: 18,
-    });
-    reproducirColisionBiologica();
-    setActiveEvent("COLISION BIOLOGICA MASIVA DETECTADA");
-    pulseCrisisFilter("critical", 1400);
-    setCurrentAlert("Colisión biológica masiva detectada. Estabiliza sectores afectados.", "error");
-  }
-
-  if (state.countdownSeconds <= 240 && !state.timelineFlags.anky) {
+  if (state.countdownSeconds <= 360 && !state.timelineFlags.anky) {
     state.timelineFlags.anky = true;
-    state.threatProgress.herb = Math.max(state.threatProgress.herb, 2);
-    applyGlobalDamage("Ankylosaurus bloquea el corredor logistico y destruye accesos de servicio.", {
-      nivelContencion: 4,
-      dañoInstalacion: 10,
-      estabilidadLaboratorio: 8,
-    });
     playAlert(0.6);
     playDinoSound("anky", 0.55);
-    setActiveEvent("ANKYLOSAURUS BLOQUEANDO CORREDOR L-05");
+    speak(narrationLines.anky);
     setCurrentAlert("Ankylosaurus detectado en perímetro logístico. Corredor L-05 bloqueado.", "warning");
   }
 
-  if (state.countdownSeconds <= 180 && !state.timelineFlags.secondaryBarrier) {
-    state.timelineFlags.secondaryBarrier = true;
-    if (!state.raptorContained || !state.diloNeutralized || state.trexCollisionActive) {
-      state.secondaryBarrierDown = true;
-      state.criticalContainmentActive = true;
-      state.barriersRestored = false;
-      state.threatProgress.raptor = Math.max(state.threatProgress.raptor, 3);
-      applyGlobalDamage("Segunda barrera perdida. El laboratorio entra en modo critico.", {
-        nivelContencion: 20,
-        dañoInstalacion: 14,
-        riesgoBiologico: 12,
-        estabilidadLaboratorio: 18,
-      });
-      setActiveEvent("SEGUNDA BARRERA COMPROMETIDA");
-      pulseCrisisFilter("critical", 1200);
-      playAlert(0.75);
-      setCurrentAlert("Segunda barrera comprometida. Velociraptor acercándose al núcleo.", "error");
-    }
+  if (state.countdownSeconds <= 180 && !state.timelineFlags.herd) {
+    state.timelineFlags.herd = true;
+    playAlert(0.6);
+    playDinoSound("herb", 0.55);
+    speak(narrationLines.herd);
+    setCurrentAlert("Conflicto entre herbívoros en curso. Triceratops, Parasaurolophus y Stegosaurus fuera de pauta.", "warning");
   }
 
-  if (state.countdownSeconds <= 150 && !state.omegaReleased) {
+  if (state.countdownSeconds <= 150 && !state.timelineFlags.omega) {
+    state.timelineFlags.omega = true;
     state.omegaReleased = true;
-    state.criticalContainmentActive = true;
-    state.secondaryBarrierDown = true;
-    state.barriersRestored = false;
-    state.routeEscapeLiberada = false;
-    state.trexCollisionActive = true;
-    applyGlobalDamage("NIVEL OMEGA ACTIVADO. CHIMERASAURUS REX LIBERADO. Multiples sectores comprometidos y camaras offline.", {
-      nivelContencion: 22,
-      dañoInstalacion: 20,
-      riesgoBiologico: 18,
-      energiaSistema: 12,
-      estabilidadLaboratorio: 20,
-    });
-    setActiveEvent("CHIMERASAURUS REX LIBERADO");
-    pulseCrisisFilter("critical", 1800);
+    state.activeZone = "chimera";
+    playAlert(0.8);
+    clonePlay(dinoSounds.chimera, 0.66);
+    reproducirGarrasAleatorio(true);
+    setCurrentAlert("NIVEL OMEGA ACTIVADO. CHIMERASAURUS REX LIBERADO.", "error");
     mostrarEventoOmega();
   }
 
   if (state.countdownSeconds <= 60 && !state.timelineFlags.collapse) {
     state.timelineFlags.collapse = true;
-    state.criticalContainmentActive = true;
-    applyGlobalDamage("Colapso total inminente. Multiples sistemas comienzan a caer a la vez.", {
-      nivelContencion: 18,
-      dañoInstalacion: 18,
-      riesgoBiologico: 14,
-      energiaSistema: 12,
-      estabilidadLaboratorio: 20,
-    });
     playAlert();
-    setActiveEvent("COLAPSO TOTAL INMINENTE");
-    pulseCrisisFilter("critical", 1600);
-    setCurrentAlert("Alerta crítica. Colapso total inminente. Evacúe o estabilice el núcleo de inmediato.", "error");
+    setCurrentAlert("Alerta crítica. Nivel de estrés biológico aumentando. Ataque masivo inminente.", "error");
   }
 
-  if (verificarCondicionesDeDerrota()) {
-    triggerGameOver();
-    return;
+  if (state.omegaReleased && state.countdownSeconds <= 120 && state.countdownSeconds % 20 === 0) {
+    clonePlay(dinoSounds.chimera, 0.38);
+    reproducirGarrasAleatorio(true);
   }
-  if (state.threatPulseTick % 6 === 0) {
-    applyPassiveDeterioration();
-    playDynamicDamageSound();
-  }
-  if ((state.criticalContainmentActive || state.omegaReleased) && state.threatPulseTick % (state.omegaReleased ? 5 : 9) === 0) {
-    reproducirGarrasAleatorio();
-  }
-  if (state.omegaReleased && state.threatPulseTick % 7 === 0) {
-    applyGlobalDamage("El Chimerasaurus sacude la instalacion. Luces criticas, paneles corruptos y vibracion visual.", {
-      nivelContencion: 4,
-      dañoInstalacion: 5,
-      riesgoBiologico: 4,
-      energiaSistema: 3,
-      estabilidadLaboratorio: 5,
-    });
-  }
+
+  if (state.countdownSeconds === 0) triggerGameOver();
   updateHud();
 }
 
@@ -2725,22 +1288,9 @@ function startThreatTimer() {
   state.timerId = window.setInterval(processTimedThreats, 1000);
 }
 
-function reiniciarExperiencia() {
-  initializeScenario();
-  output.innerHTML = "";
-  introStatus.textContent = "Pulsa INICIAR PROTOCOLO DE EMERGENCIA para activar el audio de introducción, el video y el protocolo visual.";
-  startIntroButton.disabled = false;
-  startIntroButton.textContent = "INICIAR PROTOCOLO DE EMERGENCIA";
-  introOverlay.classList.remove("hidden");
-  introOverlay.setAttribute("aria-hidden", "false");
-  bootOverlay.classList.add("hidden");
-  bootOverlay.setAttribute("aria-hidden", "true");
-  introVideo.currentTime = 0;
-  updateHud();
-}
-
 function restartScenario() {
-  reiniciarExperiencia();
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  window.location.reload();
 }
 
 function updateCipherHelper() {
@@ -2758,13 +1308,7 @@ function updateCipherHelper() {
   cipherConsoleBuffer.textContent = buffer ? buffer.split("").join(" ") : "_ _ _";
 
   cipherRotorCards.innerHTML = rotors.map((rotor, index) => `
-    <div
-      class="cipher-rotor ${index === activeRotorIndex ? "is-active" : ""}"
-      data-rotor-index="${index}"
-      role="button"
-      tabindex="0"
-      aria-label="${rotor.label}, valor actual ${rotor.currentValue}"
-    >
+    <button type="button" class="cipher-rotor ${index === activeRotorIndex ? "is-active" : ""}" data-rotor-index="${index}">
       <span>${rotor.label}</span>
       <div class="cipher-rotor__dial"><div class="cipher-rotor__window">${rotor.currentValue}</div></div>
       <strong>${rotor.letter} = ${rotor.baseValue}</strong>
@@ -2773,7 +1317,7 @@ function updateCipherHelper() {
         <button type="button" class="cipher-rotor__button" data-rotate="-1" data-rotor-index="${index}">GIRAR</button>
         <button type="button" class="cipher-rotor__button" data-reset-rotor="${index}">RESET</button>
       </div>
-    </div>
+    </button>
   `).join("");
 }
 
@@ -2808,76 +1352,6 @@ function prepareCipherCommand() {
   input.focus();
 }
 
-function shouldIgnoreRotorInteraction(action, index) {
-  const now = performance.now();
-  const duplicate =
-    state.lastRotorInteraction.action === action &&
-    state.lastRotorInteraction.index === index &&
-    now - state.lastRotorInteraction.time < 220;
-
-  if (!duplicate) {
-    state.lastRotorInteraction = {
-      time: now,
-      action,
-      index,
-    };
-  }
-
-  return duplicate;
-}
-
-function rotateCipherRotor(index) {
-  const rotor = state.cipherHelper.rotors[index];
-  if (!rotor) return;
-  rotor.currentValue = (rotor.currentValue + 9) % 10;
-  state.cipherHelper.activeRotorIndex = index;
-  updateCipherHelper();
-}
-
-function resetCipherRotor(index) {
-  const rotor = state.cipherHelper.rotors[index];
-  if (!rotor) return;
-  rotor.currentValue = rotor.baseValue;
-  state.cipherHelper.activeRotorIndex = index;
-  updateCipherHelper();
-}
-
-function selectCipherRotor(index) {
-  if (!state.cipherHelper.rotors[index]) return;
-  state.cipherHelper.activeRotorIndex = index;
-  updateCipherHelper();
-}
-
-function handleCipherRotorInteraction(event) {
-  const target = event.target;
-  if (!(target instanceof HTMLElement)) return;
-
-  const rotateButton = target.closest("[data-rotate]");
-  if (rotateButton instanceof HTMLElement) {
-    const index = Number(rotateButton.dataset.rotorIndex);
-    if (shouldIgnoreRotorInteraction("rotate", index)) return;
-    event.preventDefault();
-    rotateCipherRotor(index);
-    return;
-  }
-
-  const resetButton = target.closest("[data-reset-rotor]");
-  if (resetButton instanceof HTMLElement) {
-    const index = Number(resetButton.dataset.resetRotor);
-    if (shouldIgnoreRotorInteraction("reset", index)) return;
-    event.preventDefault();
-    resetCipherRotor(index);
-    return;
-  }
-
-  const rotorButton = target.closest("[data-rotor-index]");
-  if (rotorButton instanceof HTMLElement) {
-    const index = Number(rotorButton.dataset.rotorIndex);
-    if (shouldIgnoreRotorInteraction("select", index)) return;
-    selectCipherRotor(index);
-  }
-}
-
 function focusLockIfNeeded() {
   if (!state.bootStarted || state.escaped || state.gameOver) return;
   focusLock.classList.remove("hidden");
@@ -2893,8 +1367,7 @@ function hideFocusLock() {
 
 function getPriorityZone() {
   if (state.omegaReleased) return "chimera";
-  if (state.criticalContainmentActive || state.secondaryBarrierDown) return "power";
-  if (state.generatorDamaged || !hasOperationalPower()) return "power";
+  if (state.generatorDamaged || !state.powerOnline) return "power";
   if (!state.raptorContained) return "raptor";
   if (!state.trexContained) return "trex";
   if (!state.diloNeutralized) return "dilo";
@@ -2933,9 +1406,6 @@ async function scanSector() {
   if (soundMap[zoneKey]) {
     playDinoSound(soundMap[zoneKey], 0.45);
   }
-  if (getCurrentPhase().requiredActions.some((action) => action.id === "scan_sector")) {
-    completarAccion("scan_sector");
-  }
   setCurrentAlert(messages[zoneKey], zoneKey === "power" ? "warning" : "error");
   await typeLine(`ESCANEO COMPLETADO // ${speciesZones[zoneKey].sector}`, "success");
 }
@@ -2945,8 +1415,12 @@ async function identifySpecies() {
   setActiveSpecies(zoneKey);
   const zone = speciesZones[zoneKey];
   if (!zone) return;
-  if (["raptor", "trex", "herb", "anky", "brachio", "dilo", "stego", "chimera"].includes(zoneKey)) {
+  if (["raptor", "trex", "herb", "anky", "brachio", "dilo", "stego"].includes(zoneKey)) {
     playDinoSound(zoneKey === "trex" ? "trex" : zoneKey === "herb" ? "herb" : zoneKey, 0.5);
+  }
+  if (zoneKey === "chimera") {
+    playDinoSound("chimera", 0.5);
+    reproducirGarrasAleatorio(true);
   }
   await printLines([
     `ESPECIE IDENTIFICADA: ${zone.name.toUpperCase()}`,
@@ -2958,6 +1432,14 @@ async function identifySpecies() {
 
 async function confirmContainmentFromActiveZone() {
   const zoneKey = state.activeZone || getPriorityZone();
+  const commandByZone = {
+    power: state.generatorDamaged ? "repair generator GEN-RESTART-84" : (!state.barriersRestored && state.diloNeutralized ? "restore barrier BARRIER-RESTORE-31" : "restore power RST-POWER-73"),
+    dilo: "lock dilo GATE-DILO-19",
+    herb: "separate herd HERD-SPLIT-41",
+    anky: "redirect anky ANKY-PORT-55",
+    dock: state.doorUnlocked ? "escape" : "unlock door DOOR-LOCK-42",
+  };
+
   if (zoneKey === "raptor" && !state.raptorContained) {
     setCipherTarget("raptor");
     updateCipherHelper();
@@ -2970,7 +1452,11 @@ async function confirmContainmentFromActiveZone() {
     setCurrentAlert("Contención de T-Rex requiere clave dinámica. Abre TREX.KEY y resuelve los rotores.", "warning");
     return;
   }
-  await typeLine(`Pista tactica: ${getDirectiveHint()}`, "warning");
+  if (!commandByZone[zoneKey]) {
+    await typeLine("La zona activa no requiere confirmación manual en este momento.", "warning");
+    return;
+  }
+  await handleCommand(commandByZone[zoneKey]);
 }
 
 async function handleCommand(rawCommand) {
@@ -2992,12 +1478,6 @@ async function handleCommand(rawCommand) {
       await printLines([
         "Comandos disponibles:",
         "help", "ls", "cat ARCHIVO", "open ARCHIVO", "status", "missions", "hint",
-        "activate backup generator",
-        "activate defense",
-        "redirect power",
-        "block access",
-        "restart containment",
-        "scan dna",
         "restore power RST-POWER-73",
         "repair generator GEN-RESTART-84",
         "contain raptor ###",
@@ -3006,8 +1486,6 @@ async function handleCommand(rawCommand) {
         "restore barrier BARRIER-RESTORE-31",
         "separate herd HERD-SPLIT-41",
         "redirect anky ANKY-PORT-55",
-        "open diversion ROUTE-BRAVO-22",
-        "reinforce brachio BRACHIO-SHIELD-77",
         "unlock door DOOR-LOCK-42",
         "escape", "restart", "clear",
       ]);
@@ -3019,21 +1497,6 @@ async function handleCommand(rawCommand) {
 
     case "cat":
     case "open": {
-      if (command === "open" && argsLower[0] === "diversion" && argsUpper.slice(1).join("-") === "ROUTE-BRAVO-22") {
-        if (state.trexDecisionRequired && !state.trexDecisionResolved && state.trexDecisionSolution !== "open diversion ROUTE-BRAVO-22") {
-          applyMistakePenalty("Decision tactica erronea: abrir desvio ahora agrava el daño estructural.", "critical");
-          addLine("ERROR: la ruta de desvio no es la respuesta prioritaria actual.", "error");
-          return;
-        }
-        state.diversionRouteOpened = true;
-        state.trexDecisionResolved = true;
-        state.routeEscapeLiberada = true;
-        setActiveEvent("RUTA DE DESVIO ABIERTA");
-        relieveGlobalDamage({ estabilidadLaboratorio: 8, dañoInstalacion: 5 });
-        updateHud();
-        await printLines(["Abriendo ruta de desvio ROUTE-BRAVO-22...", "Trafico biologico redirigido.", "RUTA DE ESCAPE LIBERADA."], "success");
-        return;
-      }
       const fileName = argsUpper.join(" ");
       const files = getFiles();
       if (!files[fileName]) {
@@ -3041,7 +1504,6 @@ async function handleCommand(rawCommand) {
         addLine(`${command}: ${tokens.slice(1).join(" ")}: archivo no encontrado`, "error");
         return;
       }
-      markFileReviewed(fileName);
       if (fileName === "RAPTOR.KEY") setCipherTarget("raptor");
       if (fileName === "TREX.KEY") setCipherTarget("trex");
       updateCipherHelper();
@@ -3055,160 +1517,60 @@ async function handleCommand(rawCommand) {
 
     case "missions":
       await printLines([
-        `1. Energia: ${hasOperationalPower() ? "COMPLETA" : "PENDIENTE"}`,
-        `2. Generador: ${state.generatorRepaired ? "COMPLETA" : state.generatorDamaged ? state.reserveGeneratorOnline ? "RESPALDO ACTIVO" : "ACTIVA" : "EN ESPERA"}`,
-        `3. Primera barrera: ${state.primaryBarrierDown ? "COMPROMETIDA" : "ESTABLE"}`,
-        `4. Segunda barrera: ${state.secondaryBarrierDown ? "COMPROMETIDA" : "ESTABLE"}`,
-        `5. Contencion critica: ${state.criticalContainmentActive ? "ACTIVA" : "CONTROLADA"}`,
-        `6. Velociraptor: ${state.raptorContained ? "COMPLETA" : "ACTIVA"}`,
-        `7. T-Rex: ${state.trexContained ? "COMPLETA" : "ACTIVA"}`,
-        `8. Dilophosaurus: ${state.diloNeutralized ? "COMPLETA" : "ACTIVA"}`,
-        `9. Barreras: ${state.barriersRestored ? "COMPLETA" : "ACTIVA"}`,
-        `10. Herbivoros: ${state.herdCalmed ? "COMPLETA" : "ACTIVA"}`,
-        `11. Ankylosaurus: ${state.ankyRedirected ? "COMPLETA" : "ACTIVA"}`,
-        `12. Puerta: ${state.doorUnlocked ? "COMPLETA" : "BLOQUEADA"}`,
-        `13. Evacuacion: ${state.escaped ? "COMPLETA" : "PENDIENTE"}`,
+        `1. Energia: ${state.powerOnline ? "COMPLETA" : "PENDIENTE"}`,
+        `2. Generador: ${state.generatorRepaired ? "COMPLETA" : state.generatorDamaged ? "ACTIVA" : "EN ESPERA"}`,
+        `3. Velociraptor: ${state.raptorContained ? "COMPLETA" : "ACTIVA"}`,
+        `4. T-Rex: ${state.trexContained ? "COMPLETA" : "ACTIVA"}`,
+        `5. Dilophosaurus: ${state.diloNeutralized ? "COMPLETA" : "ACTIVA"}`,
+        `6. Barreras: ${state.barriersRestored ? "COMPLETA" : "ACTIVA"}`,
+        `7. Herbivoros: ${state.herdCalmed ? "COMPLETA" : "ACTIVA"}`,
+        `8. Ankylosaurus: ${state.ankyRedirected ? "COMPLETA" : "ACTIVA"}`,
+        `9. Puerta: ${state.doorUnlocked ? "COMPLETA" : "BLOQUEADA"}`,
+        `10. Evacuacion: ${state.escaped ? "COMPLETA" : "PENDIENTE"}`,
       ], "success");
       return;
 
     case "hint":
-      await typeLine(`Pista: ${getHintText()}`, "warning");
+      if (!state.powerOnline) {
+        await typeLine(state.generatorDamaged ? "Pista: el generador ya cayó. Revisa GENERATOR.LOG." : "Pista: revisa POWER.LOG.", "warning");
+        return;
+      }
+      if (!state.raptorContained) {
+        await typeLine("Pista: abre ENIGMA.MANUAL y luego RAPTOR.KEY.", "warning");
+        return;
+      }
+      if (!state.trexContained) {
+        await typeLine("Pista: el T-Rex usa el mismo sistema de rotores que Raptor.", "warning");
+        return;
+      }
+      if (!state.diloNeutralized) {
+        await typeLine("Pista: revisa DILO.LOG para bloquear el acceso principal.", "warning");
+        return;
+      }
+      if (!state.barriersRestored) {
+        await typeLine("Pista: revisa BARRIER.SYS para restaurar la contención.", "warning");
+        return;
+      }
+      if (!state.herdCalmed) {
+        await typeLine("Pista: revisa HERD.LOG para estabilizar el conflicto de manada.", "warning");
+        return;
+      }
+      if (!state.ankyRedirected) {
+        await typeLine("Pista: revisa ANKY.KEY para liberar el corredor logístico.", "warning");
+        return;
+      }
+      if (!state.doorUnlocked) {
+        await typeLine("Pista: revisa DOOR.SYS para abrir la salida.", "warning");
+        return;
+      }
+      await typeLine("Pista: ya puedes ejecutar escape.", "warning");
       return;
-
-    case "activate":
-      if (argsLower[0] === "monitoring" && argsLower[1] === "general") {
-        if (state.monitoringOnline) {
-          await typeLine("El monitoreo general ya está activo.", "warning");
-          return;
-        }
-        state.monitoringOnline = true;
-        setActiveEvent("MONITOREO GENERAL ACTIVO");
-        completarAccion("monitoring_general");
-        relieveGlobalDamage({ energiaSistema: 4, estabilidadLaboratorio: 3 });
-        updateHud();
-        await printLines(["Activando monitoreo general...", "Sensores del laboratorio sincronizados.", "MONITOREO GENERAL ONLINE."], "success");
-        return;
-      }
-      if (argsLower[0] === "perimeter" && argsLower[1] === "lockdown") {
-        state.accessBlocked = true;
-        state.defenseModeActive = true;
-        setActiveEvent("CIERRE PERIMETRAL ACTIVADO");
-        completarAccion("perimeter_lockdown");
-        relieveGlobalDamage({ nivelContencion: 6, estabilidadLaboratorio: 4 });
-        updateHud();
-        await printLines(["Activando cierre perimetral...", "Compuertas del anillo exterior bajando...", "PERIMETRO BLOQUEADO."], "success");
-        return;
-      }
-      if (argsLower[0] === "backup" && argsLower[1] === "generator") {
-        if (!state.generatorDamaged) {
-          await typeLine("El generador principal sigue estable. No es necesario activar respaldo.", "warning");
-          return;
-        }
-        if (state.reserveGeneratorOnline) {
-          await typeLine("El generador de reserva ya está activo.", "warning");
-          return;
-        }
-        state.reserveGeneratorOnline = true;
-        state.reserveGeneratorActivated = true;
-        state.powerOnline = true;
-        state.darkModeActive = false;
-        setActiveEvent("GENERADOR DE RESERVA ACTIVO");
-        detenerAlerta("SITUACION CONTROLADA // Respaldo energetico activo");
-        setCurrentAlert("Generador de reserva activo. El sistema vuelve con potencia parcial.", "success");
-        completarAccion("backup_generator");
-        relieveGlobalDamage({ energiaSistema: 18, estabilidadLaboratorio: 8 });
-        updateHud();
-        await printLines(["Activando generador de reserva...", "Celdas auxiliares sincronizadas.", "RESPALDO ENERGETICO ONLINE."], "success");
-        return;
-      }
-      if (argsLower[0] === "defense") {
-        if (!hasOperationalPower()) {
-          playAlert();
-          addLine("ERROR: se requiere energia operativa para activar defensa.", "error");
-          return;
-        }
-        state.defenseModeActive = true;
-        state.trexCollisionActive = false;
-        setActiveEvent("DEFENSA REACTIVA ACTIVADA");
-        pulseCrisisFilter("warning", 850);
-        relieveGlobalDamage({ nivelContencion: 5, estabilidadLaboratorio: 4 });
-        updateHud();
-        await printLines(["Activando defensa interna...", "Compuertas reactivas desplegadas.", "DEFENSA REACTIVA ONLINE."], "success");
-        return;
-      }
-      break;
-
-    case "block":
-      if (argsLower[0] === "access") {
-        state.accessBlocked = true;
-        if (state.diloCountdown !== null && !state.diloNeutralized) {
-          state.diloCountdown = Math.min(120, state.diloCountdown + 20);
-        }
-        setActiveEvent("ACCESOS SECUNDARIOS BLOQUEADOS");
-        relieveGlobalDamage({ riesgoBiologico: 5, estabilidadLaboratorio: 2 });
-        updateHud();
-        await printLines(["Bloqueando accesos secundarios...", "Compuertas internas reordenadas.", "Acceso restringido."], "success");
-        return;
-      }
-      break;
-
-    case "scan":
-      if (argsLower[0] === "sector") {
-        await scanSector();
-        completarAccion("scan_sector");
-        return;
-      }
-      if (argsLower[0] === "dna") {
-        await printLines([
-          "ESCANEO DE ADN EN CURSO...",
-          `Objetivo primario: ${!state.raptorContained ? "Velociraptor" : !state.trexContained ? "T-Rex" : !state.diloNeutralized ? "Dilophosaurus" : "Sin amenaza dominante"}`,
-          `Evento activo: ${state.activeEvent}`,
-          `Riesgo biologico: ${threatLevelState.textContent}`,
-        ], "success");
-        return;
-      }
-      break;
-
-    case "enter":
-      if (argsLower[0] === "containment" && argsLower[1] === "code") {
-        completarAccion("containment_code");
-        if (!state.raptorContained) {
-          setCipherTarget("raptor");
-          updateCipherHelper();
-          await typeLine("Interfaz enfocada en RAPTOR.KEY. Resuelve los rotores y completa manualmente el protocolo.", "warning");
-          return;
-        }
-        if (!state.trexContained) {
-          setCipherTarget("trex");
-          updateCipherHelper();
-          await typeLine("Interfaz enfocada en TREX.KEY. Resuelve los rotores y completa manualmente el protocolo.", "warning");
-          return;
-        }
-        if (!state.diloNeutralized) {
-          await typeLine("Dilophosaurus requiere mezclar DILO.LOG y TOXIN.KEY. El sistema ya no precarga el comando.", "warning");
-          return;
-        }
-        await typeLine("No hay un código de contención pendiente en este momento.", "warning");
-        return;
-      }
-      break;
 
     case "restore":
       if (argsLower[0] === "power" && argsUpper.slice(1).join("-") === "RST-POWER-73") {
         if (state.generatorDamaged) {
           playAlert();
-          applyMistakePenalty("Error critico: intentaste restaurar energia con el generador principal dañado.", "critical");
-          addLine("ERROR: repara la linea del generador antes de restaurar la red.", "error");
-          return;
-        }
-        if (!state.powerLogReviewed) {
-          applyMistakePenalty("Error operativo: restauracion de energia sin consultar POWER.LOG.");
-          addLine("ERROR: protocolo incompleto. Consulta POWER.LOG.", "error");
-          return;
-        }
-        if (state.timelineFlags.generator && !state.generatorSequenceReady) {
-          applyMistakePenalty("Error critico: la secuencia del generador no fue completada.", "critical");
-          addLine("ERROR: consulta GENERATOR.LOG y repara la linea antes de restaurar energia.", "error");
+          addLine("ERROR: el generador de respaldo está dañado. Repara la línea antes de restaurar la red.", "error");
           return;
         }
         if (state.powerOnline) {
@@ -3216,31 +1578,21 @@ async function handleCommand(rawCommand) {
           return;
         }
         state.powerOnline = true;
-        state.darkModeActive = false;
         detenerAlerta("SITUACION CONTROLADA // Energia principal restaurada");
-        relieveGlobalDamage({ energiaSistema: 26, estabilidadLaboratorio: 7 });
         updateHud();
         setCurrentAlert("Energía principal restaurada.", "success");
+        speak(narrationLines.power);
         await printLines(["Restaurando suministro electrico...", "Subestacion oeste en linea.", "Energia principal ONLINE."], "success");
         return;
       }
       if (argsLower[0] === "barrier" && argsUpper.slice(1).join("-") === "BARRIER-RESTORE-31") {
         if (!state.diloNeutralized) {
           playAlert();
-          applyMistakePenalty("Error critico: restauracion de barreras con Dilophosaurus aun activo.", "critical");
           addLine("ERROR: neutraliza primero la amenaza del acceso principal.", "error");
           return;
         }
         state.barriersRestored = true;
-        state.primaryBarrierDown = false;
-        state.secondaryBarrierDown = false;
-        state.criticalContainmentActive = false;
-        state.threatProgress.raptor = Math.max(0, state.threatProgress.raptor - 1);
-        state.threatProgress.dilo = Math.max(0, state.threatProgress.dilo - 1);
-        setActiveEvent("MALLA DE CONTENCION REESTABILIZADA");
         detenerAlerta("SITUACION CONTROLADA // Barreras restauradas");
-        completarAccion("reinforce_containment");
-        relieveGlobalDamage({ nivelContencion: 18, dañoInstalacion: 8, riesgoBiologico: 8, estabilidadLaboratorio: 14 });
         updateHud();
         await printLines(["Reactivando barreras de contención...", "Sincronizando cercos del sector este...", "BARRERAS RESTAURADAS."], "success");
         return;
@@ -3253,23 +1605,10 @@ async function handleCommand(rawCommand) {
           await typeLine("El generador no requiere reparacion.", "warning");
           return;
         }
-        if (!state.powerLogReviewed || !state.generatorLogReviewed) {
-          applyMistakePenalty("Error operativo: reparacion de generador sin revisar ambos registros.");
-          addLine("ERROR: consulta POWER.LOG y GENERATOR.LOG antes de reparar.", "error");
-          return;
-        }
         state.generatorDamaged = false;
         state.generatorRepaired = true;
-        state.generatorSequenceReady = true;
         state.powerOnline = true;
-        state.reserveGeneratorOnline = false;
-        state.darkModeActive = false;
-        state.trexCollisionActive = false;
-        state.threatProgress.trex = Math.max(0, state.threatProgress.trex - 1);
         detenerAlerta("SITUACION CONTROLADA // Generador reparado");
-        setActiveEvent("GENERADOR PRINCIPAL ESTABILIZADO");
-        completarAccion("redirect_power");
-        relieveGlobalDamage({ dañoInstalacion: 10, energiaSistema: 24, estabilidadLaboratorio: 12 });
         updateHud();
         setCurrentAlert("Generador reparado. La instalación recupera estabilidad energética.", "success");
         await printLines(["Reparando acometida del generador...", "Linea de respaldo estabilizada.", "Generador ONLINE."], "success");
@@ -3279,21 +1618,14 @@ async function handleCommand(rawCommand) {
 
     case "lock":
       if (argsLower[0] === "dilo" && argsUpper.slice(1).join("-") === "GATE-DILO-19") {
-        if (!state.diloLogReviewed || !state.toxinKeyReviewed) {
-          applyMistakePenalty("Error operativo: protocolo DILO incompleto; faltan registros.", "critical");
-          addLine("ERROR: revisa DILO.LOG y TOXIN.KEY antes de bloquear el acceso.", "error");
+        if (!state.trexContained) {
+          playAlert();
+          addLine("ERROR: primero asegure el corredor del T-Rex.", "error");
           return;
         }
         state.diloNeutralized = true;
-        state.diloCountdown = null;
-        state.accessBlocked = false;
-        state.diloFailedAttempts = 0;
-        state.threatProgress.dilo = 0;
-        setActiveEvent("DILOPHOSAURUS CONTENIDO");
         detenerAlerta("SITUACION CONTROLADA // Dilophosaurus neutralizado");
         detenerSonido("dilo");
-        completarAccion("dilo_lockdown");
-        relieveGlobalDamage({ nivelContencion: 8, riesgoBiologico: 18, estabilidadLaboratorio: 8 });
         updateHud();
         await printLines(["Cerrando compuertas del acceso principal...", "Lectura de Dilophosaurus desviada...", "Amenaza DILO NEUTRALIZADA."], "success");
         return;
@@ -3301,7 +1633,7 @@ async function handleCommand(rawCommand) {
       break;
 
     case "contain":
-      if (!hasOperationalPower()) {
+      if (!state.powerOnline) {
         playAlert();
         addLine("ERROR: no hay energia suficiente para ejecutar protocolos de contencion.", "error");
         return;
@@ -3309,12 +1641,7 @@ async function handleCommand(rawCommand) {
       if (argsLower[0] === "raptor") {
         if (tokens[2] === state.raptorCode) {
           state.raptorContained = true;
-          state.primaryBarrierDown = false;
-          if (!state.secondaryBarrierDown) state.criticalContainmentActive = false;
-          state.threatProgress.raptor = 0;
-          setActiveEvent("RAPTOR RESELLADO");
           detenerAlerta("SITUACION CONTROLADA // Velociraptor contenido");
-          relieveGlobalDamage({ nivelContencion: 16, dañoInstalacion: 6, riesgoBiologico: 10, estabilidadLaboratorio: 10 });
           updateHud();
           detenerSonido("raptor");
           playDinoSound("raptor", 0.35);
@@ -3322,27 +1649,13 @@ async function handleCommand(rawCommand) {
           return;
         }
         playAlert();
-        applyMistakePenalty("Error critico: protocolo raptor fallido. El depredador gana terreno.", "critical");
         addLine("ERROR: clave de contencion raptor invalida.", "error");
         return;
       }
       if (argsLower[0] === "trex") {
-        if (state.trexDecisionRequired && !state.trexDecisionResolved && state.trexDecisionSolution !== "contain trex") {
-          applyMistakePenalty("Decision tactica erronea: contener al T-Rex ahora deja expuesto el frente Brachiosaurus.", "critical");
-          addLine("ERROR: contencion T-Rex rechazada. Resuelve primero la prioridad tactica.", "error");
-          return;
-        }
         if (tokens[2] === state.trexCode) {
           state.trexContained = true;
-          if (state.trexDecisionRequired && state.trexDecisionSolution === "contain trex") {
-            state.trexDecisionResolved = true;
-            state.routeEscapeLiberada = true;
-          }
-          state.trexCollisionActive = false;
-          state.threatProgress.trex = 0;
-          setActiveEvent("T-REX REDIRIGIDO");
           detenerAlerta("SITUACION CONTROLADA // T-Rex contenido");
-          relieveGlobalDamage({ dañoInstalacion: 14, energiaSistema: 8, estabilidadLaboratorio: 14 });
           updateHud();
           detenerSonido("trex");
           playDinoSound("trex", 0.35);
@@ -3350,7 +1663,6 @@ async function handleCommand(rawCommand) {
           return;
         }
         playAlert();
-        applyMistakePenalty("Error critico: fallo en contencion T-Rex. Nuevo impacto estructural detectado.", "critical");
         addLine("ERROR: clave de contencion T-Rex invalida.", "error");
         return;
       }
@@ -3360,16 +1672,11 @@ async function handleCommand(rawCommand) {
       if (argsLower[0] === "herd" && argsUpper.slice(1).join("-") === "HERD-SPLIT-41") {
         if (!state.barriersRestored) {
           playAlert();
-          applyMistakePenalty("Error tactico: intentaste separar la manada sin restaurar barreras.", "critical");
           addLine("ERROR: restaura primero las barreras de contención.", "error");
           return;
         }
         state.herdCalmed = true;
-        state.threatProgress.herb = Math.max(0, state.threatProgress.herb - 1);
-        setActiveEvent("HERBIVOROS REDIRIGIDOS");
         detenerAlerta("SITUACION CONTROLADA // Protocolo de separación ejecutado");
-        completarAccion("stabilize_herd");
-        relieveGlobalDamage({ dañoInstalacion: 8, estabilidadLaboratorio: 10 });
         updateHud();
         detenerSonido("herb");
         playDinoSound("herb", 0.35);
@@ -3379,24 +1686,14 @@ async function handleCommand(rawCommand) {
       break;
 
     case "redirect":
-      if (argsLower[0] === "power") {
-        completarAccion("redirect_power");
-        await handleCommand(state.reserveGeneratorOnline ? "repair generator GEN-RESTART-84" : "activate backup generator");
-        return;
-      }
       if (argsLower[0] === "anky" && argsUpper.slice(1).join("-") === "ANKY-PORT-55") {
         if (!state.herdCalmed) {
           playAlert();
-          applyMistakePenalty("Error tactico: redireccion Ankylosaurus con la manada aun inestable.");
           addLine("ERROR: el valle sur sigue inestable; la ruta de desvio no está segura.", "error");
           return;
         }
         state.ankyRedirected = true;
-        state.threatProgress.herb = 0;
-        setActiveEvent("CORREDOR L-05 DESPEJADO");
         detenerAlerta("SITUACION CONTROLADA // Ankylosaurus redirigido");
-        completarAccion("redirect_anky_action");
-        relieveGlobalDamage({ dañoInstalacion: 9, estabilidadLaboratorio: 10, nivelContencion: 4 });
         updateHud();
         detenerSonido("anky");
         playDinoSound("anky", 0.35);
@@ -3405,72 +1702,18 @@ async function handleCommand(rawCommand) {
       }
       break;
 
-    case "reinforce":
-      if (argsLower[0] === "brachio" && argsUpper.slice(1).join("-") === "BRACHIO-SHIELD-77") {
-        if (state.trexDecisionRequired && !state.trexDecisionResolved && state.trexDecisionSolution !== "reinforce brachio BRACHIO-SHIELD-77") {
-          applyMistakePenalty("Decision tactica erronea: reforzar Brachiosaurus ahora deja libre la via principal.", "critical");
-          addLine("ERROR: el refuerzo de Brachiosaurus no es la prioridad actual.", "error");
-          return;
-        }
-        state.brachioSectorSecured = true;
-        state.trexDecisionResolved = true;
-        state.routeEscapeLiberada = true;
-        setActiveEvent("SECTOR BRACHIOSAURUS REFORZADO");
-        relieveGlobalDamage({ dañoInstalacion: 9, estabilidadLaboratorio: 10 });
-        updateHud();
-        await printLines(["Reforzando el sector Brachiosaurus...", "Torres de impacto recalibradas.", "RUTA EXTERIOR ASEGURADA."], "success");
-        return;
-      }
-      break;
-
-    case "restart":
-      if (argsLower[0] === "containment") {
-        if (!hasOperationalPower()) {
-          playAlert();
-          addLine("ERROR: sin energía operativa no se puede reiniciar la contención.", "error");
-          return;
-        }
-        state.criticalContainmentActive = false;
-        state.secondaryBarrierDown = false;
-        state.trexCollisionActive = false;
-        state.barriersRestored = state.diloNeutralized;
-        if (state.raptorContained) {
-          state.primaryBarrierDown = false;
-        }
-        state.defenseModeActive = true;
-        setActiveEvent("CONTENCION REINICIADA");
-        relieveGlobalDamage({ nivelContencion: 10, estabilidadLaboratorio: 8 });
-        updateHud();
-        await printLines(["Reiniciando malla de contención...", "Recalibrando nodos del núcleo...", "CONTENCION REINICIADA."], "success");
-        return;
-      }
-      restartScenario();
-      return;
-
     case "unlock":
-      if (argsLower[0] === "route") {
-        await handleCommand("confirm route");
-        return;
-      }
       if (argsLower[0] === "door" && argsUpper.slice(1).join("-") === "DOOR-LOCK-42") {
-        if (!state.raptorContained || !state.trexContained || !state.diloNeutralized || !state.barriersRestored || !state.herdCalmed || !state.ankyRedirected || !state.routeEscapeLiberada || state.generatorDamaged || state.primaryBarrierDown || state.secondaryBarrierDown || state.criticalContainmentActive) {
+        if (!state.raptorContained || !state.trexContained || !state.diloNeutralized || !state.barriersRestored || !state.herdCalmed || !state.ankyRedirected || state.generatorDamaged) {
           playAlert();
           addLine("ERROR: existen amenazas activas o fallas de infraestructura. La puerta no puede liberarse.", "error");
           return;
         }
         state.doorUnlocked = true;
         detenerAlerta("SITUACION CONTROLADA // Ruta de evacuacion liberada");
-        completarAccion("confirm_route");
-        relieveGlobalDamage({ estabilidadLaboratorio: 4 });
         updateHud();
+        speak(narrationLines.door);
         await printLines(["Validando acceso de emergencia...", "Sellos magneticos liberados.", "Puerta de evacuacion ABIERTA."], "success");
-        return;
-      }
-      break;
-
-    case "confirm":
-      if (argsLower[0] === "route") {
-        await handleCommand("unlock door DOOR-LOCK-42");
         return;
       }
       break;
@@ -3481,32 +1724,21 @@ async function handleCommand(rawCommand) {
         addLine("ERROR: la ruta de evacuacion sigue bloqueada.", "error");
         return;
       }
-      if (getMissingEscapeProtocols().length > 0) {
-        const missing = getMissingEscapeProtocols().join(", ");
-        playAlert();
-        addLine(`ESCAPE DENEGADO: protocolos incompletos. Faltan: ${missing}.`, "error");
-        applyMistakePenalty("Escape denegado por protocolos incompletos.", "critical");
-        return;
-      }
-      completarAccion("activate_escape");
       state.escaped = true;
       if (state.timerId) {
         window.clearInterval(state.timerId);
         state.timerId = null;
       }
-      detenerTodosLosSonidos();
-      hideAlertPanel();
-      currentAlertText.textContent = "Evacuacion completada. Ejecutando cierre cinematico.";
+      stopAmbient();
+      detenerAlerta("SITUACION CONTROLADA // Evacuacion completada");
       updateHud();
+      speak(narrationLines.escape);
       await printLines(["Iniciando protocolo de escape...", "Puertas externas liberadas.", "EVACUACION COMPLETADA. Has escapado del laboratorio."], "success");
-      verificarCondicionesDeVictoria();
-      mostrarPantallaFinal({
-        mode: "success",
-        label: "PROTOCOLO FINAL",
-        title: "ES MOMENTO DE SALIR",
-        text: "La ruta exterior esta abierta. Corre hacia la salida antes del cierre total.",
-        videoPath: "assets/video/ESCAPE.MP4",
-      });
+      startEscapeCinematic();
+      return;
+
+    case "restart":
+      restartScenario();
       return;
 
     case "clear":
@@ -3516,29 +1748,10 @@ async function handleCommand(rawCommand) {
 
   state.attempts += 1;
   playAlert();
-  if (rawCommand.toLowerCase().startsWith("lock dilo")) {
-    state.diloFailedAttempts += 1;
-    applyMistakePenalty(`Error critico: bloqueo DILO fallido (${state.diloFailedAttempts}/2).`, "critical");
-    if (state.diloFailedAttempts >= 2) {
-      state.accessBlocked = true;
-      state.bioRiskLevel = 3;
-      pulseCrisisFilter("critical", 1400);
-      addLine("ALERTA: contaminacion del acceso principal. Vision con glitch. Riesgo biológico en CRITICO.", "error");
-    }
-  } else {
-    applyMistakePenalty(`Comando no reconocido o protocolo invalido: ${rawCommand}.`);
-  }
   addLine(`Comando no reconocido: ${rawCommand}`, "error");
   if (state.attempts >= 3) {
     addLine("ALERTA: intento no autorizado detectado.", "error");
     addLine("ALERTA: brecha de seguridad en laboratorio B.", "error");
-    applyGlobalDamage("Intentos no autorizados saturan la consola y degradan la sesion.", {
-      nivelContencion: 5,
-      dañoInstalacion: 2,
-      riesgoBiologico: 4,
-      energiaSistema: 2,
-      estabilidadLaboratorio: 5,
-    });
     state.attempts = 0;
   }
 }
@@ -3552,7 +1765,7 @@ function revealBootOverlay() {
   introOverlay.setAttribute("aria-hidden", "true");
   bootOverlay.classList.remove("hidden");
   bootOverlay.setAttribute("aria-hidden", "false");
-  startSystemButton.focus();
+  runBootSequence();
 }
 
 function finalizarIntroSiListo() {
@@ -3564,16 +1777,15 @@ function iniciarProtocolo() {
   if (state.protocolStarted) return;
   state.protocolStarted = true;
   state.introStarted = true;
-  if (difficultySelect) difficultySelect.disabled = true;
   startIntroButton.disabled = true;
   startIntroButton.textContent = "PROTOCOLO EN CURSO...";
-  introStatus.textContent = "Protocolo activado. INTRO_AUDIO.MP3, video, temporizador y ambiente en ejecución.";
+  introStatus.textContent = "Protocolo activado. Intro, temporizador, ambiente y alerta inicial en ejecución.";
   startThreatTimer();
   startAmbient();
   introVideo.loop = true;
   introVideo.currentTime = 0;
   introVideo.play().catch(() => {
-    introStatus.textContent = "No fue posible reproducir el video de apertura. El sistema continuará con INTRO_AUDIO.MP3 y el briefing visual.";
+    introStatus.textContent = "No fue posible reproducir el video de apertura. El sistema continuará con audio.";
   });
   reproducirSonido("intro", { volume: 0.6 }).then((played) => {
     if (!played) {
@@ -3598,10 +1810,22 @@ audioIntro.addEventListener("error", () => {
 });
 escapeVideo?.addEventListener("ended", () => {
   if (state.finalOutcome === "failure") {
-    finalizarEscapeFallido();
+    finishFailureCinematic();
     return;
   }
-  finalizarEscapeExitoso();
+  finishEscapeCinematic();
+});
+escapeVideo?.addEventListener("error", () => {
+  if (escapeOverlayText) {
+    escapeOverlayText.textContent = state.finalOutcome === "failure"
+      ? "No fue posible reproducir assets/video/Falla.mp4."
+      : "No fue posible reproducir assets/video/ESCAPE.MP4. La misión se considera completada.";
+  }
+  if (state.finalOutcome === "failure") {
+    finishFailureCinematic();
+    return;
+  }
+  finishEscapeCinematic();
 });
 omegaVideo?.addEventListener("ended", cerrarEventoOmega);
 omegaVideo?.addEventListener("error", () => {
@@ -3610,30 +1834,10 @@ omegaVideo?.addEventListener("error", () => {
   }
   cerrarEventoOmega();
 });
-escapeVideo?.addEventListener("error", () => {
-  if (escapeOverlayText) {
-    escapeOverlayText.textContent = `No fue posible reproducir ${state.finalOutcome === "failure" ? "assets/video/Falla.mp4" : "assets/video/ESCAPE.MP4"}.`;
-  }
-  if (state.finalOutcome === "failure") {
-    finalizarEscapeFallido(true);
-  } else {
-    finalizarEscapeExitoso(true);
-  }
-});
 resumeSession.addEventListener("click", hideFocusLock);
 restartScenarioButton.addEventListener("click", restartScenario);
-
 toggleAmbientMuteButton.addEventListener("click", toggleAmbientMute);
 toggleAmbientPauseButton.addEventListener("click", toggleAmbientPause);
-difficultySelect?.addEventListener("change", () => {
-  if (state.protocolStarted) {
-    difficultySelect.value = state.difficulty;
-    return;
-  }
-  state.difficulty = difficultySelect.value;
-  initializeScenario();
-  updateHud();
-});
 scanSectorButton.addEventListener("click", scanSector);
 identifySpeciesButton.addEventListener("click", identifySpecies);
 confirmContainmentButton.addEventListener("click", confirmContainmentFromActiveZone);
@@ -3652,8 +1856,11 @@ mapBackdrop.addEventListener("click", () => mapModal.classList.add("hidden"));
 speciesMarkers.forEach((marker) => {
   marker.addEventListener("click", () => {
     setActiveSpecies(marker.dataset.zone);
-    if (["raptor", "trex", "anky", "brachio", "dilo", "stego"].includes(marker.dataset.zone)) {
+    if (["raptor", "trex", "anky", "brachio", "dilo", "stego", "chimera"].includes(marker.dataset.zone)) {
       playDinoSound(marker.dataset.zone === "trex" ? "trex" : marker.dataset.zone, 0.3);
+      if (marker.dataset.zone === "chimera") {
+        reproducirGarrasAleatorio(true);
+      }
     }
   });
 });
@@ -3667,24 +1874,12 @@ output.addEventListener("click", async (event) => {
   input.focus();
 });
 
-output.addEventListener("scroll", () => {
-  state.userScrolledTerminal = !shouldStickTerminalScroll();
-});
-
 actionButtons.forEach((button) => {
   button.addEventListener("click", async () => {
     if (!state.bootStarted) await runBootSequence();
     await handleCommand(button.dataset.command);
     input.focus();
   });
-});
-
-missionActionButton?.addEventListener("click", async () => {
-  const command = missionActionButton.dataset.command;
-  if (!command) return;
-  if (!state.bootStarted) await runBootSequence();
-  await handleCommand(command);
-  input.focus();
 });
 
 form.addEventListener("submit", async (event) => {
@@ -3710,22 +1905,37 @@ focusCipherSendButton.addEventListener("click", async () => {
   input.value = "";
 });
 
-cipherRotorCards.addEventListener("pointerdown", (event) => {
-  if (event.pointerType === "mouse" && event.button !== 0) return;
-  handleCipherRotorInteraction(event);
-});
-
-cipherRotorCards.addEventListener("click", handleCipherRotorInteraction);
-
-cipherRotorCards.addEventListener("keydown", (event) => {
+cipherRotorCards.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
-  if (event.key !== "Enter" && event.key !== " ") return;
-  const rotorButton = target.closest(".cipher-rotor[data-rotor-index]");
-  if (!(rotorButton instanceof HTMLElement)) return;
-  event.preventDefault();
-  const index = Number(rotorButton.dataset.rotorIndex);
-  selectCipherRotor(index);
+
+  const rotateButton = target.closest("[data-rotate]");
+  if (rotateButton instanceof HTMLElement) {
+    const index = Number(rotateButton.dataset.rotorIndex);
+    const rotor = state.cipherHelper.rotors[index];
+    if (!rotor) return;
+    rotor.currentValue = (rotor.currentValue + 9) % 10;
+    state.cipherHelper.activeRotorIndex = index;
+    updateCipherHelper();
+    return;
+  }
+
+  const resetButton = target.closest("[data-reset-rotor]");
+  if (resetButton instanceof HTMLElement) {
+    const index = Number(resetButton.dataset.resetRotor);
+    const rotor = state.cipherHelper.rotors[index];
+    if (!rotor) return;
+    rotor.currentValue = rotor.baseValue;
+    state.cipherHelper.activeRotorIndex = index;
+    updateCipherHelper();
+    return;
+  }
+
+  const rotorButton = target.closest("[data-rotor-index]");
+  if (rotorButton instanceof HTMLElement) {
+    state.cipherHelper.activeRotorIndex = Number(rotorButton.dataset.rotorIndex);
+    updateCipherHelper();
+  }
 });
 
 document.addEventListener("visibilitychange", () => {
