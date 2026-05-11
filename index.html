@@ -99,6 +99,15 @@
       </div>
       <div class="mission-box">
         <p class="label">SISTEMA</p>
+        <div class="damage-meter" id="damageMeter">
+          <div class="damage-meter__top">
+            <span>DAÑO DEL LABORATORIO</span>
+            <strong id="damageMeterValue">12%</strong>
+          </div>
+          <div class="damage-meter__track">
+            <div class="damage-meter__fill" id="damageMeterFill"></div>
+          </div>
+        </div>
         <div class="system-health">
           <div><span>Daño instalacion</span><strong id="damageState">12%</strong></div>
           <div><span>Riesgo biologico</span><strong id="biohazardState">18%</strong></div>
@@ -122,12 +131,12 @@
           <div class="mission-item" id="missionRaptor">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>3. Contener Velociraptor</strong>
-            <p>Usa el cifrado de rotores del archivo `RAPTOR.KEY`. Pista: la tabla base va de `A=0` a `J=9`.</p>
+            <p>Consulta `RAPTOR.KEY`, alinea rotores y envía la contención desde el módulo.</p>
           </div>
           <div class="mission-item" id="missionTrex">
             <span class="mission-item__state">BLOQUEADA</span>
             <strong>4. Contener T-Rex</strong>
-            <p>Resuelve el mensaje cifrado del protocolo `TREX.KEY` y concatena los tres valores del rotor.</p>
+            <p>Consulta `TREX.KEY`, sincroniza compuertas pesadas y envía la contención desde los rotores.</p>
           </div>
           <div class="mission-item" id="missionDilo">
             <span class="mission-item__state">BLOQUEADA</span>
@@ -152,7 +161,7 @@
           <div class="mission-item" id="missionChimera">
             <span class="mission-item__state">LATENTE</span>
             <strong>9. Contener Chimerasaurus</strong>
-            <p>El protocolo OMEGA requiere reunir fragmentos y reconstruir la clave final del híbrido.</p>
+            <p>OMEGA es el estado crítico del laboratorio; reúne fragmentos para contener al híbrido y poder escapar.</p>
           </div>
           <div class="mission-item" id="missionDoor">
             <span class="mission-item__state">BLOQUEADA</span>
@@ -180,25 +189,13 @@
       </div>
       <div class="mission-box">
         <p class="label">MODO GUIADO</p>
-        <p>Usa accesos de investigacion. El sistema ya no envia todas las soluciones exactas: primero hay que revisar archivos y deducir protocolos.</p>
+        <p>Accesos mínimos. La investigación real ocurre en la terminal con <code>ls</code>, <code>cat</code> y <code>hint</code>.</p>
         <div class="action-grid" id="actionGrid">
           <button class="action-button" data-command="ls">Ver archivos</button>
-          <button class="action-button" data-command="cat POWER.LOG">Revisar energia</button>
-          <button class="action-button" data-command="cat GENERATOR.LOG">Ver generador</button>
-          <button class="action-button" data-command="cat ENIGMA.MANUAL">Manual Enigma</button>
-          <button class="action-button" data-command="cat RAPTOR.KEY">Clave raptor</button>
-          <button class="action-button" data-command="cat TREX.KEY">Clave T-Rex</button>
-          <button class="action-button" data-command="cat DILO.LOG">Ver Dilophosaurus</button>
-          <button class="action-button" data-command="cat BARRIER.SYS">Ver barreras</button>
-          <button class="action-button" data-command="cat HERD.LOG">Ver herbivoros</button>
-          <button class="action-button" data-command="cat ANKY.KEY">Ver Ankylosaurus</button>
-          <button class="action-button" data-command="cat OMEGA.LOG">Ver OMEGA</button>
-          <button class="action-button" data-command="cat CHIMERA.KEY">Ver clave quimera</button>
-          <button class="action-button" data-command="cat DNA-MIX.LOG">Ver ADN hibrido</button>
           <button class="action-button action-button--primary" data-command="cat CREW.LOG">Ver incidentes</button>
-          <button class="action-button action-button--primary" data-command="cat DOOR.SYS">Revisar puerta</button>
           <button class="action-button action-button--primary" data-command="status">Estado actual</button>
           <button class="action-button action-button--danger" data-command="hint">Solicitar pista</button>
+          <button class="action-button" data-command="help">Ayuda terminal</button>
         </div>
       </div>
       <div class="mission-box">
@@ -272,7 +269,7 @@
             <p class="label">DESCIFRADO ACTIVO</p>
             <strong id="cipherConsoleTarget">OBJETIVO: RAPTOR</strong>
           </div>
-          <p id="cipherConsoleHint">Cada rotor inicia en el numero de su letra. Cada giro hacia atras resta 1. Si bajas de 0, vuelves a 9.</p>
+          <p id="cipherConsoleHint">Los rotores aparecen durante protocolos activos. Lee archivos .LOG y .KEY para entender la sincronización.</p>
         </div>
         <div class="cipher-console__body">
           <div class="cipher-console__rotors" id="cipherRotorCards">
@@ -285,14 +282,16 @@
               <p id="cipherExplanation">Gira hacia atras tantas veces como indique `resta`. El numero final es el digito correcto.</p>
             </div>
             <div class="cipher-console__result">
-              <span>CLAVE</span>
+              <span>SECUENCIA</span>
               <strong id="cipherConsoleBuffer">_ _ _</strong>
             </div>
             <div class="cipher-console__actions">
               <button type="button" class="action-button action-button--primary" id="focusCipherRaptor">Cargar Raptor</button>
               <button type="button" class="action-button" id="focusCipherTrex">Cargar T-Rex</button>
+              <button type="button" class="action-button" id="focusCipherDilo">Cargar Dilo</button>
+              <button type="button" class="action-button" id="focusCipherChimera">Cargar Chimera</button>
               <button type="button" class="action-button" id="focusCipherAppend">Guardar digito</button>
-              <button type="button" class="action-button" id="focusCipherSend">Enviar comando</button>
+              <button type="button" class="action-button" id="focusCipherSend">Enviar contención</button>
             </div>
           </div>
         </div>
@@ -334,6 +333,7 @@
       <p class="label" id="omegaOverlayLabel">NIVEL OMEGA ACTIVADO</p>
       <h3 id="omegaOverlayTitle">CHIMERASAURUS REX LIBERADO</h3>
       <p id="omegaOverlayText">CAPSULA DE CONTENCION ROTA. El juego continua al terminar el evento.</p>
+      <strong class="omega-countdown" id="omegaCountdown">15:00</strong>
     </div>
   </div>
 
