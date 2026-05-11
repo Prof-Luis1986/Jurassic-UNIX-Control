@@ -131,6 +131,8 @@ const dinoSounds = {
 };
 
 const ROTOR_DEBUG = false;
+const CHIMERA_DEBUG = true;
+let rotorContainmentListenerAttached = false;
 
 for (const sound of Object.values(dinoSounds)) {
   sound.preload = "auto";
@@ -183,18 +185,23 @@ const state = {
   attempts: 0,
   countdownSeconds: 900,
   omegaReleased: false,
+  omegaActive: false,
   omegaCinematicPlaying: false,
   omegaVideoSeen: false,
   activeThreatCinematic: null,
+  currentProtocol: null,
+  activeThreat: null,
   timerId: null,
   damageInstalacion: 12,
   riesgoBiologico: 18,
   estabilidadLaboratorio: 88,
   energiaSistema: 62,
   chimeraContained: false,
+  chimeraActive: false,
   chimeraCode: "",
   diloCode: "",
   chimeraBreakoutCount: 0,
+  chimeraSessionId: 0,
   chimeraContainmentExpiresAt: null,
   omegaRotorsSolved: false,
   chimeraFragmentsKnown: {
@@ -322,6 +329,28 @@ function prepareNextChimeraCycle() {
   resetChimeraFragments();
 }
 
+function getRotorCurrentValues() {
+  return state.cipherHelper.rotors.map((rotor) => rotor.currentValue);
+}
+
+function logChimeraSession(stage = "state") {
+  if (!CHIMERA_DEBUG) return;
+  console.log("CHIMERA SESSION", {
+    stage,
+    aparicionNumero: state.chimeraBreakoutCount,
+    sessionId: state.chimeraSessionId,
+    protocoloActivo: state.currentProtocol,
+    activeThreat: state.activeThreat,
+    omegaActive: state.omegaActive,
+    chimeraActive: state.chimeraActive,
+    rotorTarget: state.cipherHelper.target,
+    rotorValues: getRotorCurrentValues(),
+    claveGenerada: state.cipherHelper.buffer,
+    expectedCode: state.chimeraCode,
+    listenersActivos: rotorContainmentListenerAttached ? 1 : 0,
+  });
+}
+
 function clonePlay(audioElement, volume = 0.45) {
   const sound = audioElement.cloneNode();
   sound.volume = volume;
@@ -428,7 +457,7 @@ function getActiveThreats() {
   if (state.timelineFlags.barrier && !state.barriersRestored) threats.push({ key: "barrier", label: "BARRERAS COMPROMETIDAS", severity: "active" });
   if (state.timelineFlags.herd && !state.herdCalmed) threats.push({ key: "herd", label: "HERBIVOROS EN CONFLICTO", severity: "active" });
   if (state.timelineFlags.anky && !state.ankyRedirected) threats.push({ key: "anky", label: "ANKYLOSAURUS BLOQUEANDO RUTA", severity: "active" });
-  if (state.omegaReleased && !state.chimeraContained) threats.push({ key: "chimera", label: "CHIMERASAURUS REX LIBERADO", severity: "omega" });
+  if (state.chimeraActive || (state.omegaReleased && !state.chimeraContained)) threats.push({ key: "chimera", label: "CHIMERASAURUS REX LIBERADO", severity: "omega" });
   return threats;
 }
 
@@ -462,7 +491,7 @@ function mantenerAlertaActiva() {
 }
 
 function getActiveMajorThreat() {
-  if (state.omegaReleased && !state.chimeraContained) {
+  if (state.chimeraActive || (state.omegaReleased && !state.chimeraContained)) {
     return {
       key: "chimera",
       label: "CHIMERASAURUS REX",
@@ -681,17 +710,22 @@ function initializeScenario() {
   state.activeZone = "raptor";
   state.countdownSeconds = 900;
   state.omegaReleased = false;
+  state.omegaActive = false;
   state.omegaCinematicPlaying = false;
   state.omegaVideoSeen = false;
   state.activeThreatCinematic = null;
+  state.currentProtocol = null;
+  state.activeThreat = null;
   state.damageInstalacion = 12;
   state.riesgoBiologico = 18;
   state.estabilidadLaboratorio = 88;
   state.energiaSistema = 62;
   state.chimeraContained = false;
+  state.chimeraActive = false;
   state.chimeraCode = "";
   state.diloCode = "";
   state.chimeraBreakoutCount = 0;
+  state.chimeraSessionId = 0;
   state.chimeraContainmentExpiresAt = null;
   state.omegaRotorsSolved = false;
   state.chimeraFragmentsKnown = {
@@ -1179,6 +1213,9 @@ function getDirectorPhase() {
 }
 
 function setPuzzleVisibility(mode) {
+  if (state.chimeraActive && mode !== "chimera" && mode !== "none") {
+    mode = "chimera";
+  }
   state.director.activePuzzle = mode;
   if (!cipherConsole) return;
   const shouldShow = ["raptor", "trex", "dilo", "chimera"].includes(mode);
@@ -1224,14 +1261,26 @@ function triggerVisualGlitchBurst(severity = "normal") {
   }, severity === "severe" ? 480 : 260);
 }
 
-function triggerChimeraBreakout(reason = "RUPTURA OMEGA DETECTADA") {
+function iniciarProtocoloChimerasaurus(reason = "RUPTURA OMEGA DETECTADA") {
+  if (state.cipherHelper.target === "chimera") {
+    resetAllRotors();
+  }
+  state.chimeraSessionId += 1;
   state.omegaReleased = true;
+  state.omegaActive = true;
+  state.currentProtocol = "chimerasaurus";
+  state.activeThreat = "chimerasaurus";
+  state.chimeraActive = true;
   state.chimeraContained = false;
+  state.omegaRotorsSolved = false;
   state.chimeraContainmentExpiresAt = null;
   state.chimeraBreakoutCount += 1;
   state.activeZone = "chimera";
   state.doorUnlocked = false;
   state.omegaVideoSeen = false;
+  state.activeThreatCinematic = null;
+  state.chimeraCode = "";
+  state.chimeraRotors = [];
   prepareNextChimeraCycle();
   markProgress("chimera");
   const escalation = state.chimeraBreakoutCount;
@@ -1247,6 +1296,7 @@ function triggerChimeraBreakout(reason = "RUPTURA OMEGA DETECTADA") {
   triggerVisualGlitchBurst("severe");
   setCipherTarget("chimera");
   setPuzzleVisibility("chimera");
+  logChimeraSession("inicio");
   addLine(`RUPTURA OMEGA // ${reason} // INCIDENTE ${state.chimeraBreakoutCount}`, "error");
   addLine("NIVEL OMEGA ACTIVADO", "error");
   addLine("CHIMERASAURUS REX LIBERADO", "error");
@@ -1257,6 +1307,26 @@ function triggerChimeraBreakout(reason = "RUPTURA OMEGA DETECTADA") {
   setCurrentAlert(`CHIMERASAURUS REX LIBERADO OTRA VEZ. RUPTURA ${state.chimeraBreakoutCount}.`, "error");
   showContextGuide("chimera", "error");
   triggerThreatEscapeCinematic("chimera");
+}
+
+function cerrarProtocoloChimerasaurus() {
+  state.chimeraContained = true;
+  state.chimeraActive = false;
+  if (state.currentProtocol === "chimerasaurus") state.currentProtocol = null;
+  if (state.activeThreat === "chimerasaurus") state.activeThreat = null;
+  state.omegaRotorsSolved = false;
+  state.chimeraContainmentExpiresAt = state.countdownSeconds - getChimeraContainmentWindow();
+  if (state.cipherHelper.target === "chimera") {
+    resetAllRotors();
+  }
+  setPuzzleVisibility("none");
+  detenerSonido("chimera");
+  detenerAlertaSoloSiNoHayAmenazasActivas();
+  logChimeraSession("cierre");
+}
+
+function triggerChimeraBreakout(reason = "RUPTURA OMEGA DETECTADA") {
+  iniciarProtocoloChimerasaurus(reason);
 }
 
 function applyDeterioration(delta = {}) {
@@ -2413,6 +2483,16 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     await typeLine("No existe una amenaza Chimerasaurus activa en este momento.", "warning");
     return false;
   }
+  if (target === "chimera" && (
+    state.currentProtocol !== "chimerasaurus" ||
+    state.activeThreat !== "chimerasaurus" ||
+    !state.omegaActive ||
+    !state.chimeraActive
+  )) {
+    logChimeraSession("rechazo-protocolo-inactivo");
+    setCurrentAlert("La sesión CHIMERA no está activa. Espera una nueva ruptura para iniciar rotores nuevos.", "warning");
+    return false;
+  }
   if (target === "raptor" && state.raptorContained) {
     await typeLine("Velociraptor ya está contenido.", "warning");
     return false;
@@ -2434,6 +2514,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     return false;
   }
   if (!isRotorProtocolReady(target)) {
+    if (target === "chimera") logChimeraSession("rechazo-rotores");
     requireRotorProtocol(target, "Contención incompleta. Alinea, guarda los tres rotores y vuelve a enviar.");
     return false;
   }
@@ -2480,18 +2561,16 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
   }
 
   if (target === "chimera") {
+    logChimeraSession("envio");
     state.omegaRotorsSolved = true;
-    state.chimeraContained = true;
     markProgress("door");
-    state.omegaRotorsSolved = false;
     rewardRecovery("omega", "Chimerasaurus contenido");
-    state.chimeraContainmentExpiresAt = state.countdownSeconds - getChimeraContainmentWindow();
     state.riesgoBiologico = clamp(state.riesgoBiologico - 18, 0, 100);
     state.damageInstalacion = clamp(state.damageInstalacion - 10, 0, 100);
     state.estabilidadLaboratorio = clamp(state.estabilidadLaboratorio + 14, 0, 100);
+    cerrarProtocoloChimerasaurus();
     detenerAlerta("SITUACION CONTROLADA // Chimerasaurus contenido");
     updateHud();
-    setPuzzleVisibility("none");
     await printLines([
       "Rotores CHIMERA sincronizados.",
       "Cerrando campos híbridos del núcleo central...",
@@ -2539,9 +2618,18 @@ function rotateCipherRotor(index, direction = -1, feedback = true) {
 }
 
 function setCipherTarget(target) {
+  if (state.chimeraActive && target !== "chimera") {
+    setCurrentAlert("Prioridad OMEGA: Chimerasaurus mantiene el control del módulo de rotores.", "warning");
+    return;
+  }
   preservePuzzleViewport(900);
   stopRotorPointer();
   state.cipherHelper.target = target;
+  if (target === "chimera") {
+    if (state.chimeraActive) state.currentProtocol = "chimerasaurus";
+  } else {
+    state.currentProtocol = target;
+  }
   state.cipherHelper.rotors = getCipherRotorsForTarget(target);
   state.cipherHelper.activeRotorIndex = 0;
   state.cipherHelper.buffer = "";
@@ -3175,10 +3263,13 @@ focusCipherChimeraButton.addEventListener("click", () => {
   updateCipherHelper();
 });
 focusCipherAppendButton.addEventListener("click", appendCipherResult);
-focusCipherSendButton.addEventListener("click", async () => {
-  await sendRotorContainment();
-  input.value = "";
-});
+if (!rotorContainmentListenerAttached) {
+  focusCipherSendButton.addEventListener("click", async () => {
+    await sendRotorContainment();
+    input.value = "";
+  });
+  rotorContainmentListenerAttached = true;
+}
 
 cipherRotorCards.addEventListener("click", (event) => {
   const target = event.target;
