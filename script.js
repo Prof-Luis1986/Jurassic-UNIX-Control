@@ -110,6 +110,7 @@ const focusCipherDiloButton = byId("focusCipherDilo");
 const focusCipherChimeraButton = byId("focusCipherChimera");
 const focusCipherAppendButton = byId("focusCipherAppend");
 const focusCipherSendButton = byId("focusCipherSend");
+const evacuationAction = byId("evacuationAction");
 
 const toggleAmbientMuteButton = byId("toggleAmbientMute");
 const toggleAmbientPauseButton = byId("toggleAmbientPause");
