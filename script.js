@@ -174,6 +174,8 @@ const state = {
   ankyRedirected: false,
   doorUnlocked: false,
   escaped: false,
+  evacuationAvailable: false,
+  evacuationAnnounced: false,
   cinematicStarted: false,
   gameOver: false,
   finalOutcome: null,
@@ -693,6 +695,8 @@ function initializeScenario() {
   state.ankyRedirected = false;
   state.doorUnlocked = false;
   state.escaped = false;
+  state.evacuationAvailable = false;
+  state.evacuationAnnounced = false;
   state.cinematicStarted = false;
   state.gameOver = false;
   state.finalOutcome = null;
@@ -1313,6 +1317,7 @@ function iniciarProtocoloChimerasaurus(reason = "RUPTURA OMEGA DETECTADA") {
 function cerrarProtocoloChimerasaurus() {
   state.chimeraContained = true;
   state.chimeraActive = false;
+  state.omegaActive = false;
   if (state.currentProtocol === "chimerasaurus") state.currentProtocol = null;
   if (state.activeThreat === "chimerasaurus") state.activeThreat = null;
   state.omegaRotorsSolved = false;
@@ -1513,6 +1518,47 @@ function setCurrentAlert(text, className = "warning") {
   }
 }
 
+function getEvacuationBlockers() {
+  const blockers = [];
+  const energyReady = state.powerOnline || (state.generatorRepaired && !state.generatorDamaged);
+  if (!energyReady) blockers.push("Energía");
+  if (!state.herdCalmed || !state.ankyRedirected) blockers.push("Ruta");
+  if (!state.raptorContained || !state.trexContained || !state.diloNeutralized || state.chimeraActive || state.activeThreat) blockers.push("Amenaza activa");
+  if (!state.barriersRestored) blockers.push("Barreras");
+  if (!state.omegaReleased || !state.chimeraContained || state.chimeraActive || state.omegaActive) blockers.push("Chimerasaurus");
+  if (state.gameOver || state.countdownSeconds <= 0 || state.damageInstalacion >= 100 || state.riesgoBiologico >= 100) blockers.push("Colapso");
+  return Array.from(new Set(blockers));
+}
+
+function verificarEvacuacionDisponible({ announce = false } = {}) {
+  const blockers = getEvacuationBlockers();
+  const available = blockers.length === 0 && !state.escaped && !state.gameOver;
+  state.evacuationAvailable = available;
+  if (available && !state.doorUnlocked) {
+    state.doorUnlocked = true;
+  }
+  if (evacuationAction) {
+    evacuationAction.classList.toggle("hidden", !available);
+    evacuationAction.disabled = !available;
+  }
+  if (available) {
+    if (!state.evacuationAnnounced || announce) {
+      state.evacuationAnnounced = true;
+      addLine("EVACUACIÓN DISPONIBLE.", "success");
+      addLine("Ejecuta: evacuate now", "success");
+      currentAlertText.textContent = "EVACUACIÓN DISPONIBLE. Ejecuta evacuate now.";
+    }
+    return { available, blockers };
+  }
+  state.evacuationAnnounced = false;
+  if (announce) {
+    addLine("EVACUACIÓN BLOQUEADA.", "warning");
+    addLine("Falta resolver:", "warning");
+    blockers.forEach((blocker) => addLine(`- ${blocker}`, "warning"));
+  }
+  return { available, blockers };
+}
+
 function getCurrentObjectiveKey() {
   if (state.omegaReleased && !state.chimeraContained) return "chimera";
   if (!state.powerOnline) return state.generatorDamaged ? "generator" : "power";
@@ -1691,8 +1737,8 @@ function updateMissionStates() {
   setMissionState(missionHerd, !state.barriersRestored ? "BLOQUEADA" : state.herdCalmed ? "COMPLETA" : "ACTIVA", !state.barriersRestored ? "is-locked" : state.herdCalmed ? "is-done" : "is-active");
   setMissionState(missionAnky, !state.herdCalmed ? "BLOQUEADA" : state.ankyRedirected ? "COMPLETA" : "ACTIVA", !state.herdCalmed ? "is-locked" : state.ankyRedirected ? "is-done" : "is-active");
   setMissionState(missionChimera, !state.omegaReleased ? "LATENTE" : state.chimeraContained ? "TEMPORAL" : "ACTIVA", !state.omegaReleased ? "is-locked" : state.chimeraContained ? "is-done" : "is-active");
-  setMissionState(missionDoor, !state.ankyRedirected || !state.omegaReleased || !state.chimeraContained ? "BLOQUEADA" : state.doorUnlocked ? "COMPLETA" : "ACTIVA", !state.ankyRedirected || !state.omegaReleased || !state.chimeraContained ? "is-locked" : state.doorUnlocked ? "is-done" : "is-active");
-  setMissionState(missionEscape, !state.doorUnlocked || !state.omegaReleased || !state.chimeraContained ? "BLOQUEADA" : state.escaped ? "COMPLETA" : "ACTIVA", !state.doorUnlocked || !state.omegaReleased || !state.chimeraContained ? "is-locked" : state.escaped ? "is-done" : "is-active");
+  setMissionState(missionDoor, state.doorUnlocked ? "COMPLETA" : state.evacuationAvailable ? "ACTIVA" : "BLOQUEADA", state.doorUnlocked ? "is-done" : state.evacuationAvailable ? "is-active" : "is-locked");
+  setMissionState(missionEscape, state.escaped ? "COMPLETA" : state.evacuationAvailable ? "ACTIVA" : "BLOQUEADA", state.escaped ? "is-done" : state.evacuationAvailable ? "is-active" : "is-locked");
 
   if (major) {
     const secondary = [
@@ -1783,6 +1829,7 @@ function setActiveSpecies(zoneKey) {
 }
 
 function updateActionButtons() {
+  const evacuation = verificarEvacuacionDisponible();
   for (const button of actionButtons) {
     const command = button.dataset.command;
     let disabled = false;
@@ -1792,22 +1839,23 @@ function updateActionButtons() {
     if (command === "restore barrier BARRIER-RESTORE-31" && (!state.diloNeutralized || state.barriersRestored)) disabled = true;
     if (command === "separate herd HERD-SPLIT-41" && (!state.barriersRestored || state.herdCalmed)) disabled = true;
     if (command === "redirect anky ANKY-PORT-55" && (!state.herdCalmed || state.ankyRedirected)) disabled = true;
-    if (command === "unlock door DOOR-LOCK-42" && (!state.raptorContained || !state.trexContained || !state.diloNeutralized || !state.barriersRestored || !state.herdCalmed || !state.ankyRedirected || state.generatorDamaged || state.doorUnlocked)) disabled = true;
-    if (command === "escape" && (!state.doorUnlocked || state.escaped)) disabled = true;
+    if (command === "unlock door DOOR-LOCK-42" && (!evacuation.available || state.doorUnlocked)) disabled = true;
+    if ((command === "escape" || command === "evacuate now") && (!evacuation.available || state.escaped)) disabled = true;
     button.disabled = disabled;
   }
 }
 
 function updateHud() {
   mantenerAlertaActiva();
+  verificarEvacuacionDisponible();
   powerState.textContent = state.powerOnline ? "ONLINE" : "OFFLINE";
   powerState.style.color = state.powerOnline ? "#9cff57" : "";
   raptorState.textContent = state.raptorContained ? "INACTIVA" : "ACTIVA";
   raptorState.style.color = state.raptorContained ? "#9cff57" : "";
   doorState.textContent = state.doorUnlocked ? "ABIERTA" : "BLOQUEADA";
   doorState.style.color = state.doorUnlocked ? "#9cff57" : "";
-  escapeState.textContent = state.escaped ? "COMPLETA" : "PENDIENTE";
-  escapeState.style.color = state.escaped ? "#9cff57" : "";
+  escapeState.textContent = state.escaped ? "COMPLETA" : state.evacuationAvailable ? "DISPONIBLE" : "PENDIENTE";
+  escapeState.style.color = state.escaped || state.evacuationAvailable ? "#9cff57" : "";
   threatLevelState.textContent = state.gameOver ? "COLAPSO" : state.omegaReleased && !state.chimeraContained ? "OMEGA" : state.damageInstalacion >= 70 || state.riesgoBiologico >= 70 ? "CRITICO" : state.damageInstalacion >= 40 || !state.diloNeutralized || !state.barriersRestored ? "ALTO" : state.doorUnlocked ? "CONTROLADO" : "MEDIO";
   countdownState.textContent = formatCountdown(state.countdownSeconds);
   if (omegaCountdown) omegaCountdown.textContent = `TIEMPO CRITICO ${formatCountdown(state.countdownSeconds)}`;
@@ -1836,7 +1884,7 @@ function updateHud() {
   setZoneState(zonePowerState, state.powerOnline ? "ONLINE" : "OFFLINE", state.powerOnline ? "online" : "offline");
   setZoneState(zoneRaptorState, state.raptorContained ? "ASEGURADA" : "ACTIVA", state.raptorContained ? "safe" : "danger");
   setZoneState(zoneDoorState, state.doorUnlocked ? "ABIERTA" : "BLOQUEADA", state.doorUnlocked ? "open" : "locked");
-  setZoneState(zoneEscapeState, state.escaped ? "COMPLETA" : "PENDIENTE", state.escaped ? "done" : "pending");
+  setZoneState(zoneEscapeState, state.escaped ? "COMPLETA" : state.evacuationAvailable ? "DISPONIBLE" : "PENDIENTE", state.escaped || state.evacuationAvailable ? "done" : "pending");
 
   updateObjective();
   updateMissionStates();
@@ -1934,7 +1982,7 @@ function showStatus() {
     `Herbivoros: ${state.herdCalmed ? "SEPARADOS" : "EN CONFLICTO"}`,
     `Ankylosaurus: ${state.ankyRedirected ? "REDIRIGIDO" : "BLOQUEANDO RUTA"}`,
     `Puerta: ${state.doorUnlocked ? "ABIERTA" : "BLOQUEADA"}`,
-    `Evacuacion: ${state.escaped ? "COMPLETADA" : "PENDIENTE"}`,
+    `Evacuacion: ${state.escaped ? "COMPLETADA" : state.evacuationAvailable ? "DISPONIBLE" : "BLOQUEADA"}`,
     `Daño instalación: ${Math.round(state.damageInstalacion)}%`,
     `Riesgo biológico: ${Math.round(state.riesgoBiologico)}%`,
     `Estabilidad: ${Math.round(state.estabilidadLaboratorio)}%`,
@@ -1962,6 +2010,27 @@ function triggerGameOver() {
   setCurrentAlert("Ataque masivo no contenido. El laboratorio ha sido comprometido.", "error");
   startFailureCinematic();
   updateHud();
+}
+
+async function iniciarEscapeFinal() {
+  const evacuation = verificarEvacuacionDisponible({ announce: true });
+  if (!evacuation.available) {
+    applyCommandPenalty("standard", "ESCAPE DENEGADO: evacuación bloqueada.");
+    return false;
+  }
+  state.doorUnlocked = true;
+  state.escaped = true;
+  if (state.timerId) {
+    window.clearInterval(state.timerId);
+    state.timerId = null;
+  }
+  stopAmbient();
+  detenerAlerta("SITUACION CONTROLADA // Evacuacion completada");
+  updateHud();
+  speak(narrationLines.escape);
+  await printLines(["Iniciando protocolo de escape...", "Puertas externas liberadas.", "EVACUACION COMPLETADA. Has escapado del laboratorio."], "success");
+  startEscapeCinematic();
+  return true;
 }
 
 function startEscapeCinematic() {
@@ -2830,6 +2899,7 @@ async function handleCommand(rawCommand) {
         "separate herd HERD-SPLIT-41",
         "redirect anky ANKY-PORT-55",
         "unlock door DOOR-LOCK-42",
+        "evacuate now",
         "escape", "restart", "clear",
       ]);
       return;
@@ -2882,6 +2952,7 @@ async function handleCommand(rawCommand) {
 
     case "status":
       await showStatus();
+      verificarEvacuacionDisponible({ announce: true });
       return;
 
     case "missions":
@@ -3048,8 +3119,9 @@ async function handleCommand(rawCommand) {
 
     case "unlock":
       if (argsLower[0] === "door" && argsUpper.slice(1).join("-") === "DOOR-LOCK-42") {
-        if (!state.raptorContained || !state.trexContained || !state.diloNeutralized || !state.barriersRestored || !state.herdCalmed || !state.ankyRedirected || state.generatorDamaged || !state.omegaReleased || !state.chimeraContained) {
-          applyCommandPenalty("standard", "Existen amenazas activas, Chimerasaurus no está contenido o hay fallas de infraestructura. La puerta no puede liberarse.");
+        const evacuation = verificarEvacuacionDisponible({ announce: true });
+        if (!evacuation.available) {
+          applyCommandPenalty("standard", "La puerta no puede liberarse: evacuación bloqueada.");
           return;
         }
         state.doorUnlocked = true;
@@ -3064,21 +3136,15 @@ async function handleCommand(rawCommand) {
       break;
 
     case "escape":
-      if (!state.doorUnlocked || !state.omegaReleased || !state.chimeraContained) {
-        applyCommandPenalty("standard", "ESCAPE DENEGADO: protocolos incompletos.");
+      await iniciarEscapeFinal();
+      return;
+
+    case "evacuate":
+      if (argsLower[0] === "now") {
+        await iniciarEscapeFinal();
         return;
       }
-      state.escaped = true;
-      if (state.timerId) {
-        window.clearInterval(state.timerId);
-        state.timerId = null;
-      }
-      stopAmbient();
-      detenerAlerta("SITUACION CONTROLADA // Evacuacion completada");
-      updateHud();
-      speak(narrationLines.escape);
-      await printLines(["Iniciando protocolo de escape...", "Puertas externas liberadas.", "EVACUACION COMPLETADA. Has escapado del laboratorio."], "success");
-      startEscapeCinematic();
+      await typeLine("Uso: evacuate now", "warning");
       return;
 
     case "restart":
