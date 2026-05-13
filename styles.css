@@ -1194,6 +1194,12 @@ body.state-omega::after {
     linear-gradient(180deg, rgba(22, 3, 4, 0.88), rgba(3, 8, 6, 0.98));
 }
 
+.omega-overlay--minor {
+  background:
+    radial-gradient(circle at center, rgba(255, 209, 102, 0.18), transparent 30%),
+    linear-gradient(180deg, rgba(25, 17, 4, 0.84), rgba(3, 10, 9, 0.98));
+}
+
 .omega-overlay.hidden {
   display: none;
 }
@@ -1230,6 +1236,16 @@ body.state-omega::after {
 }
 
 .omega-overlay--raptor .omega-overlay__panel h3 {
+  color: #fff0b7;
+  text-shadow: 0 0 18px rgba(255, 209, 102, 0.24);
+}
+
+.omega-overlay--minor .omega-overlay__panel {
+  border-color: rgba(255, 209, 102, 0.36);
+  box-shadow: 0 0 30px rgba(255, 209, 102, 0.14);
+}
+
+.omega-overlay--minor .omega-overlay__panel h3 {
   color: #fff0b7;
   text-shadow: 0 0 18px rgba(255, 209, 102, 0.24);
 }
