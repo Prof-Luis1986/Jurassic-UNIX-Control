@@ -37,9 +37,9 @@
 
 <p><strong>¿Estamos preparados para lo que vendrá?</strong></p>
       </div>
-      <p class="intro-status" id="introStatus">Pulsa INICIAR PROTOCOLO DE EMERGENCIA para activar video, temporizador y protocolo visual.</p>
+      <p class="intro-status" id="introStatus">Pulsa INICIAR PROTOCOLO DE APERTURA para ver la apertura. La emergencia real iniciara despues del entrenamiento.</p>
       <div class="intro-actions">
-        <button id="startIntro" class="start-button">INICIAR PROTOCOLO DE EMERGENCIA</button>
+        <button id="startIntro" class="start-button">INICIAR PROTOCOLO DE APERTURA</button>
         <button id="skipIntro" class="start-button start-button--secondary">OMITIR INTRO</button>
       </div>
     </div>
@@ -50,14 +50,75 @@
       <p class="boot-kicker">GENETIC SYSTEMS // LAB ESCAPE PROTOCOL</p>
       <h1>JURASSIC UNIX CONTROL</h1>
       <p class="boot-text">
-        Antes de tomar control real, completa la simulacion de emergencia del laboratorio. La terminal te entrenara
+        Antes de tomar control real, completa la simulacion de entrenamiento del laboratorio. La terminal te entrenara
         en investigacion, rotores, protocolos y evacuacion sin activar amenazas reales.
       </p>
-      <button id="startSystem" class="start-button">INICIAR CAPACITACION</button>
+      <div class="intro-actions">
+        <button id="startSystem" class="start-button">INICIAR CAPACITACION</button>
+        <button id="skipTrainingBoot" class="start-button start-button--secondary" type="button">SALTAR TUTORIAL</button>
+      </div>
     </div>
   </div>
 
-  <div class="app-shell">
+  <section class="training-overlay hidden" id="trainingOverlay" aria-hidden="true">
+    <div class="training-panel">
+      <div class="training-header">
+        <div>
+          <p class="boot-kicker">PROTOCOLO DEL LABORATORIO</p>
+          <h2>SIMULACION DE ENTRENAMIENTO</h2>
+          <p>Entorno seguro. Sin temporizador, sin amenazas reales, sin daño y sin penalizaciones.</p>
+        </div>
+        <span id="trainingPhaseBadge">FASE 1 / TERMINAL</span>
+      </div>
+      <div class="training-layout">
+        <aside class="training-brief">
+          <p class="label">OBJETIVO DE CAPACITACION</p>
+          <h3 id="trainingObjective">Aprende los comandos basicos de terminal.</h3>
+          <ol class="training-steps" id="trainingSteps">
+            <li class="is-active">Escribe <code>help</code></li>
+            <li>Ejecuta <code>ls</code></li>
+            <li>Lee <code>TRAINING.LOG</code></li>
+            <li>Activa y resuelve un rotor simple</li>
+            <li>Restaura energia de practica</li>
+          </ol>
+          <div class="training-note">
+            <strong>Evacuacion</strong>
+            <p>Las rutas reales apareceran durante emergencias reales. Aqui solo veras el concepto, no las cuatro rutas dinamicas.</p>
+          </div>
+        </aside>
+        <main class="training-console">
+          <div class="training-output" id="trainingOutput" aria-live="polite"></div>
+          <form id="trainingForm" class="terminal-input-row training-input-row" autocomplete="off">
+            <label class="prompt" for="trainingInput">training@jurassic:~#</label>
+            <input id="trainingInput" name="trainingInput" type="text" spellcheck="false" placeholder="Escribe help para iniciar">
+          </form>
+        </main>
+        <aside class="training-rotor" id="trainingRotorPanel" aria-live="polite">
+          <p class="label">ROTOR SIMPLE</p>
+          <strong id="trainingRotorState">BLOQUEADO</strong>
+          <p id="trainingRotorHint">El rotor se activa cuando el entrenamiento lo solicite.</p>
+          <button type="button" class="training-rotor__dial" id="trainingRotorDial" disabled>
+            <span id="trainingRotorValue">3</span>
+          </button>
+          <div class="training-rotor__actions">
+            <button type="button" class="action-button" id="trainingRotorTurn" disabled>GIRAR ATRAS</button>
+            <button type="button" class="action-button action-button--primary" id="trainingRotorSave" disabled>GUARDAR DIGITO</button>
+          </div>
+        </aside>
+      </div>
+      <div class="training-complete hidden" id="trainingCompletePanel">
+        <p class="label">ENTRENAMIENTO COMPLETADO</p>
+        <h3>Ahora iniciaras una emergencia real.</h3>
+        <p>Las amenazas, rutas y eventos seran dinamicos. Director de Eventos, daño, OMEGA y evacuaciones se activan solo al comenzar la simulacion real.</p>
+        <button id="startRealSimulation" class="start-button" type="button">INICIAR SIMULACION REAL</button>
+      </div>
+      <div class="training-skip">
+        <button id="skipTraining" class="start-button start-button--secondary" type="button">SALTAR TUTORIAL</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="app-shell hidden" id="appShell">
     <div class="hud-panel">
       <div>
         <p class="label">ESTADO</p>

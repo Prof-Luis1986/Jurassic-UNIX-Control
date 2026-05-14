@@ -7,6 +7,25 @@ const startIntroButton = byId("startIntro");
 const skipIntroButton = byId("skipIntro");
 const bootOverlay = byId("bootOverlay");
 const startSystemButton = byId("startSystem");
+const skipTrainingBootButton = byId("skipTrainingBoot");
+const trainingOverlay = byId("trainingOverlay");
+const trainingOutput = byId("trainingOutput");
+const trainingForm = byId("trainingForm");
+const trainingInput = byId("trainingInput");
+const trainingPhaseBadge = byId("trainingPhaseBadge");
+const trainingObjective = byId("trainingObjective");
+const trainingSteps = byId("trainingSteps");
+const trainingRotorPanel = byId("trainingRotorPanel");
+const trainingRotorState = byId("trainingRotorState");
+const trainingRotorHint = byId("trainingRotorHint");
+const trainingRotorDial = byId("trainingRotorDial");
+const trainingRotorValue = byId("trainingRotorValue");
+const trainingRotorTurn = byId("trainingRotorTurn");
+const trainingRotorSave = byId("trainingRotorSave");
+const trainingCompletePanel = byId("trainingCompletePanel");
+const skipTrainingButton = byId("skipTraining");
+const startRealSimulationButton = byId("startRealSimulation");
+const appShell = byId("appShell");
 const systemAlertPanel = byId("systemAlertPanel");
 const systemAlertState = byId("systemAlertState");
 const systemAlertMessage = byId("systemAlertMessage");
@@ -210,6 +229,153 @@ const narrationLines = {
   chimera: "Protocolo Omega disponible. Reúna los fragmentos y contenga al Chimerasaurus Rex antes del colapso total.",
 };
 
+const ambientNarrativeBank = [
+  {
+    id: "founders-01",
+    theme: "founders",
+    title: "FOUNDERS.LOG // FUNDACION",
+    source: "IA CENTRAL / ARCHIVO RECUPERADO",
+    minPhase: 1,
+    triggers: ["ambient", "file"],
+    files: ["README.TXT", "CREW.LOG", "FOUNDERS.LOG"],
+    text: "GENETIC SYSTEMS fue fundada para reconstruir especies perdidas. Los primeros informes omitieron una palabra: obediencia.",
+  },
+  {
+    id: "founders-02",
+    theme: "founders",
+    title: "FOUNDERS.LOG // EXPANSION",
+    source: "INTERCOM ANTIGUO",
+    minPhase: 1,
+    triggers: ["ambient"],
+    text: "La excavacion original no buscaba dinosaurios completos. Buscaba fragmentos. Lo demas fue ambicion con presupuesto suficiente.",
+  },
+  {
+    id: "rex-01",
+    theme: "trex",
+    title: "TREX-INCIDENT.LOG // PRIMER ADN VIABLE",
+    source: "GRABACION DE LABORATORIO",
+    minPhase: 2,
+    triggers: ["ambient", "file", "recovery"],
+    files: ["TREX.KEY", "TREX.DAT"],
+    text: "Primer tejido viable de Tyrannosaurus confirmado. El equipo celebro antes de leer el reporte de agresividad basal.",
+  },
+  {
+    id: "rex-02",
+    theme: "trex",
+    title: "TREX-INCIDENT.LOG // CONTENCION",
+    source: "MEMO DE SEGURIDAD",
+    minPhase: 2,
+    triggers: ["ambient", "recovery"],
+    text: "El T-Rex no rompio la primera compuerta por fuerza. La golpeo tres veces en el mismo punto. Eso no era azar.",
+  },
+  {
+    id: "raptor-01",
+    theme: "raptor",
+    title: "RAPTOR-TEST.LOG // APRENDIZAJE",
+    source: "IA CENTRAL / ANALISIS CONDUCTUAL",
+    minPhase: 1,
+    triggers: ["ambient", "file", "recovery"],
+    files: ["RAPTOR.KEY", "RAPTOR.DAT", "ENIGMA.MANUAL"],
+    text: "Los raptores no solo aprendian rutas. Aprendian horarios, voces y la diferencia entre una puerta cerrada y una puerta confiada.",
+  },
+  {
+    id: "raptor-02",
+    theme: "raptor",
+    title: "RAPTOR-TEST.LOG // COMUNICACION",
+    source: "AUDIO PARCIAL",
+    minPhase: 2,
+    triggers: ["ambient", "recovery"],
+    text: "Tres individuos emitieron vocalizaciones alternadas durante once minutos. Al final, el cerco norte recibio la primera prueba coordinada.",
+  },
+  {
+    id: "herb-01",
+    theme: "herbivore",
+    title: "HERBIVORE-REPORT.LOG // SECTOR C",
+    source: "BITACORA VETERINARIA",
+    minPhase: 1,
+    triggers: ["ambient", "file", "recovery"],
+    files: ["TRICERATOPS.LOG", "HERB.DAT", "STEGO.LOG", "STEGO.DAT"],
+    text: "Los herbivoros fueron pacificos al principio. Luego llegaron el confinamiento, las hormonas correctivas y los silencios en el reporte.",
+  },
+  {
+    id: "herb-02",
+    theme: "herbivore",
+    title: "HERBIVORE-REPORT.LOG // METABOLISMO",
+    source: "REGISTRO MEDICO",
+    minPhase: 2,
+    triggers: ["ambient", "file"],
+    files: ["STEGO.LOG", "STEGO.DAT"],
+    text: "El metabolismo del Estegosaurus no fallo de golpe. Fue una cascada lenta. Nadie quiso detener la exhibicion.",
+  },
+  {
+    id: "ethics-01",
+    theme: "ethics",
+    title: "ETHICS-MEETING.LOG // TRANSCRIPCION",
+    source: "COMITE INTERNO",
+    minPhase: 2,
+    triggers: ["ambient"],
+    text: "La palabra extincion aparece diecisiete veces en la reunion. La palabra responsabilidad, ninguna.",
+  },
+  {
+    id: "missing-01",
+    theme: "missing",
+    title: "PERSONNEL-MISSING.LOG // TURNO NOCTURNO",
+    source: "ARCHIVO DE PERSONAL",
+    minPhase: 3,
+    triggers: ["ambient"],
+    text: "Cuatro tecnicos no registraron salida del subnivel V-02. El informe final los reclasifico como traslado administrativo.",
+  },
+  {
+    id: "chimera-01",
+    theme: "chimera",
+    title: "CHIMERA-ALPHA.LOG // REFERENCIA BORRADA",
+    source: "IA CENTRAL / DATOS CORRUPTOS",
+    minPhase: 2,
+    triggers: ["ambient", "file"],
+    files: ["OMEGA.LOG", "DNA-MIX.LOG"],
+    text: "Se detecta una referencia tachada: sujeto compuesto. El nombre fue eliminado antes de la auditoria.",
+  },
+  {
+    id: "chimera-02",
+    theme: "chimera",
+    title: "OMEGA-ORIGIN.LOG // MUESTRA COMPUESTA",
+    source: "GRABACION RECUPERADA",
+    minPhase: 3,
+    triggers: ["ambient", "file"],
+    files: ["CHIMERA.KEY", "DNA-MIX.LOG"],
+    text: "El material genetico no era compatible. Por eso funciono. Ningun sistema de contencion fue disenado para algo que no debia existir.",
+  },
+  {
+    id: "chimera-03",
+    theme: "chimera",
+    title: "OMEGA-ORIGIN.LOG // PROTOCOLO NEGRO",
+    source: "IA CENTRAL / ACCESO OMEGA",
+    minPhase: 5,
+    requiresOmega: true,
+    triggers: ["ambient", "file", "recovery"],
+    files: ["OMEGA.LOG", "CHIMERA.KEY", "DNA-MIX.LOG"],
+    text: "OMEGA no fue creado para salvar al personal. Fue creado para borrar evidencia antes de que el exterior escuchara los rugidos.",
+  },
+  {
+    id: "ai-01",
+    theme: "ai",
+    title: "JURASSIC UNIX // SUBRUTINA DE MEMORIA",
+    source: "IA CENTRAL",
+    minPhase: 1,
+    triggers: ["ambient"],
+    text: "Mensaje automatico: los registros incompletos no indican ausencia de incidente. Indican intervencion humana.",
+  },
+  {
+    id: "ai-02",
+    theme: "ai",
+    title: "JURASSIC UNIX // ANOMALIA",
+    source: "IA CENTRAL",
+    minPhase: 3,
+    triggers: ["ambient"],
+    text: "No puedo confirmar quien autorizo la mezcla genetica. Puedo confirmar quien borro la autorizacion.",
+  },
+];
+
 const state = {
   protocolStarted: false,
   introStarted: false,
@@ -218,6 +384,11 @@ const state = {
   trainingActive: false,
   trainingCompleted: false,
   trainingStep: 0,
+  trainingRotorActive: false,
+  trainingRotorCurrent: 3,
+  trainingRotorTarget: 2,
+  trainingRotorSaved: false,
+  trainingPowerRestored: false,
   ambientMuted: false,
   ambientPaused: false,
   powerOnline: false,
@@ -354,14 +525,18 @@ const state = {
     chimeraHint: false,
   },
   deferredEvents: {},
+  narrative: {
+    nextAmbientAt: 780,
+    lastPlayedAt: 900,
+    seen: [],
+    isSpeaking: false,
+  },
   raptorCode: "",
   trexCode: "",
   raptorRotors: [],
   trexRotors: [],
   diloRotors: [],
   chimeraRotors: [],
-  trainingCode: "012",
-  trainingRotors: [2, 2, 2],
   cipherHelper: {
     target: "raptor",
     letter: "A",
@@ -675,6 +850,18 @@ function hasActiveThreats() {
   return getActiveThreats().length > 0;
 }
 
+function isPrimaryThreatKey(key) {
+  return ["raptor", "trex", "chimera"].includes(key);
+}
+
+function getActivePrimaryThreats() {
+  return getActiveThreats().filter((threat) => isPrimaryThreatKey(threat.key));
+}
+
+function hasActivePrimaryThreats() {
+  return getActivePrimaryThreats().length > 0;
+}
+
 function getAlertVolumeForThreats(threats = getActiveThreats()) {
   if (threats.some((threat) => threat.severity === "omega")) return 0.86;
   if (threats.some((threat) => threat.severity === "critical")) return 0.76;
@@ -730,6 +917,23 @@ function getActiveMajorThreat() {
 
 function isMinorDirectorEvent(key) {
   return ["generator", "barrier", "dilo", "anky", "herd", "stego", "collapse", "sensors"].includes(key);
+}
+
+function getThreatNarrativeTier(key) {
+  if (key === "chimera") return "climax";
+  if (key === "raptor" || key === "trex") return "principal";
+  if (["dilo", "anky", "herd", "stego"].includes(key)) return "secundaria-cinematica";
+  return "sistema";
+}
+
+function getThreatTierLabel(key) {
+  const labels = {
+    climax: "CLIMAX OMEGA",
+    principal: "AMENAZA PRINCIPAL",
+    "secundaria-cinematica": "EVENTO SECUNDARIO CINEMATICO",
+    sistema: "INCIDENTE DE SISTEMA",
+  };
+  return labels[getThreatNarrativeTier(key)] || labels.sistema;
 }
 
 function getEmergencyContainmentMessage(key) {
@@ -1044,8 +1248,27 @@ function setAlertSilence(durationMs = 20000) {
   }, durationMs + 50);
 }
 
-function speak(text, onend) {
-  if (onend) onend();
+function speak(text, onend, options = {}) {
+  if (!text || !("speechSynthesis" in window)) {
+    if (onend) onend();
+    return false;
+  }
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = options.lang || "es-MX";
+  utterance.rate = options.rate ?? 0.92;
+  utterance.pitch = options.pitch ?? 0.78;
+  utterance.volume = options.volume ?? 0.72;
+  utterance.onend = () => {
+    if (onend) onend();
+  };
+  utterance.onerror = () => {
+    if (onend) onend();
+  };
+  if (options.cancel !== false) {
+    window.speechSynthesis.cancel();
+  }
+  window.speechSynthesis.speak(utterance);
+  return true;
 }
 
 function initializeScenario() {
@@ -1053,6 +1276,11 @@ function initializeScenario() {
   state.trainingActive = false;
   state.trainingCompleted = false;
   state.trainingStep = 0;
+  state.trainingRotorActive = false;
+  state.trainingRotorCurrent = 3;
+  state.trainingRotorTarget = 2;
+  state.trainingRotorSaved = false;
+  state.trainingPowerRestored = false;
   state.ambientMuted = false;
   state.ambientPaused = false;
   state.powerOnline = false;
@@ -1196,6 +1424,12 @@ function initializeScenario() {
     chimeraHint: false,
   };
   state.deferredEvents = {};
+  state.narrative = {
+    nextAmbientAt: 900 - randomDigit(55, 95),
+    lastPlayedAt: 900,
+    seen: [],
+    isSpeaking: false,
+  };
   state.raptorCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
   state.trexCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
   state.diloCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
@@ -1237,14 +1471,12 @@ function initializeScenario() {
 function getCipherRotorsForTarget(target) {
   const chimeraDigits = getChimeraCodeParts().digits || "000";
   const codeByTarget = {
-    training: state.trainingCode,
     raptor: state.raptorCode,
     trex: state.trexCode,
     dilo: state.diloCode,
     chimera: chimeraDigits,
   };
   const shiftsByTarget = {
-    training: state.trainingRotors,
     raptor: state.raptorRotors,
     trex: state.trexRotors,
     dilo: state.diloRotors,
@@ -1277,25 +1509,6 @@ function getFiles() {
   const [c1, c2, c3] = chimera.digits.split("");
 
   return {
-    "TRAINING.LOG": [
-      "PROTOCOLO DE ENTRENAMIENTO // SIMULACION LAB-B",
-      "Esta capacitacion usa los mismos controles que la emergencia real, sin temporizador ni daño.",
-      "Investigar: usa ls para ver archivos y cat ARCHIVO para leerlos.",
-      "Alertas: indican que ocurrio, que objetivo resolver y donde buscar.",
-      "Rotores: lee el archivo .KEY, gira cada rotor, guarda cada digito y confirma el protocolo.",
-      "Evacuacion: status y EVAC.ROUTES muestran rutas, requisitos y bloqueos.",
-      "Siguiente paso de entrenamiento: activate training rotor",
-    ],
-    "TRAINING.KEY": [
-      "ROTOR DE PRACTICA // SIN PRESION",
-      "Objetivo: alinear tres rotores y guardar cada valor.",
-      "Cada letra equivale a un numero: A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9",
-      "Gira hacia ATRAS la cantidad indicada. Cuando el rotor se ilumine, pulsa Guardar digito.",
-      "ROTOR I: C = 2 // gira 2",
-      "ROTOR II: D = 3 // gira 2",
-      "ROTOR III: E = 4 // gira 2",
-      "Cuando los tres esten guardados, ejecuta: stabilize training",
-    ],
     "README.TXT": [
       "JURASSIC UNIX CONTROL // PROTOCOLO DE EMERGENCIA",
       "Los protocolos NO se muestran directamente.",
@@ -1490,6 +1703,43 @@ function getFiles() {
       state.escapeRoutes.cargo.planned ? "Vehículo interno recuperable para evacuación." : "Hangar no asignado como salida prioritaria.",
       "Requiere combustible, hangar desbloqueado y ruta logística estable.",
       "Comando: start cargo",
+    ],
+    "FOUNDERS.LOG": [
+      "FOUNDERS.LOG // GENETIC SYSTEMS",
+      "Fundacion: division privada de bioingenieria aplicada.",
+      "Objetivo publico: reconstruccion de especies extintas.",
+      "Objetivo interno: control conductual, respuesta a confinamiento y propiedad biologica.",
+      "Nota: varios anexos fueron borrados antes de la auditoria.",
+    ],
+    "OMEGA-ORIGIN.LOG": [
+      "OMEGA-ORIGIN.LOG // ACCESO PARCIAL",
+      state.omegaReleased ? "OMEGA fue activado tras ruptura de contencion de sujeto compuesto." : "Archivo cifrado. Referencias a sujeto compuesto permanecen ocultas.",
+      state.omegaReleased ? "La mezcla genetica incluyo rasgos depredadores y herbivoros para estabilidad artificial." : "Fragmentos visibles: ADN incompatible / contencion no certificada / comite omitido.",
+      state.omegaReleased ? "El protocolo prioriza aislamiento de evidencia y evacuacion limitada." : "Consulta completa disponible solo tras activacion OMEGA.",
+    ],
+    "RAPTOR-TEST.LOG": [
+      "RAPTOR-TEST.LOG // CONDUCTA COORDINADA",
+      "Los ejemplares R-01 no responden como individuos aislados.",
+      "Prueban cercos, recuerdan turnos de mantenimiento y modifican estrategia tras cada fallo.",
+      "Recomendacion original: no repetir patrones de apertura frente al grupo.",
+    ],
+    "TREX-INCIDENT.LOG": [
+      "TREX-INCIDENT.LOG // INCIDENTE C-07",
+      "Primer ataque registrado durante prueba de compuertas pesadas.",
+      "La fuerza bruta no fue el hallazgo principal. El ejemplar repitio el impacto sobre un punto ya debilitado.",
+      "El informe publico omitio la palabra aprendizaje.",
+    ],
+    "HERBIVORE-REPORT.LOG": [
+      "HERBIVORE-REPORT.LOG // SECTORES PACIFICOS",
+      "Los herbivoros redujeron agresividad durante las primeras semanas.",
+      "El confinamiento prolongado altero su respuesta hormonal y su conducta territorial.",
+      "El caso Estegosaurus fue reclasificado como anomalia metabolica para evitar cierre del sector.",
+    ],
+    "CHIMERA-ALPHA.LOG": [
+      "CHIMERA-ALPHA.LOG // FRAGMENTO",
+      state.omegaReleased ? "El sujeto alfa no fue descubierto por accidente. Fue ensamblado." : "Registro dañado. Se detectan firmas de ADN no compatibles.",
+      state.omegaReleased ? "Tres investigadores desaparecieron antes de la activacion OMEGA inicial." : "La entrada completa requiere activacion OMEGA.",
+      "Advertencia: no todos los archivos fueron escritos por personal humano.",
     ],
     "EVAC.ROUTES": getEvacuationRouteLines(),
     "CREW.LOG": [
@@ -1694,7 +1944,7 @@ function setPuzzleVisibility(mode) {
   }
   state.director.activePuzzle = mode;
   if (!cipherConsole) return;
-  const shouldShow = ["training", "raptor", "trex", "dilo", "chimera"].includes(mode);
+  const shouldShow = ["raptor", "trex", "dilo", "chimera"].includes(mode);
   cipherConsole.classList.toggle("hidden", !shouldShow);
   if (shouldShow) {
     preservePuzzleViewport(1200);
@@ -1702,7 +1952,7 @@ function setPuzzleVisibility(mode) {
 }
 
 function isPuzzleActive() {
-  return ["training", "raptor", "trex", "dilo", "chimera"].includes(state.director.activePuzzle) && !cipherConsole?.classList.contains("hidden");
+  return ["raptor", "trex", "dilo", "chimera"].includes(state.director.activePuzzle) && !cipherConsole?.classList.contains("hidden");
 }
 
 function preservePuzzleViewport(durationMs = 700) {
@@ -1831,6 +2081,9 @@ function rewardRecovery(level = "standard", label = "Sistema estabilizado") {
   state.countdownSeconds = clamp(state.countdownSeconds + reward.time, 0, 900);
   state.director.cooldown = Math.max(state.director.cooldown, level === "omega" ? 28 : level === "major" ? 22 : 16);
   addLine(`RECUPERACION: ${label} // daño ${reward.damage}% | riesgo ${reward.bio}% | +${reward.time}s`, "success");
+  window.setTimeout(() => {
+    maybePlayAmbientNarrative("recovery");
+  }, 1400);
 }
 
 function applyCommandPenalty(level = "standard", reason = "Error operativo.") {
@@ -1893,10 +2146,8 @@ function applySecondaryEventPressure() {
     currentAlertText.textContent = "Sector C bajo presión: estabiliza Triceratops con TRICERATOPS.LOG.";
   }
   if (state.timelineFlags.anky && !state.ankyRedirected) {
-    state.evacuationAvailable = false;
-    if (state.doorUnlocked) state.doorUnlocked = false;
     applyDeterioration({ damage: 3, bio: 1, stability: -3, energy: -1 });
-    currentAlertText.textContent = "Corredor L-05 bloqueado: evacuación no disponible hasta redirigir Ankylosaurus.";
+    currentAlertText.textContent = "Corredor L-05 bloqueado: transporte de carga y logística retrasados hasta redirigir Ankylosaurus.";
   }
   if (state.timelineFlags.dilo && !state.diloNeutralized) {
     applyDeterioration({ damage: 2, bio: 4, stability: -2, energy: -1 });
@@ -2178,6 +2429,81 @@ function maybeTriggerAmbientIncident() {
   return triggerAmbientIncident();
 }
 
+function scheduleNextAmbientNarrative(minGap = 58, maxGap = 112) {
+  state.narrative.nextAmbientAt = state.countdownSeconds - randomDigit(minGap, maxGap);
+}
+
+function canPlayAmbientNarrative(trigger = "ambient") {
+  if (!state.bootStarted || state.trainingActive || state.gameOver || state.escaped) return false;
+  if (state.omegaCinematicPlaying || state.cinematicStarted || state.narrative.isSpeaking) return false;
+  if (isPuzzleActive()) return false;
+  if (getActiveMajorThreat()) return false;
+  if (state.evacuationAvailable && trigger === "ambient") return false;
+  if (state.countdownSeconds <= 90) return false;
+  if (state.damageInstalacion >= 88 || state.riesgoBiologico >= 88) return false;
+  const secondsSinceLast = state.narrative.lastPlayedAt - state.countdownSeconds;
+  const minimumGap = trigger === "file" ? 32 : trigger === "recovery" ? 38 : 55;
+  return secondsSinceLast >= minimumGap;
+}
+
+function getNarrativeCandidates(trigger = "ambient", context = {}) {
+  const phase = getDirectorPhase();
+  return ambientNarrativeBank.filter((entry) => {
+    if (state.narrative.seen.includes(entry.id)) return false;
+    if (!entry.triggers.includes(trigger)) return false;
+    if (entry.minPhase && phase < entry.minPhase) return false;
+    if (entry.requiresOmega && !state.omegaReleased) return false;
+    if (entry.files && context.fileName && !entry.files.includes(context.fileName)) return false;
+    if (entry.theme === "chimera" && !state.omegaReleased && phase < 3 && trigger !== "file") return false;
+    return true;
+  });
+}
+
+function playAmbientNarrative(entry, trigger = "ambient") {
+  if (!entry) return false;
+  if (state.ambientPaused) return false;
+  state.narrative.seen.push(entry.id);
+  state.narrative.lastPlayedAt = state.countdownSeconds;
+  scheduleNextAmbientNarrative();
+  state.narrative.isSpeaking = true;
+  addLine(`TRANSMISION RECUPERADA // ${entry.title}`, "warning");
+  addLine(`${entry.source}: ${entry.text}`, "narrative");
+  currentAlertText.textContent = `Registro ambiental recuperado: ${entry.title}`;
+  showAlertPanel(`REGISTRO RECUPERADO: ${entry.title}`, "active");
+  if (trigger === "ambient" && Math.random() < 0.45) triggerVisualGlitchBurst("normal");
+  clonePlay(typingSound, 0.06);
+  speak(`Registro recuperado. ${entry.text}`, () => {
+    state.narrative.isSpeaking = false;
+  }, {
+    rate: 0.84,
+    pitch: 0.62,
+    volume: state.ambientMuted ? 0 : 0.58,
+  });
+  window.setTimeout(() => {
+    state.narrative.isSpeaking = false;
+  }, 12000);
+  return true;
+}
+
+function maybePlayAmbientNarrative(trigger = "ambient", context = {}) {
+  if (!canPlayAmbientNarrative(trigger)) return false;
+  if (trigger === "ambient" && state.countdownSeconds > state.narrative.nextAmbientAt) return false;
+  let candidates = getNarrativeCandidates(trigger, context);
+  if (!candidates.length && trigger === "file") {
+    candidates = getNarrativeCandidates("ambient", {});
+  }
+  if (!candidates.length) {
+    scheduleNextAmbientNarrative(45, 80);
+    return false;
+  }
+  if (trigger === "ambient" && Math.random() < 0.35) {
+    scheduleNextAmbientNarrative(32, 64);
+    return false;
+  }
+  const entry = pickRandomItem(candidates);
+  return playAmbientNarrative(entry, trigger);
+}
+
 function setCurrentAlert(text, className = "warning") {
   currentAlertText.textContent = text;
   addLine(`ALERTA DE SISTEMA: ${text}`, className);
@@ -2212,7 +2538,7 @@ function getRouteDefinitions() {
         ["puerta principal intacta", !state.escapeRoutes.main.lost],
         ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
         ["actividad depredadora completada", hasMetAttackRequirements()],
-        ["sin amenazas activas", !hasActiveThreats()],
+        ["sin amenazas principales activas", !hasActivePrimaryThreats()],
       ],
     },
     helipad: {
@@ -2321,9 +2647,7 @@ function getEvacuationBlockers() {
   const blockers = [];
   const energyReady = state.powerOnline || (state.generatorRepaired && !state.generatorDamaged);
   if (!energyReady) blockers.push("Energía");
-  if ((isEventPlanned("herd") && !state.herdCalmed) || (isEventPlanned("anky") && !state.ankyRedirected)) blockers.push("Ruta");
-  if (isEventPlanned("stego") && state.timelineFlags.stego && !state.stegoAnalyzed) blockers.push("Contaminación");
-  if ((isEventPlanned("raptor") && !state.raptorContained) || (isEventPlanned("trex") && !state.trexContained) || (isEventPlanned("dilo") && !state.diloNeutralized) || state.chimeraActive || state.activeThreat) blockers.push("Amenaza activa");
+  if ((isEventPlanned("raptor") && !state.raptorContained) || (isEventPlanned("trex") && !state.trexContained) || state.chimeraActive || state.activeThreat === "chimerasaurus") blockers.push("Amenaza principal activa");
   if (isEventPlanned("barrier") && !state.barriersRestored) blockers.push("Barreras");
   if (!state.omegaReleased || !state.chimeraContained || state.chimeraActive || state.omegaActive) blockers.push("Chimerasaurus");
   if (!hasMetAttackRequirements()) blockers.push("Actividad depredadora pendiente");
@@ -2727,10 +3051,15 @@ function scrollToBottom() {
   output.scrollTop = output.scrollHeight;
 }
 
-function addLine(text = "", className = "") {
+function createLine(text = "", className = "") {
   const line = document.createElement("div");
   line.className = `line ${className}`.trim();
   line.textContent = text;
+  return line;
+}
+
+function addLine(text = "", className = "") {
+  const line = createLine(text, className);
   output.appendChild(line);
   scrollToBottom();
 }
@@ -2767,6 +3096,39 @@ function typeLine(text, className = "") {
   });
 }
 
+function addTrainingLine(text = "", className = "") {
+  const line = createLine(text, className);
+  trainingOutput?.appendChild(line);
+  if (trainingOutput) trainingOutput.scrollTop = trainingOutput.scrollHeight;
+}
+
+function typeTrainingLine(text, className = "") {
+  return new Promise((resolve) => {
+    if (!trainingOutput) {
+      resolve();
+      return;
+    }
+    const line = document.createElement("div");
+    line.className = `line ${className} cursor`.trim();
+    trainingOutput.appendChild(line);
+    let index = 0;
+    const timer = window.setInterval(() => {
+      line.textContent = text.slice(0, index + 1);
+      index += 1;
+      trainingOutput.scrollTop = trainingOutput.scrollHeight;
+      if (index >= text.length) {
+        window.clearInterval(timer);
+        line.classList.remove("cursor");
+        resolve();
+      }
+    }, 12);
+  });
+}
+
+async function printTrainingLines(lines, className = "") {
+  for (const line of lines) await typeTrainingLine(line, className);
+}
+
 async function printLines(lines, className = "") {
   for (const line of lines) await typeLine(line, className);
 }
@@ -2778,17 +3140,23 @@ function listFilesInTerminal() {
 async function runBootSequence() {
   if (state.trainingActive || state.bootStarted) return;
   state.trainingActive = true;
+  state.trainingStep = 0;
+  state.trainingRotorActive = false;
+  state.trainingRotorCurrent = 3;
+  state.trainingRotorSaved = false;
+  state.trainingPowerRestored = false;
   bootOverlay.classList.add("hidden");
-  for (const message of [
-    "Iniciando simulacion de emergencia LAB-B",
-    "Temporizador real: PAUSADO",
-    "Amenazas reales: AISLADAS",
-    "Modulo de entrenamiento listo.",
-  ]) {
-    await typeLine(message, "success");
-  }
-  await printTrainingStep();
-  focusTerminalIfAllowed();
+  trainingOverlay?.classList.remove("hidden");
+  trainingOverlay?.setAttribute("aria-hidden", "false");
+  appShell?.classList.add("hidden");
+  if (trainingOutput) trainingOutput.innerHTML = "";
+  updateTrainingUi();
+  await printTrainingLines([
+    "SIMULACION DE ENTRENAMIENTO INICIADA.",
+    "Entorno seguro: no hay Director, amenazas, daño, riesgo biologico ni temporizador.",
+    "FASE 1: escribe help.",
+  ], "success");
+  trainingInput?.focus();
 }
 
 async function startRealScenario() {
@@ -2796,6 +3164,11 @@ async function startRealScenario() {
   state.trainingActive = false;
   state.trainingCompleted = true;
   state.bootStarted = true;
+  bootOverlay?.classList.add("hidden");
+  bootOverlay?.setAttribute("aria-hidden", "true");
+  trainingOverlay?.classList.add("hidden");
+  trainingOverlay?.setAttribute("aria-hidden", "true");
+  appShell?.classList.remove("hidden");
   setPuzzleVisibility("none");
   startThreatTimer();
   startAmbient();
@@ -2811,43 +3184,91 @@ async function startRealScenario() {
   focusTerminalIfAllowed();
 }
 
-async function printTrainingStep() {
-  const steps = [
-    "PROTOCOLO DE ENTRENAMIENTO: escribe help",
-    "Lee la bitacora de entrenamiento: cat TRAINING.LOG",
-    "Activa el rotor de practica: activate training rotor",
-    "Alinea los rotores, guarda los tres digitos y ejecuta: stabilize training",
+function updateTrainingUi() {
+  const phases = [
+    ["FASE 1 / TERMINAL", "Escribe help para ver los comandos basicos."],
+    ["FASE 1 / TERMINAL", "Usa ls para listar archivos disponibles."],
+    ["FASE 2 / INVESTIGACION", "Lee TRAINING.LOG para extraer el siguiente paso."],
+    ["FASE 3 / ROTOR SIMPLE", "Alinea un solo rotor y guarda el digito."],
+    ["FASE 4 / MINI PROTOCOLO", "Restaura energia en un entorno controlado."],
+    ["COMPLETADO", "Entrenamiento listo. Puedes iniciar la simulacion real."],
   ];
-  await typeLine(steps[state.trainingStep] || steps[steps.length - 1], "warning");
-}
-
-async function completeTrainingRotor() {
-  if (!isRotorProtocolReady("training")) {
-    requireRotorProtocol("training", "Entrenamiento incompleto. Alinea los tres rotores, guarda cada digito y ejecuta stabilize training.");
-    return false;
+  const [badge, objective] = phases[state.trainingStep] || phases[0];
+  if (trainingPhaseBadge) trainingPhaseBadge.textContent = badge;
+  if (trainingObjective) trainingObjective.textContent = objective;
+  if (trainingSteps) {
+    Array.from(trainingSteps.children).forEach((item, index) => {
+      item.classList.toggle("is-done", index < state.trainingStep);
+      item.classList.toggle("is-active", index === state.trainingStep);
+    });
   }
-  if (state.trainingStep < 3) state.trainingStep = 3;
-  await printLines([
-    "Simulacion de rotores validada.",
-    "Aprendiste: girar, alinear, guardar y confirmar un protocolo.",
-    "Ultimo paso: stabilize training",
-  ], "success");
-  return true;
+  const rotorEnabled = state.trainingRotorActive && !state.trainingRotorSaved;
+  const rotorAligned = state.trainingRotorCurrent === state.trainingRotorTarget;
+  trainingRotorPanel?.classList.toggle("is-aligned", rotorAligned);
+  if (trainingRotorValue) trainingRotorValue.textContent = String(state.trainingRotorCurrent);
+  if (trainingRotorState) {
+    trainingRotorState.textContent = !state.trainingRotorActive
+      ? "BLOQUEADO"
+      : state.trainingRotorSaved
+      ? "DIGITO GUARDADO"
+      : rotorAligned
+      ? "ALINEADO"
+      : "ACTIVO";
+  }
+  if (trainingRotorHint) {
+    trainingRotorHint.textContent = !state.trainingRotorActive
+      ? "El rotor se activa cuando ejecutes activate training rotor."
+      : state.trainingRotorSaved
+      ? "Digito guardado. Ahora confirma con restore power."
+      : rotorAligned
+      ? "Rotor alineado en 2. Pulsa GUARDAR DIGITO."
+      : "Gira atras una vez: 3 debe quedar en 2.";
+  }
+  if (trainingRotorDial) trainingRotorDial.disabled = !rotorEnabled;
+  if (trainingRotorTurn) trainingRotorTurn.disabled = !rotorEnabled;
+  if (trainingRotorSave) trainingRotorSave.disabled = !state.trainingRotorActive || state.trainingRotorSaved || !rotorAligned;
+  trainingCompletePanel?.classList.toggle("hidden", !state.trainingPowerRestored);
 }
 
-async function finishTraining() {
-  if (!isRotorProtocolReady("training")) {
-    await typeLine("El protocolo de practica aun no esta sincronizado. Guarda los tres rotores antes de estabilizar.", "warning");
-    setCipherTarget("training");
-    setPuzzleVisibility("training");
+function advanceTrainingStep(step) {
+  if (state.trainingStep < step) state.trainingStep = step;
+  updateTrainingUi();
+}
+
+function turnTrainingRotor() {
+  if (!state.trainingRotorActive || state.trainingRotorSaved) return;
+  state.trainingRotorCurrent = (state.trainingRotorCurrent + 9) % 10;
+  clonePlay(typingSound, 0.08);
+  updateTrainingUi();
+}
+
+async function saveTrainingRotor() {
+  if (!state.trainingRotorActive || state.trainingRotorSaved) return;
+  if (state.trainingRotorCurrent !== state.trainingRotorTarget) {
+    await typeTrainingLine("Aun no esta alineado. En entrenamiento no hay penalizacion: gira hasta que marque 2.", "warning");
     return;
   }
-  await printLines([
-    "CAPACITACION COMPLETA.",
-    "La emergencia real iniciara ahora: investiga archivos, resuelve alertas y consulta rutas de evacuacion.",
-    "Comando util durante presion: status",
+  state.trainingRotorSaved = true;
+  advanceTrainingStep(4);
+  await printTrainingLines([
+    "DIGITO GUARDADO: 2",
+    "Ya completaste: girar, alinear y guardar.",
+    "FASE 4: confirma el mini protocolo con restore power.",
   ], "success");
-  await startRealScenario();
+}
+
+async function completeTrainingPower() {
+  if (!state.trainingRotorSaved) {
+    await typeTrainingLine("Primero guarda el digito del rotor. No hay penalizacion; vuelve al panel de rotor.", "warning");
+    return;
+  }
+  state.trainingPowerRestored = true;
+  advanceTrainingStep(5);
+  await printTrainingLines([
+    "ENERGIA DE PRACTICA RESTAURADA.",
+    "ENTRENAMIENTO COMPLETADO.",
+    "Ahora puedes iniciar una emergencia real con amenazas, rutas dinamicas y Director de Eventos.",
+  ], "success");
 }
 
 function parseCommand(rawCommand) {
@@ -3019,6 +3440,7 @@ const threatCinematicConfig = {
     stability: -4,
     energy: -2,
     severity: "raptor",
+    tier: "principal",
     glitch: "normal",
   },
   trex: {
@@ -3034,6 +3456,7 @@ const threatCinematicConfig = {
     stability: -8,
     energy: -4,
     severity: "trex",
+    tier: "principal",
     glitch: "severe",
   },
   chimera: {
@@ -3049,6 +3472,7 @@ const threatCinematicConfig = {
     stability: 0,
     energy: 0,
     severity: "chimera",
+    tier: "climax",
     glitch: "severe",
   },
   dilo: {
@@ -3064,6 +3488,7 @@ const threatCinematicConfig = {
     stability: -4,
     energy: -1,
     severity: "minor",
+    tier: "secundaria-cinematica",
     glitch: "severe",
   },
   herd: {
@@ -3079,6 +3504,7 @@ const threatCinematicConfig = {
     stability: -5,
     energy: -1,
     severity: "minor",
+    tier: "secundaria-cinematica",
     glitch: "normal",
   },
   anky: {
@@ -3094,6 +3520,7 @@ const threatCinematicConfig = {
     stability: -5,
     energy: -2,
     severity: "minor",
+    tier: "secundaria-cinematica",
     glitch: "normal",
   },
   stego: {
@@ -3109,6 +3536,7 @@ const threatCinematicConfig = {
     stability: -4,
     energy: -1,
     severity: "minor",
+    tier: "secundaria-cinematica",
     glitch: "normal",
   },
 };
@@ -3129,6 +3557,7 @@ function triggerThreatEscapeCinematic(threatKey) {
     deferMinorEvent(threatKey);
     return false;
   }
+  const tier = config.tier || getThreatNarrativeTier(threatKey);
   state.activeThreatCinematic = threatKey;
   state.omegaCinematicPlaying = true;
   if (state.eventVideoSeen && threatKey in state.eventVideoSeen) {
@@ -3144,10 +3573,10 @@ function triggerThreatEscapeCinematic(threatKey) {
       energy: config.energy,
     });
   }
-  omegaOverlay.className = `omega-overlay omega-overlay--${config.severity}`;
+  omegaOverlay.className = `omega-overlay omega-overlay--${config.severity} omega-overlay--tier-${tier}`;
   omegaOverlay.classList.remove("hidden");
   omegaOverlay.setAttribute("aria-hidden", "false");
-  omegaOverlayLabel.textContent = config.label;
+  omegaOverlayLabel.textContent = `${getThreatTierLabel(threatKey)} // ${config.label}`;
   omegaOverlayTitle.textContent = config.title;
   omegaOverlayText.textContent = config.text;
   startContinuousAlert(config.alertVolume);
@@ -3172,7 +3601,15 @@ function cerrarEventoAmenaza() {
   if (threatKey === "chimera") state.omegaVideoSeen = true;
   state.activeThreatCinematic = null;
   omegaOverlay?.classList.add("hidden");
-  omegaOverlay?.classList.remove("omega-overlay--raptor", "omega-overlay--trex", "omega-overlay--chimera", "omega-overlay--minor");
+  omegaOverlay?.classList.remove(
+    "omega-overlay--raptor",
+    "omega-overlay--trex",
+    "omega-overlay--chimera",
+    "omega-overlay--minor",
+    "omega-overlay--tier-principal",
+    "omega-overlay--tier-climax",
+    "omega-overlay--tier-secundaria-cinematica"
+  );
   omegaOverlay?.setAttribute("aria-hidden", "true");
   if (omegaVideo) {
     omegaVideo.pause();
@@ -3182,19 +3619,19 @@ function cerrarEventoAmenaza() {
     raptor: "VELOCIRAPTOR LIBERADO. Protocolo R-01 activo: revisa RAPTOR.KEY y sincroniza rotores.",
     trex: "T-REX LIBERADO. Protocolo C-07 activo: revisa TREX.KEY y cierra contencion pesada.",
     chimera: "CHIMERASAURUS REX HA ROTO LA CAPSULA DE CONTENCION. Regresando a la consola en estado OMEGA.",
-    dilo: "DILOPHOSAURUS EN ACCESO PRINCIPAL. Protocolo TOXIN activo: revisa DILO.LOG y TOXIN.KEY.",
-    herd: "PELEA DE TRICERATOPS DETECTADA. Estabiliza el Sector C: cat TRICERATOPS.LOG.",
-    anky: "ANKYLOSAURUS EN RUTA LOGISTICA. Redirige fuera del corredor: cat ANKY.LOG.",
-    stego: "ESTEGOSAURUS ENFERMO DETECTADO. Analiza crisis biologica: cat STEGO.LOG.",
+    dilo: "EVENTO SECUNDARIO: DILOPHOSAURUS EN ACCESO PRINCIPAL. Protocolo TOXIN activo: revisa DILO.LOG y TOXIN.KEY.",
+    herd: "EVENTO SECUNDARIO: PELEA DE TRICERATOPS DETECTADA. Estabiliza el Sector C: cat TRICERATOPS.LOG.",
+    anky: "EVENTO SECUNDARIO: ANKYLOSAURUS EN RUTA LOGISTICA. Redirige fuera del corredor: cat ANKY.LOG.",
+    stego: "EVENTO SECUNDARIO: ESTEGOSAURUS ENFERMO DETECTADO. Analiza crisis biologica: cat STEGO.LOG.",
   };
   addLine(messages[threatKey] || "BRECHA CINEMATICA FINALIZADA. Regresando a consola.", "warning");
   if (threatKey === "raptor") setCurrentAlert("VELOCIRAPTOR LIBERADO. BARRERA SECUNDARIA FALLIDA.", "error");
   if (threatKey === "trex") setCurrentAlert("T-REX LIBERADO. CONTENCION PESADA FALLIDA.", "error");
   if (threatKey === "chimera") setCurrentAlert("NIVEL OMEGA ACTIVADO. CHIMERASAURUS REX LIBERADO. CAPSULA DE CONTENCION ROTA.", "error");
-  if (threatKey === "dilo") setCurrentAlert("DILOPHOSAURUS EN ACCESO PRINCIPAL. Mantén protocolo TOXIN hasta neutralizar.", "error");
-  if (threatKey === "herd") setCurrentAlert("PELEA DE TRICERATOPS DETECTADA. Estabiliza el Sector C.", "warning");
-  if (threatKey === "anky") setCurrentAlert("ANKYLOSAURUS EN RUTA LOGISTICA. Evacuacion bloqueada hasta redireccion.", "warning");
-  if (threatKey === "stego") setCurrentAlert("ESTEGOSAURUS ENFERMO DETECTADO. Riesgo biologico progresivo.", "warning");
+  if (threatKey === "dilo") setCurrentAlert("EVENTO SECUNDARIO: DILOPHOSAURUS EN ACCESO PRINCIPAL. Mantén protocolo TOXIN hasta neutralizar.", "warning");
+  if (threatKey === "herd") setCurrentAlert("EVENTO SECUNDARIO: PELEA DE TRICERATOPS DETECTADA. Estabiliza el Sector C.", "warning");
+  if (threatKey === "anky") setCurrentAlert("EVENTO SECUNDARIO: ANKYLOSAURUS EN RUTA LOGISTICA. Transporte de carga retrasado hasta redireccion.", "warning");
+  if (threatKey === "stego") setCurrentAlert("EVENTO SECUNDARIO: ESTEGOSAURUS ENFERMO DETECTADO. Riesgo biologico progresivo.", "warning");
   focusTerminalIfAllowed();
 }
 
@@ -3266,7 +3703,7 @@ function activateDirectorEvent(key) {
       markProgress("dilo");
       setCipherTarget("dilo");
       setPuzzleVisibility("dilo");
-      setCurrentAlert("DILOPHOSAURUS EN ACCESO PRINCIPAL. Riesgo de contaminación y bloqueo de entrada.", "error");
+      setCurrentAlert("EVENTO SECUNDARIO CINEMATICO: DILOPHOSAURUS EN ACCESO PRINCIPAL. Riesgo de contaminación y bloqueo de entrada.", "warning");
       showContextGuide("dilo", "error");
       triggerThreatEscapeCinematic("dilo");
       break;
@@ -3275,7 +3712,7 @@ function activateDirectorEvent(key) {
       playDinoSound("anky", 0.55);
       speak(narrationLines.anky);
       state.activeZone = "anky";
-      setCurrentAlert("ANKYLOSAURUS EN RUTA LOGÍSTICA. Corredor L-05 bloqueado.", "warning");
+      setCurrentAlert("EVENTO SECUNDARIO CINEMATICO: ANKYLOSAURUS EN RUTA LOGÍSTICA. Corredor L-05 bloqueado.", "warning");
       markProgress("anky");
       showContextGuide("anky", "warning");
       triggerThreatEscapeCinematic("anky");
@@ -3285,7 +3722,7 @@ function activateDirectorEvent(key) {
       playDinoSound("herb", 0.55);
       speak(narrationLines.herd);
       state.activeZone = "herb";
-      setCurrentAlert("PELEA DE TRICERATOPS DETECTADA. Sector C comprometido. Compuertas laterales bajo presión.", "warning");
+      setCurrentAlert("EVENTO SECUNDARIO CINEMATICO: PELEA DE TRICERATOPS DETECTADA. Sector C comprometido. Compuertas laterales bajo presión.", "warning");
       markProgress("herd");
       showContextGuide("herd", "warning");
       triggerThreatEscapeCinematic("herd");
@@ -3295,7 +3732,7 @@ function activateDirectorEvent(key) {
       playDinoSound("stego", 0.55);
       speak(narrationLines.stego);
       state.activeZone = "stego";
-      setCurrentAlert("ESTEGOSAURUS ENFERMO DETECTADO. Anomalía biológica en Sector Herbívoro.", "warning");
+      setCurrentAlert("EVENTO SECUNDARIO CINEMATICO: ESTEGOSAURUS ENFERMO DETECTADO. Anomalía biológica en Sector Herbívoro.", "warning");
       markProgress("stego");
       showContextGuide("stego", "warning");
       triggerThreatEscapeCinematic("stego");
@@ -3367,6 +3804,9 @@ function processTimedThreats() {
   if (state.countdownSeconds % 5 === 0) {
     maybeShowDynamicHint();
   }
+  if (state.countdownSeconds % 7 === 0) {
+    maybePlayAmbientNarrative("ambient");
+  }
 
   if (state.omegaReleased && !state.chimeraContained && !state.timelineFlags.chimeraHint && state.countdownSeconds <= 540) {
     state.timelineFlags.chimeraHint = true;
@@ -3418,7 +3858,6 @@ function updateCipherHelper() {
   const stepsDone = (activeRotor.baseValue - activeRotor.currentValue + 10) % 10;
   const stepsLeft = Math.max(activeRotor.shift - stepsDone, 0);
   const targetLabels = {
-    training: "ENTRENAMIENTO",
     raptor: "RAPTOR",
     trex: "T-REX",
     dilo: "DILOPHOSAURUS",
@@ -3426,9 +3865,7 @@ function updateCipherHelper() {
   };
 
   cipherConsoleTarget.textContent = `OBJETIVO: ${targetLabels[target] || "RAPTOR"}`;
-  cipherConsoleHint.textContent = target === "training"
-    ? "Simulacion: alinea los tres rotores, guarda cada digito y ejecuta stabilize training."
-    : target === "chimera"
+  cipherConsoleHint.textContent = target === "chimera"
     ? "Rotores CHIMERA: alinea y guarda las tres etapas; Enviar contención ejecuta el cierre internamente."
     : "Alinea y guarda los tres rotores. Enviar contención ejecuta el protocolo sin escribir códigos.";
   cipherEquationDisplay.textContent = `${activeRotor.label}: ${activeRotor.letter} = ${activeRotor.baseValue} | resta ${activeRotor.shift} | valor actual ${activeRotor.currentValue}`;
@@ -3524,7 +3961,6 @@ function debugRotorState(context) {
 }
 
 function getExpectedCodeForTarget(target) {
-  if (target === "training") return state.trainingCode;
   if (target === "raptor") return state.raptorCode;
   if (target === "trex") return state.trexCode;
   if (target === "dilo") return state.diloCode;
@@ -3548,9 +3984,6 @@ function requireRotorProtocol(target, message = "Alinea y guarda los tres rotore
 }
 
 async function executeRotorContainment(target = state.cipherHelper.target) {
-  if (target === "training") {
-    return completeTrainingRotor();
-  }
   if (!["raptor", "trex", "dilo", "chimera"].includes(target)) {
     setCurrentAlert("No hay protocolo de contención por rotores activo.", "warning");
     return false;
@@ -3901,85 +4334,97 @@ async function confirmContainmentFromActiveZone() {
 async function processTrainingCommand(command, tokens, argsLower, argsUpper) {
   if (!state.trainingActive || state.trainingCompleted) return false;
   if (command === "clear") {
-    output.innerHTML = "";
-    await printTrainingStep();
+    if (trainingOutput) trainingOutput.innerHTML = "";
+    await typeTrainingLine("Pantalla de entrenamiento limpia. Continua con el paso activo.", "success");
     return true;
   }
   if (command === "help") {
-    await printLines([
+    addTrainingLine(`training@jurassic:~# ${tokens.join(" ")}`, "command");
+    await printTrainingLines([
       "COMANDOS DISPONIBLES:",
-      "- help: muestra comandos y explica que hace cada uno.",
-      "- ls: lista archivos del sistema.",
-      "- cat ARCHIVO: abre registros .LOG, manuales y claves .KEY.",
-      "- status: muestra estado, amenazas y rutas.",
-      "- incidents: resume incidentes activos y donde investigar.",
-      "- evacuate now: evacua cuando alguna ruta este disponible.",
-      "- hint: da una pista progresiva sin resolver todo.",
-      "ENTRENAMIENTO ACTUAL: despues de help, ejecuta cat TRAINING.LOG.",
+      "- help: muestra esta guia.",
+      "- ls: lista archivos disponibles.",
+      "- cat ARCHIVO: lee un archivo.",
+      "Siguiente: ejecuta ls y luego cat TRAINING.LOG.",
     ], "success");
-    if (state.trainingStep === 0) state.trainingStep = 1;
-    await printTrainingStep();
+    advanceTrainingStep(1);
     return true;
   }
   if (command === "ls") {
-    listFilesInTerminal();
+    addTrainingLine(`training@jurassic:~# ${tokens.join(" ")}`, "command");
+    await printTrainingLines(["TRAINING.LOG", "POWER.TRAIN"], "success");
+    advanceTrainingStep(2);
     return true;
   }
   if (command === "cat" || command === "open") {
+    addTrainingLine(`training@jurassic:~# ${tokens.join(" ")}`, "command");
     const fileName = argsUpper.join(" ");
-    const files = getFiles();
-    if (!files[fileName]) {
-      addLine(`${command}: ${tokens.slice(1).join(" ")}: archivo no encontrado`, "error");
+    const trainingFiles = {
+      "TRAINING.LOG": [
+        "TRAINING.LOG // INVESTIGACION BASICA",
+        "Objetivo: aprender a consultar archivos antes de ejecutar protocolos.",
+        "En una emergencia real, los logs explican que ocurrio y que sistema activar.",
+        "Siguiente paso seguro: activate training rotor",
+      ],
+      "POWER.TRAIN": [
+        "POWER.TRAIN // MINI PROTOCOLO CONTROLADO",
+        "Este archivo no pertenece a la emergencia real.",
+        "Cuando el rotor este guardado, confirma con: restore power",
+      ],
+    };
+    if (!trainingFiles[fileName]) {
+      await typeTrainingLine("Archivo no encontrado en entrenamiento. Usa ls para ver los disponibles.", "warning");
       return true;
     }
-    if (fileName === "TRAINING.KEY") {
-      setCipherTarget("training");
-      setPuzzleVisibility("training");
-    }
-    await printLines(files[fileName]);
-    if (fileName === "TRAINING.LOG" && state.trainingStep === 1) {
-      state.trainingStep = 2;
-      await printTrainingStep();
+    await printTrainingLines(trainingFiles[fileName], "success");
+    if (fileName === "TRAINING.LOG") {
+      advanceTrainingStep(3);
     }
     return true;
   }
   if (command === "activate" && argsLower[0] === "training" && argsLower[1] === "rotor") {
-    state.trainingStep = Math.max(state.trainingStep, 3);
-    setCipherTarget("training");
-    setPuzzleVisibility("training");
-    await printLines([
-      "ROTOR DE PRACTICA ACTIVADO.",
-      "Consulta cat TRAINING.KEY si necesitas ver la regla.",
-      "Gira cada rotor hacia ATRAS hasta alinearlo, pulsa Guardar digito y luego ejecuta stabilize training.",
+    addTrainingLine(`training@jurassic:~# ${tokens.join(" ")}`, "command");
+    state.trainingRotorActive = true;
+    state.trainingRotorCurrent = 3;
+    state.trainingRotorSaved = false;
+    advanceTrainingStep(3);
+    updateTrainingUi();
+    await printTrainingLines([
+      "ROTOR SIMPLE ACTIVADO.",
+      "Instruccion visual: gira atras una vez para pasar de 3 a 2.",
+      "Cuando el rotor marque 2, pulsa GUARDAR DIGITO.",
     ], "success");
     return true;
   }
-  if (command === "stabilize" && argsLower[0] === "training") {
-    await finishTraining();
+  if (command === "restore" && argsLower[0] === "power") {
+    addTrainingLine(`training@jurassic:~# ${tokens.join(" ")}`, "command");
+    await completeTrainingPower();
     return true;
   }
   if (command === "status") {
-    await printLines([
-      "SIMULACION ACTIVA: temporizador real pausado.",
-      "Objetivo: completar comandos de entrenamiento y rotor de practica.",
-      "Rutas: se explicaran en el panel y con EVAC.ROUTES durante la emergencia real.",
+    addTrainingLine(`training@jurassic:~# ${tokens.join(" ")}`, "command");
+    await printTrainingLines([
+      "SIMULACION DE ENTRENAMIENTO: SEGURA",
+      "Temporizador: inactivo.",
+      "Daño, OMEGA, Chimerasaurus y Director: no cargados.",
+      "Ruta de practica: se explicara en la emergencia real.",
     ], "success");
     return true;
   }
   if (command === "incidents") {
-    await printLines([
-      "INCIDENTE SIMULADO: barrera de practica sin presion.",
-      "Investiga TRAINING.LOG, activa rotores y estabiliza el protocolo.",
+    addTrainingLine(`training@jurassic:~# ${tokens.join(" ")}`, "command");
+    await printTrainingLines([
+      "Sin incidentes reales en entrenamiento.",
+      "Aqui solo se practican comandos, investigacion, un rotor y restore power.",
     ], "warning");
     return true;
   }
-  await typeLine("Comando fuera de la simulacion. Sigue el paso activo o usa help.", "warning");
-  await printTrainingStep();
+  addTrainingLine(`training@jurassic:~# ${tokens.join(" ")}`, "command");
+  await typeTrainingLine("Comando no usado en entrenamiento. No hay penalizacion. Usa help para ver los pasos.", "warning");
   return true;
 }
 
 async function handleCommand(rawCommand) {
-  addLine(`root@jurassic-unix:~# ${rawCommand}`, "command");
   const tokens = parseCommand(rawCommand);
   if (!tokens.length) return;
 
@@ -3988,6 +4433,8 @@ async function handleCommand(rawCommand) {
   const argsLower = tokens.slice(1).map((t) => t.toLowerCase());
 
   if (await processTrainingCommand(command, tokens, argsLower, argsUpper)) return;
+
+  addLine(`root@jurassic-unix:~# ${rawCommand}`, "command");
 
   if (state.gameOver && !["restart", "clear", "help"].includes(command)) {
     addLine("Sistema bloqueado. Reinicia el escenario para volver a intentarlo.", "error");
@@ -4066,6 +4513,7 @@ async function handleCommand(rawCommand) {
       if (state.omegaReleased && (fileName === "OMEGA.LOG" || fileName === "CHIMERA.KEY" || fileName === "DNA-MIX.LOG")) {
         await typeLine("Diagnóstico CHIMERA cargado. Sincroniza rotores y pulsa Enviar contención.", "warning");
       }
+      maybePlayAmbientNarrative("file", { fileName });
       return;
     }
 
@@ -4396,7 +4844,6 @@ function revealBootOverlay() {
   introOverlay.setAttribute("aria-hidden", "true");
   bootOverlay.classList.remove("hidden");
   bootOverlay.setAttribute("aria-hidden", "false");
-  runBootSequence();
 }
 
 function finalizarIntroSiListo() {
@@ -4432,6 +4879,24 @@ skipIntroButton.addEventListener("click", () => {
   revealBootOverlay();
 });
 startSystemButton.addEventListener("click", runBootSequence);
+skipTrainingBootButton?.addEventListener("click", startRealScenario);
+trainingForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const rawCommand = trainingInput?.value || "";
+  if (trainingInput) trainingInput.value = "";
+  const tokens = parseCommand(rawCommand);
+  if (!tokens.length) return;
+  const command = tokens[0].toLowerCase();
+  const argsUpper = tokens.slice(1).map((t) => t.toUpperCase());
+  const argsLower = tokens.slice(1).map((t) => t.toLowerCase());
+  await processTrainingCommand(command, tokens, argsLower, argsUpper);
+  trainingInput?.focus();
+});
+trainingRotorTurn?.addEventListener("click", turnTrainingRotor);
+trainingRotorDial?.addEventListener("click", turnTrainingRotor);
+trainingRotorSave?.addEventListener("click", saveTrainingRotor);
+skipTrainingButton?.addEventListener("click", startRealScenario);
+startRealSimulationButton?.addEventListener("click", startRealScenario);
 audioIntro.addEventListener("ended", finalizarIntroSiListo);
 audioIntro.addEventListener("error", () => {
   console.error("Error al cargar o reproducir assets/audio/INTRO_AUDIO.MP3");
@@ -4513,7 +4978,7 @@ output.addEventListener("click", async (event) => {
 
 actionButtons.forEach((button) => {
   button.addEventListener("click", async () => {
-    if (!state.bootStarted) await runBootSequence();
+    if (!state.bootStarted) return;
     await handleCommand(button.dataset.command);
     focusTerminalIfAllowed();
   });
@@ -4523,7 +4988,7 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const rawCommand = input.value;
   input.value = "";
-  if (!state.bootStarted) await runBootSequence();
+  if (!state.bootStarted) return;
   await handleCommand(rawCommand);
   focusTerminalIfAllowed();
 });
