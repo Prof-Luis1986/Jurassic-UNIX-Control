@@ -50,10 +50,10 @@
       <p class="boot-kicker">GENETIC SYSTEMS // LAB ESCAPE PROTOCOL</p>
       <h1>JURASSIC UNIX CONTROL</h1>
       <p class="boot-text">
-        El sistema principal del laboratorio ha caido. Restaura la energia, neutraliza la zona de raptores
-        y abre la salida de emergencia antes de la brecha total.
+        Antes de tomar control real, completa la simulacion de emergencia del laboratorio. La terminal te entrenara
+        en investigacion, rotores, protocolos y evacuacion sin activar amenazas reales.
       </p>
-      <button id="startSystem" class="start-button">INICIAR SISTEMA</button>
+      <button id="startSystem" class="start-button">INICIAR CAPACITACION</button>
     </div>
   </div>
 
@@ -96,6 +96,16 @@
       <div class="mission-box">
         <p class="label">ALERTA EN CURSO</p>
         <p id="currentAlertText">Sincronizando sensores de perimetro del laboratorio.</p>
+      </div>
+      <div class="mission-box">
+        <p class="label">RUTAS DE EVACUACION</p>
+        <div class="evacuation-routes" id="evacuationRoutesPanel">
+          <div class="evac-route">
+            <strong>Ruta principal</strong>
+            <span>Estado: SIN DATOS</span>
+            <p>Requiere diagnostico del sistema.</p>
+          </div>
+        </div>
       </div>
       <div class="mission-box">
         <p class="label">SISTEMA</p>
@@ -177,7 +187,7 @@
       </div>
       <div class="mission-box">
         <p class="label">COMANDOS BASE</p>
-        <p><code>help</code> <code>ls</code> <code>cat archivo</code> <code>status</code> <code>hint</code> <code>clear</code></p>
+        <p><code>help</code> <code>ls</code> <code>cat archivo</code> <code>status</code> <code>incidents</code> <code>evacuate</code></p>
       </div>
       <div class="mission-box">
         <p class="label">AUDIO AMBIENTE</p>

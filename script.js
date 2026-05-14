@@ -32,6 +32,7 @@ const threatLevelState = byId("threatLevelState");
 const countdownState = byId("countdownState");
 const objectiveText = byId("objectiveText");
 const currentAlertText = byId("currentAlertText");
+const evacuationRoutesPanel = byId("evacuationRoutesPanel");
 const damageState = byId("damageState");
 const damageMeter = byId("damageMeter");
 const damageMeterValue = byId("damageMeterValue");
@@ -214,6 +215,9 @@ const state = {
   introStarted: false,
   introFinished: false,
   bootStarted: false,
+  trainingActive: false,
+  trainingCompleted: false,
+  trainingStep: 0,
   ambientMuted: false,
   ambientPaused: false,
   powerOnline: false,
@@ -356,6 +360,8 @@ const state = {
   trexRotors: [],
   diloRotors: [],
   chimeraRotors: [],
+  trainingCode: "012",
+  trainingRotors: [2, 2, 2],
   cipherHelper: {
     target: "raptor",
     letter: "A",
@@ -1044,6 +1050,9 @@ function speak(text, onend) {
 
 function initializeScenario() {
   state.protocolStarted = false;
+  state.trainingActive = false;
+  state.trainingCompleted = false;
+  state.trainingStep = 0;
   state.ambientMuted = false;
   state.ambientPaused = false;
   state.powerOnline = false;
@@ -1228,12 +1237,14 @@ function initializeScenario() {
 function getCipherRotorsForTarget(target) {
   const chimeraDigits = getChimeraCodeParts().digits || "000";
   const codeByTarget = {
+    training: state.trainingCode,
     raptor: state.raptorCode,
     trex: state.trexCode,
     dilo: state.diloCode,
     chimera: chimeraDigits,
   };
   const shiftsByTarget = {
+    training: state.trainingRotors,
     raptor: state.raptorRotors,
     trex: state.trexRotors,
     dilo: state.diloRotors,
@@ -1266,6 +1277,25 @@ function getFiles() {
   const [c1, c2, c3] = chimera.digits.split("");
 
   return {
+    "TRAINING.LOG": [
+      "PROTOCOLO DE ENTRENAMIENTO // SIMULACION LAB-B",
+      "Esta capacitacion usa los mismos controles que la emergencia real, sin temporizador ni daño.",
+      "Investigar: usa ls para ver archivos y cat ARCHIVO para leerlos.",
+      "Alertas: indican que ocurrio, que objetivo resolver y donde buscar.",
+      "Rotores: lee el archivo .KEY, gira cada rotor, guarda cada digito y confirma el protocolo.",
+      "Evacuacion: status y EVAC.ROUTES muestran rutas, requisitos y bloqueos.",
+      "Siguiente paso de entrenamiento: activate training rotor",
+    ],
+    "TRAINING.KEY": [
+      "ROTOR DE PRACTICA // SIN PRESION",
+      "Objetivo: alinear tres rotores y guardar cada valor.",
+      "Cada letra equivale a un numero: A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9",
+      "Gira hacia ATRAS la cantidad indicada. Cuando el rotor se ilumine, pulsa Guardar digito.",
+      "ROTOR I: C = 2 // gira 2",
+      "ROTOR II: D = 3 // gira 2",
+      "ROTOR III: E = 4 // gira 2",
+      "Cuando los tres esten guardados, ejecuta: stabilize training",
+    ],
     "README.TXT": [
       "JURASSIC UNIX CONTROL // PROTOCOLO DE EMERGENCIA",
       "Los protocolos NO se muestran directamente.",
@@ -1461,6 +1491,7 @@ function getFiles() {
       "Requiere combustible, hangar desbloqueado y ruta logística estable.",
       "Comando: start cargo",
     ],
+    "EVAC.ROUTES": getEvacuationRouteLines(),
     "CREW.LOG": [
       "BITACORA // 2024-2026",
       "14 FEB 2024 // mantenimiento reporta oscilaciones de energia en subestacion oeste.",
@@ -1663,7 +1694,7 @@ function setPuzzleVisibility(mode) {
   }
   state.director.activePuzzle = mode;
   if (!cipherConsole) return;
-  const shouldShow = ["raptor", "trex", "dilo", "chimera"].includes(mode);
+  const shouldShow = ["training", "raptor", "trex", "dilo", "chimera"].includes(mode);
   cipherConsole.classList.toggle("hidden", !shouldShow);
   if (shouldShow) {
     preservePuzzleViewport(1200);
@@ -1671,7 +1702,7 @@ function setPuzzleVisibility(mode) {
 }
 
 function isPuzzleActive() {
-  return ["raptor", "trex", "dilo", "chimera"].includes(state.director.activePuzzle) && !cipherConsole?.classList.contains("hidden");
+  return ["training", "raptor", "trex", "dilo", "chimera"].includes(state.director.activePuzzle) && !cipherConsole?.classList.contains("hidden");
 }
 
 function preservePuzzleViewport(durationMs = 700) {
@@ -2169,6 +2200,123 @@ function setCurrentAlert(text, className = "warning") {
   }
 }
 
+function getRouteDefinitions() {
+  return {
+    main: {
+      name: "RUTA PRINCIPAL",
+      command: "unlock door DOOR-LOCK-42",
+      advantage: "rapida y directa",
+      risk: "vulnerable a daño estructural de T-Rex",
+      requirements: [
+        ["energia", state.powerOnline || state.generatorRepaired],
+        ["puerta principal intacta", !state.escapeRoutes.main.lost],
+        ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
+        ["actividad depredadora completada", hasMetAttackRequirements()],
+        ["sin amenazas activas", !hasActiveThreats()],
+      ],
+    },
+    helipad: {
+      name: "HELIPUERTO",
+      command: "activate helipad",
+      advantage: "salida mas segura si la compuerta norte falla",
+      risk: "requiere comunicacion externa y energia auxiliar",
+      requirements: [
+        ["ruta asignada por Director", state.escapeRoutes.helipad.planned],
+        ["plataforma no destruida", !state.escapeRoutes.helipad.lost],
+        ["energia activa", state.powerOnline],
+        ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
+        ["actividad depredadora completada", hasMetAttackRequirements()],
+      ],
+    },
+    tunnel: {
+      name: "TUNEL DE EMERGENCIA",
+      command: "open tunnel",
+      advantage: "discreto y util con superficie comprometida",
+      risk: "falla si hay contaminacion o Dilophosaurus activo",
+      requirements: [
+        ["ruta asignada por Director", state.escapeRoutes.tunnel.planned],
+        ["ventilacion utilizable", !state.escapeRoutes.tunnel.lost],
+        ["Dilophosaurus neutralizado o sin incidente", !state.timelineFlags.dilo || state.diloNeutralized],
+        ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
+        ["actividad depredadora completada", hasMetAttackRequirements()],
+      ],
+    },
+    cargo: {
+      name: "TRANSPORTE DE CARGA",
+      command: "start cargo",
+      advantage: "resistente y rapido por corredor logistico",
+      risk: "depende de que L-05 no este bloqueado",
+      requirements: [
+        ["ruta asignada por Director", state.escapeRoutes.cargo.planned],
+        ["hangar no bloqueado", !state.escapeRoutes.cargo.lost],
+        ["Ankylosaurus redirigido o sin incidente", !state.timelineFlags.anky || state.ankyRedirected],
+        ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
+        ["actividad depredadora completada", hasMetAttackRequirements()],
+      ],
+    },
+  };
+}
+
+function getRouteStatus(routeKey, definition) {
+  const route = state.escapeRoutes[routeKey];
+  if (!route?.planned) return "NO ASIGNADA";
+  if (route.lost) return "PERDIDA";
+  if (route.available) return "DISPONIBLE";
+  const missing = definition.requirements.filter(([, ready]) => !ready);
+  return missing.length ? "BLOQUEADA" : "LISTA PARA ACTIVAR";
+}
+
+function getRouteMissingRequirements(definition) {
+  return definition.requirements.filter(([, ready]) => !ready).map(([label]) => label);
+}
+
+function getRouteBlockedMessage(routeKey) {
+  const definition = getRouteDefinitions()[routeKey];
+  if (!definition) return "Ruta no disponible.";
+  const missing = getRouteMissingRequirements(definition);
+  if (!missing.length) return `${definition.name} lista. Ejecuta ${definition.command}.`;
+  return `${definition.name} no disponible: falta ${missing.join(", ")}.`;
+}
+
+function getEvacuationRouteLines() {
+  const definitions = getRouteDefinitions();
+  const lines = ["RUTAS DE EVACUACION // ESTADO OPERATIVO"];
+  Object.entries(definitions).forEach(([key, definition]) => {
+    const status = getRouteStatus(key, definition);
+    const missing = getRouteMissingRequirements(definition);
+    lines.push("━━━━━━━━━━━━━━");
+    lines.push(definition.name);
+    lines.push(`Estado: ${status}`);
+    lines.push(`Ventaja: ${definition.advantage}.`);
+    lines.push(`Riesgo: ${definition.risk}.`);
+    lines.push("Requiere:");
+    definition.requirements.forEach(([label, ready]) => lines.push(`- ${label}: ${ready ? "OK" : "PENDIENTE"}`));
+    lines.push(`Comando: ${definition.command}`);
+    if (missing.length) lines.push(`No funciona porque falta: ${missing.join(", ")}.`);
+  });
+  return lines;
+}
+
+function renderEvacuationRoutesPanel() {
+  if (!evacuationRoutesPanel) return;
+  const definitions = getRouteDefinitions();
+  evacuationRoutesPanel.innerHTML = Object.entries(definitions).map(([key, definition]) => {
+    const route = state.escapeRoutes[key];
+    const status = getRouteStatus(key, definition);
+    const missing = getRouteMissingRequirements(definition);
+    const statusClass = route?.available && !route.lost ? "is-open" : route?.lost ? "is-lost" : status === "NO ASIGNADA" ? "is-muted" : "is-blocked";
+    return `
+      <div class="evac-route ${statusClass}">
+        <strong>${definition.name}</strong>
+        <span>Estado: ${status}</span>
+        <p>Ventaja: ${definition.advantage}. Riesgo: ${definition.risk}.</p>
+        <p>Requiere: ${missing.length ? missing.join(", ") : "condiciones completas"}.</p>
+        <code>${definition.command}</code>
+      </div>
+    `;
+  }).join("");
+}
+
 function getEvacuationBlockers() {
   const blockers = [];
   const energyReady = state.powerOnline || (state.generatorRepaired && !state.generatorDamaged);
@@ -2350,7 +2498,7 @@ function getGuidance(key = getCurrentObjectiveKey()) {
       danger: "OMEGA puede volver a romper contencion si tardas demasiado.",
       objective: "Salir del laboratorio.",
       files: "ninguno",
-      steps: ["ejecuta escape"],
+      steps: ["ejecuta evacuate now"],
       risk: "FINAL",
     },
   };
@@ -2566,6 +2714,7 @@ function updateHud() {
   updateMissionStates();
   updateThreatMap();
   renderSpeciesList();
+  renderEvacuationRoutesPanel();
   setActiveSpecies(state.activeZone);
   updateActionButtons();
   updateCipherHelper();
@@ -2627,19 +2776,78 @@ function listFilesInTerminal() {
 }
 
 async function runBootSequence() {
-  if (state.bootStarted) return;
-  state.bootStarted = true;
+  if (state.trainingActive || state.bootStarted) return;
+  state.trainingActive = true;
   bootOverlay.classList.add("hidden");
+  for (const message of [
+    "Iniciando simulacion de emergencia LAB-B",
+    "Temporizador real: PAUSADO",
+    "Amenazas reales: AISLADAS",
+    "Modulo de entrenamiento listo.",
+  ]) {
+    await typeLine(message, "success");
+  }
+  await printTrainingStep();
+  focusTerminalIfAllowed();
+}
+
+async function startRealScenario() {
+  if (state.bootStarted) return;
+  state.trainingActive = false;
+  state.trainingCompleted = true;
+  state.bootStarted = true;
+  setPuzzleVisibility("none");
+  startThreatTimer();
+  startAmbient();
   for (const message of bootMessages) {
     await typeLine(message, "success");
   }
   await typeLine("Objetivo: estabilizar la instalación o escapar antes del colapso total.", "warning");
-  await typeLine("Los protocolos NO se muestran directamente: consulta archivos .LOG y .KEY para descubrir códigos.", "warning");
-  await typeLine("La terminal contiene información crítica para sobrevivir.", "warning");
-  setCurrentAlert("Operador enlazado. Todos los sistemas de emergencia quedan bajo tu control.", "success");
+  await typeLine("Investiga con ls y cat. Usa status o EVAC.ROUTES para ver rutas y requisitos.", "warning");
+  setCurrentAlert("Capacitacion completada. Sistemas reales bajo tu control.", "success");
   showContextGuide("power", "warning");
   speak(narrationLines.briefing);
+  updateHud();
   focusTerminalIfAllowed();
+}
+
+async function printTrainingStep() {
+  const steps = [
+    "PROTOCOLO DE ENTRENAMIENTO: escribe help",
+    "Lee la bitacora de entrenamiento: cat TRAINING.LOG",
+    "Activa el rotor de practica: activate training rotor",
+    "Alinea los rotores, guarda los tres digitos y ejecuta: stabilize training",
+  ];
+  await typeLine(steps[state.trainingStep] || steps[steps.length - 1], "warning");
+}
+
+async function completeTrainingRotor() {
+  if (!isRotorProtocolReady("training")) {
+    requireRotorProtocol("training", "Entrenamiento incompleto. Alinea los tres rotores, guarda cada digito y ejecuta stabilize training.");
+    return false;
+  }
+  if (state.trainingStep < 3) state.trainingStep = 3;
+  await printLines([
+    "Simulacion de rotores validada.",
+    "Aprendiste: girar, alinear, guardar y confirmar un protocolo.",
+    "Ultimo paso: stabilize training",
+  ], "success");
+  return true;
+}
+
+async function finishTraining() {
+  if (!isRotorProtocolReady("training")) {
+    await typeLine("El protocolo de practica aun no esta sincronizado. Guarda los tres rotores antes de estabilizar.", "warning");
+    setCipherTarget("training");
+    setPuzzleVisibility("training");
+    return;
+  }
+  await printLines([
+    "CAPACITACION COMPLETA.",
+    "La emergencia real iniciara ahora: investiga archivos, resuelve alertas y consulta rutas de evacuacion.",
+    "Comando util durante presion: status",
+  ], "success");
+  await startRealScenario();
 }
 
 function parseCommand(rawCommand) {
@@ -2698,6 +2906,8 @@ function triggerGameOver() {
 async function iniciarEscapeFinal() {
   const evacuation = verificarEvacuacionDisponible({ announce: true });
   if (!evacuation.available) {
+    await printLines(getEvacuationRouteLines(), "warning");
+    await typeLine("SUGERENCIA: activa una ruta disponible o resuelve los requisitos pendientes marcados arriba.", "warning");
     applyCommandPenalty("standard", "ESCAPE DENEGADO: evacuación bloqueada.");
     return false;
   }
@@ -3208,6 +3418,7 @@ function updateCipherHelper() {
   const stepsDone = (activeRotor.baseValue - activeRotor.currentValue + 10) % 10;
   const stepsLeft = Math.max(activeRotor.shift - stepsDone, 0);
   const targetLabels = {
+    training: "ENTRENAMIENTO",
     raptor: "RAPTOR",
     trex: "T-REX",
     dilo: "DILOPHOSAURUS",
@@ -3215,7 +3426,9 @@ function updateCipherHelper() {
   };
 
   cipherConsoleTarget.textContent = `OBJETIVO: ${targetLabels[target] || "RAPTOR"}`;
-  cipherConsoleHint.textContent = target === "chimera"
+  cipherConsoleHint.textContent = target === "training"
+    ? "Simulacion: alinea los tres rotores, guarda cada digito y ejecuta stabilize training."
+    : target === "chimera"
     ? "Rotores CHIMERA: alinea y guarda las tres etapas; Enviar contención ejecuta el cierre internamente."
     : "Alinea y guarda los tres rotores. Enviar contención ejecuta el protocolo sin escribir códigos.";
   cipherEquationDisplay.textContent = `${activeRotor.label}: ${activeRotor.letter} = ${activeRotor.baseValue} | resta ${activeRotor.shift} | valor actual ${activeRotor.currentValue}`;
@@ -3311,6 +3524,7 @@ function debugRotorState(context) {
 }
 
 function getExpectedCodeForTarget(target) {
+  if (target === "training") return state.trainingCode;
   if (target === "raptor") return state.raptorCode;
   if (target === "trex") return state.trexCode;
   if (target === "dilo") return state.diloCode;
@@ -3334,6 +3548,9 @@ function requireRotorProtocol(target, message = "Alinea y guarda los tres rotore
 }
 
 async function executeRotorContainment(target = state.cipherHelper.target) {
+  if (target === "training") {
+    return completeTrainingRotor();
+  }
   if (!["raptor", "trex", "dilo", "chimera"].includes(target)) {
     setCurrentAlert("No hay protocolo de contención por rotores activo.", "warning");
     return false;
@@ -3681,6 +3898,86 @@ async function confirmContainmentFromActiveZone() {
   await handleCommand(commandByZone[zoneKey]);
 }
 
+async function processTrainingCommand(command, tokens, argsLower, argsUpper) {
+  if (!state.trainingActive || state.trainingCompleted) return false;
+  if (command === "clear") {
+    output.innerHTML = "";
+    await printTrainingStep();
+    return true;
+  }
+  if (command === "help") {
+    await printLines([
+      "COMANDOS DISPONIBLES:",
+      "- help: muestra comandos y explica que hace cada uno.",
+      "- ls: lista archivos del sistema.",
+      "- cat ARCHIVO: abre registros .LOG, manuales y claves .KEY.",
+      "- status: muestra estado, amenazas y rutas.",
+      "- incidents: resume incidentes activos y donde investigar.",
+      "- evacuate now: evacua cuando alguna ruta este disponible.",
+      "- hint: da una pista progresiva sin resolver todo.",
+      "ENTRENAMIENTO ACTUAL: despues de help, ejecuta cat TRAINING.LOG.",
+    ], "success");
+    if (state.trainingStep === 0) state.trainingStep = 1;
+    await printTrainingStep();
+    return true;
+  }
+  if (command === "ls") {
+    listFilesInTerminal();
+    return true;
+  }
+  if (command === "cat" || command === "open") {
+    const fileName = argsUpper.join(" ");
+    const files = getFiles();
+    if (!files[fileName]) {
+      addLine(`${command}: ${tokens.slice(1).join(" ")}: archivo no encontrado`, "error");
+      return true;
+    }
+    if (fileName === "TRAINING.KEY") {
+      setCipherTarget("training");
+      setPuzzleVisibility("training");
+    }
+    await printLines(files[fileName]);
+    if (fileName === "TRAINING.LOG" && state.trainingStep === 1) {
+      state.trainingStep = 2;
+      await printTrainingStep();
+    }
+    return true;
+  }
+  if (command === "activate" && argsLower[0] === "training" && argsLower[1] === "rotor") {
+    state.trainingStep = Math.max(state.trainingStep, 3);
+    setCipherTarget("training");
+    setPuzzleVisibility("training");
+    await printLines([
+      "ROTOR DE PRACTICA ACTIVADO.",
+      "Consulta cat TRAINING.KEY si necesitas ver la regla.",
+      "Gira cada rotor hacia ATRAS hasta alinearlo, pulsa Guardar digito y luego ejecuta stabilize training.",
+    ], "success");
+    return true;
+  }
+  if (command === "stabilize" && argsLower[0] === "training") {
+    await finishTraining();
+    return true;
+  }
+  if (command === "status") {
+    await printLines([
+      "SIMULACION ACTIVA: temporizador real pausado.",
+      "Objetivo: completar comandos de entrenamiento y rotor de practica.",
+      "Rutas: se explicaran en el panel y con EVAC.ROUTES durante la emergencia real.",
+    ], "success");
+    return true;
+  }
+  if (command === "incidents") {
+    await printLines([
+      "INCIDENTE SIMULADO: barrera de practica sin presion.",
+      "Investiga TRAINING.LOG, activa rotores y estabiliza el protocolo.",
+    ], "warning");
+    return true;
+  }
+  await typeLine("Comando fuera de la simulacion. Sigue el paso activo o usa help.", "warning");
+  await printTrainingStep();
+  return true;
+}
+
 async function handleCommand(rawCommand) {
   addLine(`root@jurassic-unix:~# ${rawCommand}`, "command");
   const tokens = parseCommand(rawCommand);
@@ -3690,6 +3987,8 @@ async function handleCommand(rawCommand) {
   const argsUpper = tokens.slice(1).map((t) => t.toUpperCase());
   const argsLower = tokens.slice(1).map((t) => t.toLowerCase());
 
+  if (await processTrainingCommand(command, tokens, argsLower, argsUpper)) return;
+
   if (state.gameOver && !["restart", "clear", "help"].includes(command)) {
     addLine("Sistema bloqueado. Reinicia el escenario para volver a intentarlo.", "error");
     return;
@@ -3698,30 +3997,32 @@ async function handleCommand(rawCommand) {
   switch (command) {
     case "help":
       await printLines([
-        "Comandos disponibles:",
-        "help", "ls", "cat ARCHIVO", "open ARCHIVO", "status", "missions", "hint",
-        "restore power RST-POWER-73",
-        "repair generator GEN-RESTART-84",
-        "Rotores: consulta .KEY, guarda cada rotor y pulsa Enviar contención",
-        "restore barrier BARRIER-RESTORE-31",
-        "stabilize triceratops TRI-STABLE-41",
-        "redirect anky ANKY-PORT-55",
-        "analyze stego STEGO-BIO-28",
-        "unlock door DOOR-LOCK-42",
-        "activate helipad",
-        "open tunnel",
-        "start cargo",
-        "evacuate now",
-        "escape", "restart", "clear",
-      ]);
+        "COMANDOS DISPONIBLES:",
+        "- help: muestra esta ayuda.",
+        "- ls: lista archivos investigables.",
+        "- cat ARCHIVO: lee logs, manuales y claves. Ejemplo: cat POWER.LOG.",
+        "- status: muestra estado del laboratorio, amenazas y rutas.",
+        "- incidents: resume amenazas activas, objetivo y archivo recomendado.",
+        "- missions: lista progreso de misiones.",
+        "- hint: da una pista progresiva del objetivo activo.",
+        "- evacuate now: ejecuta escape cuando una ruta este disponible.",
+        "PROTOCOLOS:",
+        "- restore power RST-POWER-73",
+        "- repair generator GEN-RESTART-84",
+        "- restore barrier BARRIER-RESTORE-31",
+        "- stabilize triceratops TRI-STABLE-41",
+        "- redirect anky ANKY-PORT-55",
+        "- analyze stego STEGO-BIO-28",
+        "- unlock door DOOR-LOCK-42 / activate helipad / open tunnel / start cargo",
+        "ROTORES: consulta .KEY, gira hasta alinear, pulsa Guardar digito en orden y luego Enviar contención.",
+      ], "success");
       return;
 
     case "ls":
       listFilesInTerminal();
       return;
 
-    case "cat":
-    case "open": {
+    case "cat": {
       const fileName = argsUpper.join(" ");
       const files = getFiles();
       if (!files[fileName]) {
@@ -3770,7 +4071,28 @@ async function handleCommand(rawCommand) {
 
     case "status":
       await showStatus();
+      await printLines(getEvacuationRouteLines(), "success");
       verificarEvacuacionDisponible({ announce: true });
+      return;
+
+    case "incidents":
+      {
+        const threats = getActiveThreats();
+        if (!threats.length) {
+          await printLines(["Sin amenazas activas. Revisa objetivo actual, status o EVAC.ROUTES para planear evacuacion."], "success");
+          return;
+        }
+        for (const threat of threats) {
+          const guide = getGuidance(threat.key === "power" ? getCurrentObjectiveKey() : threat.key);
+          await printLines([
+            `INCIDENTE: ${guide.title}`,
+            `QUE OCURRIO: ${guide.occurred}`,
+            `OBJETIVO: ${guide.objective}`,
+            `DONDE BUSCAR: ${guide.files}`,
+            `PASOS: ${guide.steps.join(" -> ")}`,
+          ], threat.severity === "critical" || threat.severity === "omega" ? "warning" : "success");
+        }
+      }
       return;
 
     case "missions":
@@ -3950,11 +4272,11 @@ async function handleCommand(rawCommand) {
     case "unlock":
       if (argsLower[0] === "door" && argsUpper.slice(1).join("-") === "DOOR-LOCK-42") {
         if (state.escapeRoutes.main.lost) {
-          applyCommandPenalty("standard", "La puerta principal quedó inutilizable. Busca ruta alternativa.");
+          applyCommandPenalty("standard", getRouteBlockedMessage("main"));
           return;
         }
         if (!state.omegaReleased || !state.chimeraContained || state.chimeraActive || state.omegaActive || !hasMetAttackRequirements()) {
-          applyCommandPenalty("standard", "La puerta no puede liberarse: amenazas críticas pendientes.");
+          applyCommandPenalty("standard", getRouteBlockedMessage("main"));
           return;
         }
         state.doorUnlocked = true;
@@ -3973,16 +4295,17 @@ async function handleCommand(rawCommand) {
     case "activate":
       if (argsLower[0] === "helipad") {
         if (!state.escapeRoutes.helipad.planned || state.escapeRoutes.helipad.lost) {
-          applyCommandPenalty("standard", "Helipuerto no disponible en esta sesión.");
+          applyCommandPenalty("standard", getRouteBlockedMessage("helipad"));
           return;
         }
         if (!state.powerOnline || !state.omegaReleased || !state.chimeraContained || !hasMetAttackRequirements()) {
-          applyCommandPenalty("standard", "Helipuerto bloqueado: falta energía estable o contención crítica.");
+          applyCommandPenalty("standard", getRouteBlockedMessage("helipad"));
           return;
         }
         state.escapeRoutes.helipad.available = true;
         state.doorUnlocked = true;
         state.evacuationRoute = "helipad";
+        markProgress("escape");
         rewardRecovery("small", "helipuerto activado");
         updateHud();
         await printLines(["Energía auxiliar derivada a azotea.", "Comunicación externa enlazada.", "HELIPUERTO DISPONIBLE."], "success");
@@ -3993,16 +4316,17 @@ async function handleCommand(rawCommand) {
     case "open":
       if (argsLower[0] === "tunnel") {
         if (!state.escapeRoutes.tunnel.planned || state.escapeRoutes.tunnel.lost) {
-          applyCommandPenalty("standard", "Túnel de emergencia no disponible.");
+          applyCommandPenalty("standard", getRouteBlockedMessage("tunnel"));
           return;
         }
         if ((state.timelineFlags.dilo && !state.diloNeutralized) || !state.omegaReleased || !state.chimeraContained || !hasMetAttackRequirements()) {
-          applyCommandPenalty("standard", "Túnel bloqueado: ventilación o contención crítica no segura.");
+          applyCommandPenalty("standard", getRouteBlockedMessage("tunnel"));
           return;
         }
         state.escapeRoutes.tunnel.available = true;
         state.doorUnlocked = true;
         state.evacuationRoute = "tunnel";
+        markProgress("escape");
         rewardRecovery("small", "túnel de emergencia abierto");
         updateHud();
         await printLines(["Abriendo compuertas del subnivel V-02...", "Ventilación restablecida.", "TUNEL DE EMERGENCIA DISPONIBLE."], "success");
@@ -4013,16 +4337,17 @@ async function handleCommand(rawCommand) {
     case "start":
       if (argsLower[0] === "cargo") {
         if (!state.escapeRoutes.cargo.planned || state.escapeRoutes.cargo.lost) {
-          applyCommandPenalty("standard", "Transporte de carga no disponible.");
+          applyCommandPenalty("standard", getRouteBlockedMessage("cargo"));
           return;
         }
         if ((state.timelineFlags.anky && !state.ankyRedirected) || !state.omegaReleased || !state.chimeraContained || !hasMetAttackRequirements()) {
-          applyCommandPenalty("standard", "Transporte bloqueado: hangar o ruta logística insegura.");
+          applyCommandPenalty("standard", getRouteBlockedMessage("cargo"));
           return;
         }
         state.escapeRoutes.cargo.available = true;
         state.doorUnlocked = true;
         state.evacuationRoute = "cargo";
+        markProgress("escape");
         rewardRecovery("small", "transporte de carga preparado");
         updateHud();
         await printLines(["Combustible interno validado.", "Hangar L-05 desbloqueado.", "TRANSPORTE DE CARGA LISTO PARA EVACUAR."], "success");
@@ -4085,9 +4410,7 @@ function iniciarProtocolo() {
   state.introStarted = true;
   startIntroButton.disabled = true;
   startIntroButton.textContent = "PROTOCOLO EN CURSO...";
-  introStatus.textContent = "Protocolo activado. Intro, temporizador, ambiente y alerta inicial en ejecución.";
-  startThreatTimer();
-  startAmbient();
+  introStatus.textContent = "Protocolo activado. Intro en ejecución. La emergencia real inicia despues de la capacitacion.";
   introVideo.loop = true;
   introVideo.currentTime = 0;
   introVideo.play().catch(() => {

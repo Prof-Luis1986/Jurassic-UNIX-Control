@@ -408,6 +408,57 @@ body.state-omega::after {
   background: rgba(255, 209, 102, 0.05);
 }
 
+.evacuation-routes {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.evac-route {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid rgba(125, 255, 155, 0.14);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.evac-route strong {
+  color: var(--accent-strong);
+}
+
+.evac-route span {
+  color: var(--warning);
+  font-size: 0.78rem;
+  letter-spacing: 0.08rem;
+}
+
+.evac-route p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.evac-route code {
+  width: fit-content;
+  color: var(--cyan);
+  font-size: 0.74rem;
+}
+
+.evac-route.is-open {
+  border-color: rgba(125, 255, 155, 0.36);
+  box-shadow: 0 0 14px rgba(125, 255, 155, 0.08);
+}
+
+.evac-route.is-lost {
+  border-color: rgba(255, 90, 79, 0.34);
+  background: rgba(255, 90, 79, 0.06);
+}
+
+.evac-route.is-muted {
+  opacity: 0.62;
+}
+
 .terminal-frame {
   display: flex;
   flex-direction: column;
