@@ -530,6 +530,20 @@ const state = {
     lastPlayedAt: 900,
     seen: [],
     isSpeaking: false,
+    queue: [],
+    current: null,
+    retryTimer: null,
+  },
+  activeThreats: {},
+  unresolvedEvents: {},
+  alertState: "off",
+  currentEmergency: null,
+  emergencyLock: false,
+  audio: {
+    currentSpeech: null,
+    speechPriority: "low",
+    alertVolumeBeforeDuck: null,
+    mixTimer: null,
   },
   raptorCode: "",
   trexCode: "",
@@ -808,6 +822,10 @@ function detenerSonido(nombre) {
 }
 
 function playAlert(volume = 0.7) {
+  if (!hasActiveThreats() && !state.gameOver && !state.cinematicStarted) {
+    stopContinuousAlert();
+    return Promise.resolve(false);
+  }
   if (state.continuousAlertActive) {
     return startContinuousAlert(volume);
   }
@@ -815,22 +833,36 @@ function playAlert(volume = 0.7) {
 }
 
 function startContinuousAlert(volume = 0.74) {
+  if (!hasActiveThreats() && !state.gameOver && !state.cinematicStarted) {
+    stopContinuousAlert();
+    return Promise.resolve(false);
+  }
   if (hasActiveThreats()) {
     state.alertsSilencedUntil = 0;
   } else if (Date.now() < state.alertsSilencedUntil) {
     return Promise.resolve(false);
   }
+  const alertAlreadyAudible = state.continuousAlertActive &&
+    audioAlerta.loop &&
+    !audioAlerta.paused &&
+    !audioAlerta.ended;
   state.continuousAlertActive = true;
-  return reproducirSonido("alerta", { volume, loop: true, reset: false });
+  state.alertState = "active";
+  return reproducirSonido("alerta", {
+    volume,
+    loop: true,
+    reset: !alertAlreadyAudible,
+  });
 }
 
 function stopContinuousAlert() {
   state.continuousAlertActive = false;
+  state.alertState = "off";
   detenerSonido("alerta");
   audioAlerta.loop = false;
 }
 
-function getActiveThreats() {
+function getDerivedActiveThreats() {
   if (state.gameOver || state.escaped) return [];
   const threats = [];
   if (!state.powerOnline) threats.push({ key: "power", label: state.generatorDamaged ? "GENERADOR DAÑADO" : "ENERGIA PRINCIPAL OFFLINE", severity: "critical" });
@@ -844,6 +876,29 @@ function getActiveThreats() {
   if (state.timelineFlags.stego && !state.stegoAnalyzed) threats.push({ key: "stego", label: "ESTEGOSAURUS ENFERMO", severity: "active" });
   if (state.chimeraActive || (state.omegaReleased && !state.chimeraContained)) threats.push({ key: "chimera", label: "CHIMERASAURUS REX LIBERADO", severity: "omega" });
   return threats;
+}
+
+function syncActiveThreatRegistry() {
+  const threats = getDerivedActiveThreats();
+  state.activeThreats = threats.reduce((registry, threat) => {
+    registry[threat.key] = {
+      ...threat,
+      active: true,
+      since: state.activeThreats?.[threat.key]?.since ?? state.countdownSeconds,
+    };
+    return registry;
+  }, {});
+  state.unresolvedEvents = { ...state.activeThreats };
+  state.currentEmergency = threats.find((threat) => threat.severity === "omega") ||
+    threats.find((threat) => threat.severity === "critical") ||
+    threats[0] ||
+    null;
+  state.emergencyLock = Boolean(state.currentEmergency && ["omega", "critical"].includes(state.currentEmergency.severity));
+  return threats;
+}
+
+function getActiveThreats() {
+  return syncActiveThreatRegistry();
 }
 
 function hasActiveThreats() {
@@ -869,11 +924,13 @@ function getAlertVolumeForThreats(threats = getActiveThreats()) {
 }
 
 function detenerAlertaSoloSiNoHayAmenazasActivas() {
-  if (hasActiveThreats()) {
-    startContinuousAlert(getAlertVolumeForThreats());
+  const threats = getActiveThreats();
+  if (threats.length) {
+    startContinuousAlert(getAlertVolumeForThreats(threats));
     return false;
   }
   stopContinuousAlert();
+  restoreAudioMixAfterSpeech();
   return true;
 }
 
@@ -882,9 +939,12 @@ function mantenerAlertaActiva() {
   const threats = getActiveThreats();
   if (!threats.length) {
     detenerAlertaSoloSiNoHayAmenazasActivas();
+    if (!state.alertPanelTimer) hideAlertPanel();
+    drainSpeechQueue();
     return;
   }
   startContinuousAlert(getAlertVolumeForThreats(threats));
+  state.alertState = threats.some((threat) => threat.severity === "omega" || threat.severity === "critical") ? "critical" : "active";
 }
 
 function getActiveMajorThreat() {
@@ -1204,7 +1264,13 @@ function hideAlertPanel() {
 
 function detenerAlerta(message = "SITUACION CONTROLADA") {
   const stopped = detenerAlertaSoloSiNoHayAmenazasActivas();
-  showAlertPanel(message, "controlled");
+  if (stopped) {
+    showAlertPanel(message, "controlled");
+  } else {
+    const threats = getActiveThreats();
+    const severity = threats.some((threat) => threat.severity === "omega" || threat.severity === "critical") ? "critical" : "active";
+    showAlertPanel(`AMENAZA ACTIVA: ${threats[0]?.label || "EVENTO PENDIENTE"}. ${message}`, severity);
+  }
   state.alertPanelTimer = window.setTimeout(() => {
     if (stopped && !hasActiveThreats()) {
       hideAlertPanel();
@@ -1248,10 +1314,124 @@ function setAlertSilence(durationMs = 20000) {
   }, durationMs + 50);
 }
 
+const AUDIO_PRIORITY_WEIGHT = {
+  low: 1,
+  medium: 2,
+  high: 3,
+  critical: 4,
+};
+
+function getAudioPriorityWeight(priority = "low") {
+  return AUDIO_PRIORITY_WEIGHT[priority] ?? AUDIO_PRIORITY_WEIGHT.low;
+}
+
+function hasCriticalAudioBlock() {
+  const threats = getActiveThreats();
+  return state.omegaCinematicPlaying ||
+    state.cinematicStarted ||
+    state.emergencyLock ||
+    threats.some((threat) => threat.severity === "omega" || threat.severity === "critical");
+}
+
+function canStartNarrativeAudio() {
+  if (!state.bootStarted || state.trainingActive || state.gameOver || state.escaped) return false;
+  if (state.omegaCinematicPlaying || state.cinematicStarted) return false;
+  if (state.currentProtocol || state.activeThreat) return false;
+  if (isPuzzleActive()) return false;
+  if (hasCriticalAudioBlock()) return false;
+  return true;
+}
+
+function duckAudioForSpeech(priority = "medium") {
+  if (state.audio.mixTimer) {
+    window.clearTimeout(state.audio.mixTimer);
+    state.audio.mixTimer = null;
+  }
+  if (priority !== "critical" && state.continuousAlertActive && audioAlerta && state.audio.alertVolumeBeforeDuck === null) {
+    state.audio.alertVolumeBeforeDuck = audioAlerta.volume;
+    audioAlerta.volume = Math.min(audioAlerta.volume, 0.34);
+  }
+  if (!state.ambientMuted && !state.ambientPaused && audioAmbiente) {
+    audioAmbiente.volume = priority === "critical" ? 0.03 : 0.045;
+  }
+}
+
+function restoreAudioMixAfterSpeech() {
+  if (state.audio.mixTimer) {
+    window.clearTimeout(state.audio.mixTimer);
+  }
+  state.audio.mixTimer = window.setTimeout(() => {
+    if (state.audio.alertVolumeBeforeDuck !== null && state.continuousAlertActive && audioAlerta) {
+      audioAlerta.volume = getAlertVolumeForThreats();
+    }
+    state.audio.alertVolumeBeforeDuck = null;
+    if (audioAmbiente && !state.ambientPaused) {
+      audioAmbiente.volume = state.ambientMuted ? 0 : 0.08;
+    }
+    state.audio.mixTimer = null;
+  }, 220);
+}
+
+function queueSpeech(item) {
+  if (!item?.text) return false;
+  const duplicate = state.narrative.queue.some((queued) => queued.text === item.text && queued.id === item.id);
+  if (!duplicate) state.narrative.queue.push({ ...item, attempts: item.attempts ?? 0 });
+  scheduleSpeechQueueDrain(item.retryDelay ?? 1800);
+  return true;
+}
+
+function scheduleSpeechQueueDrain(delayMs = 1400) {
+  if (state.narrative.retryTimer) window.clearTimeout(state.narrative.retryTimer);
+  state.narrative.retryTimer = window.setTimeout(() => {
+    state.narrative.retryTimer = null;
+    drainSpeechQueue();
+  }, delayMs);
+}
+
+function drainSpeechQueue() {
+  if (state.narrative.isSpeaking || !state.narrative.queue.length) return false;
+  if (!canStartNarrativeAudio()) {
+    scheduleSpeechQueueDrain(hasCriticalAudioBlock() ? 3200 : 1800);
+    return false;
+  }
+  const item = state.narrative.queue.shift();
+  return speak(item.text, item.onend, { ...item.options, queued: true, priority: item.priority ?? "medium" });
+}
+
 function speak(text, onend, options = {}) {
   if (!text || !("speechSynthesis" in window)) {
     if (onend) onend();
     return false;
+  }
+  const priority = options.priority ?? "medium";
+  const isNarrative = options.channel === "narrative" || priority === "medium";
+  const currentPriority = state.audio.speechPriority ?? "low";
+  if (!options.queued && isNarrative && !canStartNarrativeAudio()) {
+    return queueSpeech({ text, onend, options, priority, id: options.id });
+  }
+  if (
+    !options.queued &&
+    state.narrative.isSpeaking &&
+    getAudioPriorityWeight(priority) <= getAudioPriorityWeight(currentPriority)
+  ) {
+    return queueSpeech({ text, onend, options, priority, id: options.id });
+  }
+  if (
+    state.narrative.isSpeaking &&
+    getAudioPriorityWeight(priority) > getAudioPriorityWeight(currentPriority)
+  ) {
+    if (state.narrative.current?.text && state.narrative.current?.retryOnInterrupt !== false) {
+      queueSpeech({
+        text: state.narrative.current.text,
+        onend: state.narrative.current.onend,
+        options: state.narrative.current.options,
+        priority: state.narrative.current.priority,
+        id: state.narrative.current.id,
+        retryDelay: 2600,
+      });
+    }
+    window.speechSynthesis.cancel();
+    state.narrative.isSpeaking = false;
   }
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = options.lang || "es-MX";
@@ -1259,14 +1439,40 @@ function speak(text, onend, options = {}) {
   utterance.pitch = options.pitch ?? 0.78;
   utterance.volume = options.volume ?? 0.72;
   utterance.onend = () => {
+    state.narrative.isSpeaking = false;
+    state.narrative.current = null;
+    state.audio.currentSpeech = null;
+    state.audio.speechPriority = "low";
+    restoreAudioMixAfterSpeech();
     if (onend) onend();
+    drainSpeechQueue();
   };
   utterance.onerror = () => {
+    state.narrative.isSpeaking = false;
+    state.narrative.current = null;
+    state.audio.currentSpeech = null;
+    state.audio.speechPriority = "low";
+    restoreAudioMixAfterSpeech();
+    if ((options.attempts ?? 0) < 2 && options.retryOnError !== false) {
+      queueSpeech({
+        text,
+        onend,
+        options: { ...options, attempts: (options.attempts ?? 0) + 1 },
+        priority,
+        id: options.id,
+        retryDelay: 2600,
+      });
+    }
     if (onend) onend();
   };
-  if (options.cancel !== false) {
+  if (options.cancel === true || priority === "critical") {
     window.speechSynthesis.cancel();
   }
+  state.narrative.isSpeaking = true;
+  state.narrative.current = { text, onend, options, priority, id: options.id, retryOnInterrupt: options.retryOnInterrupt };
+  state.audio.currentSpeech = utterance;
+  state.audio.speechPriority = priority;
+  duckAudioForSpeech(priority);
   window.speechSynthesis.speak(utterance);
   return true;
 }
@@ -1429,6 +1635,20 @@ function initializeScenario() {
     lastPlayedAt: 900,
     seen: [],
     isSpeaking: false,
+    queue: [],
+    current: null,
+    retryTimer: null,
+  };
+  state.activeThreats = {};
+  state.unresolvedEvents = {};
+  state.alertState = "off";
+  state.currentEmergency = null;
+  state.emergencyLock = false;
+  state.audio = {
+    currentSpeech: null,
+    speechPriority: "low",
+    alertVolumeBeforeDuck: null,
+    mixTimer: null,
   };
   state.raptorCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
   state.trexCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
@@ -2435,9 +2655,8 @@ function scheduleNextAmbientNarrative(minGap = 58, maxGap = 112) {
 
 function canPlayAmbientNarrative(trigger = "ambient") {
   if (!state.bootStarted || state.trainingActive || state.gameOver || state.escaped) return false;
-  if (state.omegaCinematicPlaying || state.cinematicStarted || state.narrative.isSpeaking) return false;
-  if (isPuzzleActive()) return false;
-  if (getActiveMajorThreat()) return false;
+  if (state.narrative.isSpeaking) return false;
+  if (!canStartNarrativeAudio()) return false;
   if (state.evacuationAvailable && trigger === "ambient") return false;
   if (state.countdownSeconds <= 90) return false;
   if (state.damageInstalacion >= 88 || state.riesgoBiologico >= 88) return false;
@@ -2462,27 +2681,39 @@ function getNarrativeCandidates(trigger = "ambient", context = {}) {
 function playAmbientNarrative(entry, trigger = "ambient") {
   if (!entry) return false;
   if (state.ambientPaused) return false;
-  state.narrative.seen.push(entry.id);
   state.narrative.lastPlayedAt = state.countdownSeconds;
   scheduleNextAmbientNarrative();
-  state.narrative.isSpeaking = true;
   addLine(`TRANSMISION RECUPERADA // ${entry.title}`, "warning");
   addLine(`${entry.source}: ${entry.text}`, "narrative");
   currentAlertText.textContent = `Registro ambiental recuperado: ${entry.title}`;
   showAlertPanel(`REGISTRO RECUPERADO: ${entry.title}`, "active");
   if (trigger === "ambient" && Math.random() < 0.45) triggerVisualGlitchBurst("normal");
   clonePlay(typingSound, 0.06);
-  speak(`Registro recuperado. ${entry.text}`, () => {
+  const started = speak(`Registro recuperado. ${entry.text}`, () => {
     state.narrative.isSpeaking = false;
   }, {
+    id: entry.id,
+    channel: "narrative",
+    priority: "medium",
+    retryOnInterrupt: true,
     rate: 0.84,
     pitch: 0.62,
     volume: state.ambientMuted ? 0 : 0.58,
   });
+  if (started && !state.narrative.seen.includes(entry.id)) {
+    state.narrative.seen.push(entry.id);
+  }
   window.setTimeout(() => {
-    state.narrative.isSpeaking = false;
-  }, 12000);
-  return true;
+    if (state.narrative.current?.id === entry.id && !window.speechSynthesis.speaking) {
+      state.narrative.isSpeaking = false;
+      state.narrative.current = null;
+      state.audio.currentSpeech = null;
+      state.audio.speechPriority = "low";
+      restoreAudioMixAfterSpeech();
+      drainSpeechQueue();
+    }
+  }, 60000);
+  return started;
 }
 
 function maybePlayAmbientNarrative(trigger = "ambient", context = {}) {
@@ -3179,7 +3410,7 @@ async function startRealScenario() {
   await typeLine("Investiga con ls y cat. Usa status o EVAC.ROUTES para ver rutas y requisitos.", "warning");
   setCurrentAlert("Capacitacion completada. Sistemas reales bajo tu control.", "success");
   showContextGuide("power", "warning");
-  speak(narrationLines.briefing);
+  speak(narrationLines.briefing, null, { priority: "medium", channel: "narrative", retryOnInterrupt: true });
   updateHud();
   focusTerminalIfAllowed();
 }
@@ -3341,7 +3572,7 @@ async function iniciarEscapeFinal() {
   stopAmbient();
   detenerAlerta("SITUACION CONTROLADA // Evacuacion completada");
   updateHud();
-  speak(narrationLines.escape);
+  speak(narrationLines.escape, null, { priority: "critical", retryOnInterrupt: false });
   await printLines([
     "Iniciando protocolo de escape...",
     "Puertas externas liberadas.",
@@ -3584,7 +3815,7 @@ function triggerThreatEscapeCinematic(threatKey) {
   if (threatKey === "chimera") reproducirGarrasAleatorio(true);
   if (["herd", "anky", "dilo"].includes(threatKey)) triggerVisualGlitchBurst("normal");
   triggerVisualGlitchBurst(config.glitch);
-  if (threatKey === "chimera") speak(narrationLines.omega);
+  if (threatKey === "chimera") speak(narrationLines.omega, null, { priority: "critical", retryOnInterrupt: false });
   reproducirVideoAmenaza(config.source).then((played) => {
     if (!played) {
       omegaOverlayText.textContent = `No fue posible reproducir ${config.source}.`;
@@ -3656,7 +3887,7 @@ function activateDirectorEvent(key) {
     case "raptor":
       startContinuousAlert(0.72);
       playDinoSound("raptor");
-      speak(narrationLines.raptor);
+      speak(narrationLines.raptor, null, { priority: "critical", retryOnInterrupt: false });
       state.activeZone = "raptor";
       markProgress("raptor");
       setPuzzleVisibility("raptor");
@@ -3667,7 +3898,7 @@ function activateDirectorEvent(key) {
     case "trex":
       startContinuousAlert(0.76);
       playDinoSound("trex", 0.65);
-      speak(narrationLines.trex);
+      speak(narrationLines.trex, null, { priority: "critical", retryOnInterrupt: false });
       state.activeZone = "trex";
       markProgress("trex");
       setPuzzleVisibility("trex");
@@ -3681,7 +3912,7 @@ function activateDirectorEvent(key) {
       applyDeterioration({ damage: 8, bio: 2, stability: -8, energy: -18 });
       playAlert();
       playDinoSound("brachio", 0.55);
-      speak(narrationLines.generator);
+      speak(narrationLines.generator, null, { priority: "critical", retryOnInterrupt: false });
       state.activeZone = "power";
       markProgress("generator");
       setPuzzleVisibility("none");
@@ -3710,7 +3941,7 @@ function activateDirectorEvent(key) {
     case "anky":
       startContinuousAlert(0.68);
       playDinoSound("anky", 0.55);
-      speak(narrationLines.anky);
+      speak(narrationLines.anky, null, { priority: "high", retryOnInterrupt: false });
       state.activeZone = "anky";
       setCurrentAlert("EVENTO SECUNDARIO CINEMATICO: ANKYLOSAURUS EN RUTA LOGÍSTICA. Corredor L-05 bloqueado.", "warning");
       markProgress("anky");
@@ -3720,7 +3951,7 @@ function activateDirectorEvent(key) {
     case "herd":
       startContinuousAlert(0.68);
       playDinoSound("herb", 0.55);
-      speak(narrationLines.herd);
+      speak(narrationLines.herd, null, { priority: "high", retryOnInterrupt: false });
       state.activeZone = "herb";
       setCurrentAlert("EVENTO SECUNDARIO CINEMATICO: PELEA DE TRICERATOPS DETECTADA. Sector C comprometido. Compuertas laterales bajo presión.", "warning");
       markProgress("herd");
@@ -3730,7 +3961,7 @@ function activateDirectorEvent(key) {
     case "stego":
       startContinuousAlert(0.66);
       playDinoSound("stego", 0.55);
-      speak(narrationLines.stego);
+      speak(narrationLines.stego, null, { priority: "high", retryOnInterrupt: false });
       state.activeZone = "stego";
       setCurrentAlert("EVENTO SECUNDARIO CINEMATICO: ESTEGOSAURUS ENFERMO DETECTADO. Anomalía biológica en Sector Herbívoro.", "warning");
       markProgress("stego");
@@ -4030,6 +4261,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
 
   if (target === "raptor") {
     state.raptorContained = true;
+    if (state.currentProtocol === "raptor") state.currentProtocol = null;
     markProgress(state.raptorAttackCount >= state.director.attackGoals.raptor ? "trex" : "raptor");
     rewardRecovery("standard", "Velociraptor contenido");
     state.riesgoBiologico = clamp(state.riesgoBiologico - 8, 0, 100);
@@ -4049,6 +4281,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
 
   if (target === "trex") {
     state.trexContained = true;
+    if (state.currentProtocol === "trex") state.currentProtocol = null;
     markProgress(state.trexAttackCount >= state.director.attackGoals.trex ? "dilo" : "trex");
     rewardRecovery("major", "T-Rex contenido");
     state.riesgoBiologico = clamp(state.riesgoBiologico - 8, 0, 100);
@@ -4068,6 +4301,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
 
   if (target === "dilo") {
     state.diloNeutralized = true;
+    if (state.currentProtocol === "dilo") state.currentProtocol = null;
     markProgress("barrier");
     rewardRecovery("standard", "Dilophosaurus bloqueado");
     state.riesgoBiologico = clamp(state.riesgoBiologico - 10, 0, 100);
@@ -4152,7 +4386,7 @@ function setCipherTarget(target) {
   if (target === "chimera") {
     if (state.chimeraActive) state.currentProtocol = "chimerasaurus";
   } else {
-    state.currentProtocol = target;
+    state.currentProtocol = isRotorThreatActive(target) ? target : null;
   }
   state.cipherHelper.rotors = getCipherRotorsForTarget(target);
   state.cipherHelper.activeRotorIndex = 0;
@@ -4207,6 +4441,14 @@ async function sendRotorContainment() {
     return false;
   }
   return executeRotorContainment(state.cipherHelper.target);
+}
+
+function isRotorThreatActive(target) {
+  if (target === "raptor") return state.timelineFlags.raptor && !state.raptorContained;
+  if (target === "trex") return state.timelineFlags.trex && !state.trexContained;
+  if (target === "dilo") return state.timelineFlags.dilo && !state.diloNeutralized;
+  if (target === "chimera") return state.chimeraActive && state.omegaActive;
+  return false;
 }
 
 function focusLockIfNeeded() {
@@ -4601,7 +4843,7 @@ async function handleCommand(rawCommand) {
         detenerAlerta("SITUACION CONTROLADA // Energia principal restaurada");
         updateHud();
         setCurrentAlert("Energía principal restaurada.", "success");
-        speak(narrationLines.power);
+        speak(narrationLines.power, null, { priority: "medium", channel: "narrative", retryOnInterrupt: true });
         await printLines(["Restaurando suministro electrico...", "Subestacion oeste en linea.", "Energia principal ONLINE."], "success");
         return;
       }
@@ -4734,7 +4976,7 @@ async function handleCommand(rawCommand) {
         rewardRecovery("small", "ruta de evacuacion abierta");
         detenerAlerta("SITUACION CONTROLADA // Ruta de evacuacion liberada");
         updateHud();
-        speak(narrationLines.door);
+        speak(narrationLines.door, null, { priority: "medium", channel: "narrative", retryOnInterrupt: true });
         await printLines(["Validando acceso de emergencia...", "Sellos magneticos liberados.", "Puerta de evacuacion ABIERTA."], "success");
         return;
       }
