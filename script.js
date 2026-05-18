@@ -104,7 +104,6 @@ const speciesList = byId("speciesList");
 
 const focusLock = byId("focusLock");
 const resumeSession = byId("resumeSession");
-const gameOverOverlay = byId("gameOverOverlay");
 const restartScenarioButton = byId("restartScenario");
 const escapeOverlay = byId("escapeOverlay");
 const escapeVideo = byId("escapeVideo");
@@ -2884,9 +2883,12 @@ async function completeEvacuationOverride(routeKey) {
   state.evacuationOverride.solved[routeKey] = true;
   state.doorUnlocked = true;
   state.evacuationRoute = routeKey;
+  state.evacuationOverride.target = null;
+  if (state.currentProtocol === getCipherTargetForRoute(routeKey)) state.currentProtocol = null;
   markProgress("escape");
   rewardRecovery(getDominantOverrideThreat() === "omega" ? "major" : "small", `${getRouteDefinitions()[routeKey].name} forzada por override`);
   detenerAlerta("SITUACION CONTROLADA // Override de evacuacion sincronizado");
+  resetAllRotors();
   setPuzzleVisibility("none");
   updateHud();
   const labels = {
@@ -4319,6 +4321,7 @@ function activateDirectorEvent(key) {
       speak(narrationLines.raptor, null, { priority: "critical", retryOnInterrupt: false });
       state.activeZone = "raptor";
       markProgress("raptor");
+      setCipherTarget("raptor");
       setPuzzleVisibility("raptor");
       setCurrentAlert("Movimiento detectado en Sector B. Velociraptor en perímetro interno.", "error");
       showContextGuide("raptor", "error");
@@ -4330,6 +4333,7 @@ function activateDirectorEvent(key) {
       speak(narrationLines.trex, null, { priority: "critical", retryOnInterrupt: false });
       state.activeZone = "trex";
       markProgress("trex");
+      setCipherTarget("trex");
       setPuzzleVisibility("trex");
       setCurrentAlert("Huella de gran masa confirmada. Tyrannosaurus rex aproximándose al corredor C-07.", "error");
       showContextGuide("trex", "error");
@@ -4923,8 +4927,9 @@ function appendCipherResult() {
     setCurrentAlert("El rotor activo aún no está alineado. Sigue girando antes de guardar el dígito.", "warning");
     return;
   }
-  if (state.cipherHelper.buffer.length >= 3) {
-    setCurrentAlert("La secuencia ya tiene tres rotores guardados.", "warning");
+  const requiredLength = state.cipherHelper.rotors.length || 3;
+  if (state.cipherHelper.buffer.length >= requiredLength) {
+    setCurrentAlert(`La secuencia ya tiene ${requiredLength} rotores guardados.`, "warning");
     return;
   }
   const expectedIndex = state.cipherHelper.buffer.length;
