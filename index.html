@@ -138,6 +138,10 @@
           <strong id="raptorState">ACTIVA</strong>
         </div>
         <div class="status-box">
+          <span>Amenaza ALFA</span>
+          <strong id="alphaState">LATENTE</strong>
+        </div>
+        <div class="status-box">
           <span>Evacuacion</span>
           <strong id="escapeState">PENDIENTE</strong>
         </div>
@@ -229,19 +233,24 @@
             <strong>8. Redirigir Ankylosaurus</strong>
             <p>Desviar un Ankylosaurus fuera del corredor logistico antes de que cierre la ruta de salida.</p>
           </div>
+          <div class="mission-item" id="missionGrypho">
+            <span class="mission-item__state">LATENTE</span>
+            <strong>9. Neutralizar Gryphovenator ALFA</strong>
+            <p>El primer híbrido exitoso acecha entre sectores: evade sensores, apaga cámaras y bloquea corredores sin activar OMEGA.</p>
+          </div>
           <div class="mission-item" id="missionChimera">
             <span class="mission-item__state">LATENTE</span>
-            <strong>9. Contener Chimerasaurus</strong>
+            <strong>10. Contener Chimerasaurus</strong>
             <p>OMEGA es el estado crítico del laboratorio; reúne fragmentos para contener al híbrido y poder escapar.</p>
           </div>
           <div class="mission-item" id="missionDoor">
             <span class="mission-item__state">BLOQUEADA</span>
-            <strong>10. Abrir salida</strong>
-            <p>Desbloquear la compuerta norte cuando no haya amenazas activas.</p>
+            <strong>11. Forzar override de evacuación</strong>
+            <p>La salida requiere cuatro rotores manuales; no hay apertura automática ni desbloqueo administrativo.</p>
           </div>
           <div class="mission-item" id="missionEscape">
             <span class="mission-item__state">BLOQUEADA</span>
-            <strong>11. Evacuar</strong>
+            <strong>12. Evacuar</strong>
             <p>Ejecutar el protocolo final y abandonar el laboratorio.</p>
           </div>
         </div>
@@ -360,6 +369,7 @@
             <div class="cipher-console__actions">
               <button type="button" class="action-button action-button--primary" id="focusCipherRaptor">Cargar Raptor</button>
               <button type="button" class="action-button" id="focusCipherTrex">Cargar T-Rex</button>
+              <button type="button" class="action-button" id="focusCipherGrypho">Cargar ALFA</button>
               <button type="button" class="action-button" id="focusCipherDilo">Cargar Dilo</button>
               <button type="button" class="action-button" id="focusCipherChimera">Cargar Chimera</button>
               <button type="button" class="action-button" id="focusCipherAppend">Guardar digito</button>
@@ -429,6 +439,7 @@
           </div>
           <div class="threat-blip threat-blip--raptor" id="threatRaptor" aria-hidden="true"></div>
           <div class="threat-blip threat-blip--trex" id="threatTrex" aria-hidden="true"></div>
+          <div class="threat-blip threat-blip--grypho" id="threatGrypho" aria-hidden="true"></div>
           <div class="threat-blip threat-blip--dilo" id="threatDilo" aria-hidden="true"></div>
           <div class="threat-blip threat-blip--chimera" id="threatChimera" aria-hidden="true"></div>
           <button class="species-marker species-marker--power" data-zone="power" type="button">
@@ -446,6 +457,10 @@
           <button class="species-marker species-marker--dilo" data-zone="dilo" type="button">
             <img src="Dinosaurios/Jurasico/Dilophosaurus.webp" alt="Dilophosaurus">
             <span>DILO</span>
+          </button>
+          <button class="species-marker species-marker--grypho" data-zone="grypho" type="button">
+            <div class="marker-icon marker-icon--alpha" aria-hidden="true">A</div>
+            <span>ALFA</span>
           </button>
           <button class="species-marker species-marker--herb" data-zone="herb" type="button">
             <img src="Dinosaurios/Creatacico/Triceratops.jpeg" alt="Herbivoros">

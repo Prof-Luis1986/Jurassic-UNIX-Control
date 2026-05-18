@@ -46,6 +46,7 @@ const audioAnkylosaurus = byId("audioAnkylosaurus");
 const powerState = byId("powerState");
 const doorState = byId("doorState");
 const raptorState = byId("raptorState");
+const alphaState = byId("alphaState");
 const escapeState = byId("escapeState");
 const threatLevelState = byId("threatLevelState");
 const countdownState = byId("countdownState");
@@ -68,6 +69,7 @@ const missionDilo = byId("missionDilo");
 const missionBarrier = byId("missionBarrier");
 const missionHerd = byId("missionHerd");
 const missionAnky = byId("missionAnky");
+const missionGrypho = byId("missionGrypho");
 const missionChimera = byId("missionChimera");
 const missionDoor = byId("missionDoor");
 const missionEscape = byId("missionEscape");
@@ -84,6 +86,7 @@ const mapModal = byId("mapModal");
 const labThreatState = byId("labThreatState");
 const threatRaptor = byId("threatRaptor");
 const threatTrex = byId("threatTrex");
+const threatGrypho = byId("threatGrypho");
 const threatDilo = byId("threatDilo");
 
 const speciesMarkers = Array.from(document.querySelectorAll(".species-marker"));
@@ -126,6 +129,7 @@ const cipherConsoleBuffer = byId("cipherConsoleBuffer");
 const cipherRotorCards = byId("cipherRotorCards");
 const focusCipherRaptorButton = byId("focusCipherRaptor");
 const focusCipherTrexButton = byId("focusCipherTrex");
+const focusCipherGryphoButton = byId("focusCipherGrypho");
 const focusCipherDiloButton = byId("focusCipherDilo");
 const focusCipherChimeraButton = byId("focusCipherChimera");
 const focusCipherAppendButton = byId("focusCipherAppend");
@@ -156,6 +160,7 @@ const CHIMERA_DEBUG = true;
 const DEFAULT_ATTACK_GOALS = {
   raptor: 3,
   trex: 3,
+  grypho: 2,
   chimera: 5,
 };
 
@@ -166,8 +171,8 @@ const DIRECTOR_PROFILES = [
     requiredEvents: ["dilo", "stego"],
     optionalEvents: ["barrier", "herd", "anky"],
     optionalCount: [1, 2],
-    weights: { dilo: 4, stego: 4, barrier: 2, herd: 1, anky: 1, raptor: 2, trex: 1, omega: 2 },
-    attackGoals: { raptor: [2, 3], trex: [2, 3], chimera: [4, 5] },
+    weights: { dilo: 4, stego: 4, barrier: 2, herd: 1, anky: 1, raptor: 2, trex: 1, grypho: 3, omega: 2 },
+    attackGoals: { raptor: [2, 3], trex: [2, 3], grypho: [1, 2], chimera: [4, 5] },
     omegaWindow: [610, 520],
     pressure: { bio: 1.35, damage: 0.9, stability: 1.1, energy: 0.9 },
   },
@@ -177,8 +182,8 @@ const DIRECTOR_PROFILES = [
     requiredEvents: ["barrier", "herd"],
     optionalEvents: ["anky", "dilo", "stego"],
     optionalCount: [1, 2],
-    weights: { trex: 4, herd: 4, anky: 3, barrier: 3, raptor: 1, dilo: 1, stego: 1, omega: 2 },
-    attackGoals: { raptor: [2, 3], trex: [3, 4], chimera: [4, 5] },
+    weights: { trex: 4, herd: 4, anky: 3, barrier: 3, raptor: 1, dilo: 1, stego: 1, grypho: 2, omega: 2 },
+    attackGoals: { raptor: [2, 3], trex: [3, 4], grypho: [1, 2], chimera: [4, 5] },
     omegaWindow: [620, 500],
     pressure: { bio: 0.85, damage: 1.35, stability: 1.3, energy: 1.1 },
   },
@@ -188,8 +193,8 @@ const DIRECTOR_PROFILES = [
     requiredEvents: ["dilo"],
     optionalEvents: ["stego", "barrier", "herd", "anky"],
     optionalCount: [1, 3],
-    weights: { omega: 5, raptor: 3, trex: 2, dilo: 2, stego: 2, barrier: 1, herd: 1, anky: 1 },
-    attackGoals: { raptor: [3, 4], trex: [2, 3], chimera: [4, 5] },
+    weights: { omega: 5, grypho: 5, raptor: 3, trex: 2, dilo: 2, stego: 2, barrier: 1, herd: 1, anky: 1 },
+    attackGoals: { raptor: [3, 4], trex: [2, 3], grypho: [2, 3], chimera: [4, 5] },
     omegaWindow: [700, 590],
     pressure: { bio: 1.2, damage: 1.1, stability: 1.25, energy: 1 },
   },
@@ -199,8 +204,8 @@ const DIRECTOR_PROFILES = [
     requiredEvents: [],
     optionalEvents: ["dilo", "barrier", "herd", "anky", "stego"],
     optionalCount: [3, 4],
-    weights: { raptor: 2, trex: 2, dilo: 2, barrier: 2, herd: 2, anky: 2, stego: 2, omega: 2 },
-    attackGoals: { raptor: [3, 4], trex: [3, 4], chimera: [4, 5] },
+    weights: { raptor: 2, trex: 2, grypho: 3, dilo: 2, barrier: 2, herd: 2, anky: 2, stego: 2, omega: 2 },
+    attackGoals: { raptor: [3, 4], trex: [3, 4], grypho: [2, 3], chimera: [4, 5] },
     omegaWindow: [620, 480],
     pressure: { bio: 1, damage: 1, stability: 1, energy: 1 },
   },
@@ -220,6 +225,7 @@ const narrationLines = {
   generator: "Alerta. El generador de respaldo ha sido dañado por impacto estructural.",
   raptor: "Velociraptor detectado en el paddock R cero uno.",
   trex: "Tyrannosaurus rex aproximándose al corredor C cero siete.",
+  grypho: "Amenaza Alfa detectada. Gryphovenator no avanza; calcula. Cámaras y sensores quedan bajo lectura no confiable.",
   herd: "Pelea de Triceratops detectada en Sector C. Compuertas laterales bajo presión.",
   anky: "Ankylosaurus bloqueando el corredor logístico L cero cinco.",
   stego: "Estegosaurus enfermo detectado. Anomalía biológica en Sector Herbívoro.",
@@ -336,6 +342,26 @@ const ambientNarrativeBank = [
     text: "Se detecta una referencia tachada: sujeto compuesto. El nombre fue eliminado antes de la auditoria.",
   },
   {
+    id: "grypho-01",
+    theme: "grypho",
+    title: "ALPHA-HYBRID.LOG // PRIMER EXITO",
+    source: "IA CENTRAL / ARCHIVO ALFA",
+    minPhase: 2,
+    triggers: ["ambient", "file", "recovery"],
+    files: ["GRYPHO.LOG", "ALPHA-HYBRID.LOG", "PREDATOR.TEST", "ALPHA-CONTAINMENT.LOG"],
+    text: "Gryphovenator fue el primer hibrido estable: Suchomimus para alcance, Velociraptor para aprendizaje, ave del terror para persecucion silenciosa.",
+  },
+  {
+    id: "grypho-02",
+    theme: "grypho",
+    title: "PREDATOR.TEST // EVASION",
+    source: "ANALISIS CONDUCTUAL",
+    minPhase: 3,
+    triggers: ["ambient", "file"],
+    files: ["PREDATOR.TEST", "ALPHA-CONTAINMENT.LOG", "OMEGA-PROTOTYPE.LOG"],
+    text: "El sujeto ALFA no rompio las camaras. Espero a que dependieramos de ellas y despues camino por los puntos ciegos.",
+  },
+  {
     id: "chimera-02",
     theme: "chimera",
     title: "OMEGA-ORIGIN.LOG // MUESTRA COMPUESTA",
@@ -396,8 +422,22 @@ const state = {
   generatorRepaired: false,
   raptorContained: false,
   trexContained: false,
+  gryphoContained: false,
+  gryphoActive: false,
+  gryphoCode: "",
+  gryphoRotors: [],
+  gryphoRotorLockUntil: 0,
+  evacuationOverride: {
+    target: null,
+    codes: {},
+    rotors: {},
+    solved: {},
+  },
   raptorAttackCount: 0,
   trexAttackCount: 0,
+  gryphoStalkCount: 0,
+  gryphoReappearAt: null,
+  gryphoSabotageUntil: null,
   predatorReattackAt: {
     raptor: null,
     trex: null,
@@ -437,6 +477,7 @@ const state = {
   eventVideoSeen: {
     raptor: false,
     trex: false,
+    grypho: false,
     dilo: false,
     herd: false,
     anky: false,
@@ -482,6 +523,7 @@ const state = {
     threatCooldownUntil: {
       raptor: 900,
       trex: 900,
+      grypho: 900,
       chimera: 900,
     },
     cooldown: 0,
@@ -515,6 +557,7 @@ const state = {
     sensors: false,
     raptor: false,
     trex: false,
+    grypho: false,
     dilo: false,
     barrier: false,
     herd: false,
@@ -638,7 +681,7 @@ function generateDirectorPlan() {
   const profile = pickRandomItem(DIRECTOR_PROFILES);
   const optionalCount = randomDigit(profile.optionalCount[0], profile.optionalCount[1]);
   const optionalEvents = pickUniqueWeighted(profile.optionalEvents, optionalCount, profile.weights);
-  const plannedEvents = Array.from(new Set(["raptor", "trex", "omega", ...profile.requiredEvents, ...optionalEvents]));
+  const plannedEvents = Array.from(new Set(["raptor", "trex", "grypho", "omega", ...profile.requiredEvents, ...optionalEvents]));
   const allVariableEvents = ["dilo", "barrier", "herd", "anky", "stego"];
   const skippedEvents = allVariableEvents.filter((eventKey) => !plannedEvents.includes(eventKey));
   return {
@@ -649,6 +692,7 @@ function generateDirectorPlan() {
     attackGoals: {
       raptor: randomDigit(profile.attackGoals.raptor[0], profile.attackGoals.raptor[1]),
       trex: randomDigit(profile.attackGoals.trex[0], profile.attackGoals.trex[1]),
+      grypho: randomDigit(profile.attackGoals.grypho[0], profile.attackGoals.grypho[1]),
       chimera: randomDigit(profile.attackGoals.chimera[0], profile.attackGoals.chimera[1]),
     },
     omegaEarliestAt: randomDigit(profile.omegaWindow[1], profile.omegaWindow[0]),
@@ -663,6 +707,7 @@ function isEventPlanned(key) {
 
 function getCriticalThreatKey(key) {
   if (key === "omega" || key === "chimera") return "chimera";
+  if (key === "grypho") return "grypho";
   if (key === "raptor" || key === "trex") return key;
   return null;
 }
@@ -673,6 +718,7 @@ function getThreatCooldownDuration(threatKey) {
   const base = {
     raptor: profileKey === "tactical" ? 58 : 48,
     trex: profileKey === "structural" ? 68 : 78,
+    grypho: profileKey === "hybrid" ? 52 : 64,
     chimera: profileKey === "hybrid" ? 98 : 128,
   }[threatKey] ?? 40;
   const phaseAdjustment = phase >= 4 && threatKey !== "chimera" ? -10 : 0;
@@ -691,7 +737,7 @@ function canLaunchCriticalThreat(key) {
   const threatKey = getCriticalThreatKey(key);
   if (!threatKey) return true;
   if (isThreatOnCooldown(threatKey)) return false;
-  if (wasThreatRecent(threatKey, threatKey === "chimera" ? 2 : 1)) return false;
+  if (wasThreatRecent(threatKey, threatKey === "chimera" || threatKey === "grypho" ? 2 : 1)) return false;
   return true;
 }
 
@@ -869,6 +915,7 @@ function getDerivedActiveThreats() {
   if (state.generatorDamaged) threats.push({ key: "generator", label: "GENERADOR DE RESPALDO DAÑADO", severity: "critical" });
   if (state.timelineFlags.raptor && !state.raptorContained) threats.push({ key: "raptor", label: "VELOCIRAPTOR LIBERADO", severity: "critical" });
   if (state.timelineFlags.trex && !state.trexContained) threats.push({ key: "trex", label: "T-REX LIBERADO", severity: "critical" });
+  if (state.gryphoActive && !state.gryphoContained) threats.push({ key: "grypho", label: "GRYPHOVENATOR ALFA EN ACECHO", severity: "alpha" });
   if (state.timelineFlags.dilo && !state.diloNeutralized) threats.push({ key: "dilo", label: "DILOPHOSAURUS ACTIVO", severity: "active" });
   if (state.timelineFlags.barrier && !state.barriersRestored) threats.push({ key: "barrier", label: "BARRERAS COMPROMETIDAS", severity: "active" });
   if (state.timelineFlags.herd && !state.herdCalmed) threats.push({ key: "herd", label: "TRICERATOPS EN PELEA", severity: "active" });
@@ -906,7 +953,7 @@ function hasActiveThreats() {
 }
 
 function isPrimaryThreatKey(key) {
-  return ["raptor", "trex", "chimera"].includes(key);
+  return ["raptor", "trex", "grypho", "chimera"].includes(key);
 }
 
 function getActivePrimaryThreats() {
@@ -919,6 +966,7 @@ function hasActivePrimaryThreats() {
 
 function getAlertVolumeForThreats(threats = getActiveThreats()) {
   if (threats.some((threat) => threat.severity === "omega")) return 0.86;
+  if (threats.some((threat) => threat.severity === "alpha")) return 0.8;
   if (threats.some((threat) => threat.severity === "critical")) return 0.76;
   return 0.64;
 }
@@ -956,6 +1004,14 @@ function getActiveMajorThreat() {
       severity: "omega",
     };
   }
+  if (state.gryphoActive && !state.gryphoContained) {
+    return {
+      key: "grypho",
+      label: "GRYPHOVENATOR ALFA",
+      protocol: "GRYPHO.LOG / ALPHA-HYBRID.LOG / PREDATOR.TEST",
+      severity: "alpha",
+    };
+  }
   if (state.timelineFlags.trex && !state.trexContained) {
     return {
       key: "trex",
@@ -981,6 +1037,7 @@ function isMinorDirectorEvent(key) {
 
 function getThreatNarrativeTier(key) {
   if (key === "chimera") return "climax";
+  if (key === "grypho") return "alfa";
   if (key === "raptor" || key === "trex") return "principal";
   if (["dilo", "anky", "herd", "stego"].includes(key)) return "secundaria-cinematica";
   return "sistema";
@@ -989,6 +1046,7 @@ function getThreatNarrativeTier(key) {
 function getThreatTierLabel(key) {
   const labels = {
     climax: "CLIMAX OMEGA",
+    alfa: "AMENAZA ALFA",
     principal: "AMENAZA PRINCIPAL",
     "secundaria-cinematica": "EVENTO SECUNDARIO CINEMATICO",
     sistema: "INCIDENTE DE SISTEMA",
@@ -1020,6 +1078,7 @@ function rememberDirectorEvent(key) {
   const sectorByEvent = {
     raptor: "R-01",
     trex: "C-07",
+    grypho: "ALFA",
     dilo: "E-03",
     barrier: "Este",
     herd: "Sector C",
@@ -1042,7 +1101,7 @@ function deferMinorEvent(key) {
 }
 
 function startDirectorEventIfNeeded(key) {
-  const canStartManually = isMinorDirectorEvent(key) || ["raptor", "trex"].includes(key);
+  const canStartManually = isMinorDirectorEvent(key) || ["raptor", "trex", "grypho"].includes(key);
   if (!canStartManually || state.timelineFlags[key] || state.gameOver || state.escaped) return false;
   if (!isEventPlanned(key)) {
     setCurrentAlert("Ese incidente no pertenece a la lectura operativa de esta sesión.", "warning");
@@ -1059,6 +1118,7 @@ function startDirectorEventIfNeeded(key) {
   }
   if (key === "raptor" && !state.powerOnline) return false;
   if (key === "trex" && !state.powerOnline) return false;
+  if (key === "grypho" && !state.powerOnline) return false;
   if (["dilo", "herd", "anky", "stego"].includes(key) && !state.powerOnline) return false;
   state.timelineFlags[key] = true;
   state.deferredEvents[key] = false;
@@ -1070,6 +1130,7 @@ function isEventResolved(key) {
   const resolved = {
     raptor: state.raptorContained,
     trex: state.trexContained,
+    grypho: state.gryphoContained,
     dilo: state.diloNeutralized,
     herd: state.herdCalmed,
     anky: state.ankyRedirected,
@@ -1083,7 +1144,8 @@ function ensureEventVideoForFile(eventKey) {
   if (!isEventPlanned(eventKey)) return false;
   if (isEventResolved(eventKey) || state.eventVideoSeen[eventKey]) return false;
   if (!canLaunchCriticalThreat(eventKey)) return false;
-  if (["raptor", "trex", "dilo", "herd", "anky", "stego"].includes(eventKey) && !state.powerOnline) return false;
+  if (["raptor", "trex", "grypho", "dilo", "herd", "anky", "stego"].includes(eventKey) && !state.powerOnline) return false;
+  if (getActiveMajorThreat()) return false;
   if (isMinorDirectorEvent(eventKey) && getActiveMajorThreat()) {
     deferMinorEvent(eventKey);
     return false;
@@ -1096,6 +1158,11 @@ function startDirectorEventForFile(fileName) {
   const eventByFile = {
     "RAPTOR.KEY": "raptor",
     "TREX.KEY": "trex",
+    "GRYPHO.LOG": "grypho",
+    "ALPHA-HYBRID.LOG": "grypho",
+    "PREDATOR.TEST": "grypho",
+    "ALPHA-CONTAINMENT.LOG": "grypho",
+    "OMEGA-PROTOTYPE.LOG": "grypho",
     "DILO.LOG": "dilo",
     "TOXIN.KEY": "dilo",
     "TRICERATOPS.LOG": "herd",
@@ -1131,6 +1198,44 @@ function scheduleAdditionalPredatorAttack(key) {
     return true;
   }
   return false;
+}
+
+function scheduleGryphoReappearance() {
+  state.gryphoReappearAt = state.countdownSeconds - randomDigit(44, 78);
+  state.director.threatCooldownUntil.grypho = Math.min(state.director.threatCooldownUntil.grypho, state.gryphoReappearAt);
+  addLine("ALFA no abandona el sector: sensores registran rutas falsas y silencio térmico.", "warning");
+  return true;
+}
+
+function triggerGryphoTacticalEffects(stage = "stalk") {
+  const sectors = ["R-01", "C-07", "L-05", "Subnivel V-02", "Pasillo Norte", "Mantenimiento Este"];
+  const fakeSector = pickRandomItem(sectors);
+  const realSector = pickRandomItem(sectors.filter((sector) => sector !== fakeSector));
+  state.gryphoSabotageUntil = state.countdownSeconds - randomDigit(36, 58);
+  applyDeterioration({ damage: 2, bio: 3, stability: -4, energy: -3 });
+  triggerVisualGlitchBurst(stage === "cinematic" ? "severe" : "normal");
+  clonePlay(dinoSounds.garras, 0.42);
+  setCurrentAlert(`ALFA: camaras apagadas en ${fakeSector}. Lectura real probable: ${realSector}.`, "error");
+  addLine("ALFA // CAMARAS APAGADAS: imagen perdida en tres nodos consecutivos.", "error");
+  addLine(`ALFA // FALSAS LECTURAS: firma termica duplicada en ${fakeSector}.`, "warning");
+  addLine(`ALFA // MOVIMIENTO ENTRE SECTORES: paso silencioso confirmado hacia ${realSector}.`, "warning");
+  addLine("ALFA // RUTA SABOTEADA: corredores secundarios bloqueados por puertas manipuladas.", "warning");
+}
+
+function processGryphoStalk() {
+  if (!state.gryphoActive || state.gryphoContained || state.gameOver || state.escaped || state.omegaCinematicPlaying) return;
+  if (state.countdownSeconds % 9 === 0) triggerVisualGlitchBurst("normal");
+  if (state.countdownSeconds % 13 === 0) clonePlay(dinoSounds.garras, 0.36);
+  if (state.countdownSeconds % 17 === 0) {
+    const phrases = [
+      "ALFA: pasos lejanos detectados; origen imposible de triangular.",
+      "ALFA: sensor de movimiento devuelve dos ubicaciones incompatibles.",
+      "ALFA: camara recuperada sin imagen, solo marcas de garra en la carcasa.",
+      "ALFA: corredor bloqueado desde dentro; no hay lectura de masa suficiente.",
+    ];
+    currentAlertText.textContent = pickRandomItem(phrases);
+    applyDeterioration({ damage: 1, bio: 1, stability: -1, energy: -1 });
+  }
 }
 
 function processScheduledPredatorAttacks() {
@@ -1175,6 +1280,24 @@ function processScheduledPredatorAttacks() {
     setCipherTarget("trex");
     resetAllRotors();
     activateDirectorEvent("trex");
+    return;
+  }
+  if (
+    state.gryphoReappearAt !== null &&
+    state.countdownSeconds <= state.gryphoReappearAt &&
+    state.gryphoContained &&
+    state.gryphoStalkCount < state.director.attackGoals.grypho
+  ) {
+    if (!canLaunchCriticalThreat("grypho")) {
+      state.gryphoReappearAt = state.countdownSeconds - randomDigit(18, 30);
+      triggerAmbientIncident();
+      return;
+    }
+    state.gryphoReappearAt = null;
+    state.gryphoContained = false;
+    state.gryphoActive = true;
+    state.eventVideoSeen.grypho = false;
+    activateDirectorEvent("grypho");
   }
 }
 
@@ -1185,7 +1308,9 @@ function maintainMajorThreatMode() {
     return;
   }
 
-  const message = `PRIORIDAD ABSOLUTA: ${major.label}. Protocolo activo: ${major.protocol}.`;
+  const message = major.key === "grypho"
+    ? `AMENAZA ALFA: ${major.label}. Protocolo activo: ${major.protocol}. Sensores no confiables.`
+    : `PRIORIDAD ABSOLUTA: ${major.label}. Protocolo activo: ${major.protocol}.`;
   showAlertPanel(message, major.severity === "omega" ? "critical" : "critical");
   currentAlertText.textContent = message;
   startContinuousAlert(major.severity === "omega" ? 0.86 : 0.72);
@@ -1193,6 +1318,8 @@ function maintainMajorThreatMode() {
   if (major.key === "chimera") {
     if (state.countdownSeconds % 6 === 0) triggerVisualGlitchBurst("severe");
     if (state.countdownSeconds % 10 === 0) reproducirGarrasAleatorio(true);
+  } else if (major.key === "grypho") {
+    processGryphoStalk();
   } else if (state.countdownSeconds % 12 === 0) {
     triggerVisualGlitchBurst("normal");
   }
@@ -1494,8 +1621,22 @@ function initializeScenario() {
   state.generatorRepaired = false;
   state.raptorContained = false;
   state.trexContained = false;
+  state.gryphoContained = false;
+  state.gryphoActive = false;
+  state.gryphoCode = "";
+  state.gryphoRotors = [];
+  state.gryphoRotorLockUntil = 0;
+  state.evacuationOverride = {
+    target: null,
+    codes: {},
+    rotors: {},
+    solved: {},
+  };
   state.raptorAttackCount = 0;
   state.trexAttackCount = 0;
+  state.gryphoStalkCount = 0;
+  state.gryphoReappearAt = null;
+  state.gryphoSabotageUntil = null;
   state.predatorReattackAt = {
     raptor: null,
     trex: null,
@@ -1541,6 +1682,7 @@ function initializeScenario() {
   state.eventVideoSeen = {
     raptor: false,
     trex: false,
+    grypho: false,
     dilo: false,
     herd: false,
     anky: false,
@@ -1586,6 +1728,7 @@ function initializeScenario() {
     threatCooldownUntil: {
       raptor: 900,
       trex: 900,
+      grypho: 900,
       chimera: 900,
     },
     cooldown: 0,
@@ -1620,6 +1763,7 @@ function initializeScenario() {
     sensors: false,
     raptor: false,
     trex: false,
+    grypho: false,
     dilo: false,
     barrier: false,
     herd: false,
@@ -1653,10 +1797,30 @@ function initializeScenario() {
   state.raptorCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
   state.trexCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
   state.diloCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
+  state.gryphoCode = `${randomDigit()}${randomDigit()}${randomDigit()}`;
+  state.evacuationOverride.codes = {
+    main: `${randomDigit()}${randomDigit()}${randomDigit()}${randomDigit()}`,
+    helipad: `${randomDigit()}${randomDigit()}${randomDigit()}${randomDigit()}`,
+    tunnel: `${randomDigit()}${randomDigit()}${randomDigit()}${randomDigit()}`,
+    cargo: `${randomDigit()}${randomDigit()}${randomDigit()}${randomDigit()}`,
+  };
   generateChimeraCode();
   state.raptorRotors = [randomDigit(1, 4), randomDigit(1, 4), randomDigit(1, 4)];
   state.trexRotors = [randomDigit(1, 4), randomDigit(1, 4), randomDigit(1, 4)];
   state.diloRotors = [randomDigit(2, 5), randomDigit(2, 5), randomDigit(2, 5)];
+  state.gryphoRotors = [randomDigit(3, 7), randomDigit(3, 7), randomDigit(3, 7)];
+  state.evacuationOverride.rotors = {
+    main: [randomDigit(3, 6), randomDigit(2, 6), randomDigit(3, 7), randomDigit(2, 5)],
+    helipad: [randomDigit(4, 7), randomDigit(3, 7), randomDigit(4, 8), randomDigit(3, 6)],
+    tunnel: [randomDigit(2, 5), randomDigit(4, 8), randomDigit(3, 6), randomDigit(4, 7)],
+    cargo: [randomDigit(3, 7), randomDigit(3, 6), randomDigit(4, 8), randomDigit(2, 6)],
+  };
+  state.evacuationOverride.solved = {
+    main: false,
+    helipad: false,
+    tunnel: false,
+    cargo: false,
+  };
   setCipherTarget("raptor");
   stopAmbient();
   hideAlertPanel();
@@ -1690,24 +1854,29 @@ function initializeScenario() {
 
 function getCipherRotorsForTarget(target) {
   const chimeraDigits = getChimeraCodeParts().digits || "000";
+  const routeKey = getRouteKeyFromCipherTarget(target);
   const codeByTarget = {
     raptor: state.raptorCode,
     trex: state.trexCode,
+    grypho: state.gryphoCode,
     dilo: state.diloCode,
     chimera: chimeraDigits,
+    [target]: routeKey ? state.evacuationOverride.codes[routeKey] : undefined,
   };
   const shiftsByTarget = {
     raptor: state.raptorRotors,
     trex: state.trexRotors,
+    grypho: state.gryphoRotors,
     dilo: state.diloRotors,
     chimera: state.chimeraRotors,
+    [target]: routeKey ? state.evacuationOverride.rotors[routeKey] : undefined,
   };
   const code = codeByTarget[target] || state.raptorCode;
   const shifts = shiftsByTarget[target] || state.raptorRotors;
   return code.split("").map((digit, index) => {
     const letter = encodeRotorLetter(digit, shifts[index]);
     return {
-      label: `ROTOR ${["I", "II", "III"][index]}`,
+      label: `ROTOR ${["I", "II", "III", "IV"][index]}`,
       letter,
       shift: shifts[index],
       baseValue: letterIndex(letter),
@@ -1720,11 +1889,22 @@ function getCipherRotorsForTarget(target) {
 function getFiles() {
   const [r1, r2, r3] = state.raptorCode.split("");
   const [t1, t2, t3] = state.trexCode.split("");
+  const [g1, g2, g3] = state.gryphoCode.split("");
   const [d1, d2, d3] = state.diloCode.split("");
   const [rr1, rr2, rr3] = state.raptorRotors;
   const [tr1, tr2, tr3] = state.trexRotors;
+  const [gr1, gr2, gr3] = state.gryphoRotors;
   const [dr1, dr2, dr3] = state.diloRotors;
   const [cr1, cr2, cr3] = state.chimeraRotors;
+  const routeRotorLines = (routeKey) => {
+    const routeNames = { main: "PUERTA NORTE", helipad: "HELIPUERTO", tunnel: "TUNEL", cargo: "TRANSPORTE" };
+    const code = state.evacuationOverride.codes[routeKey] || "0000";
+    const shifts = state.evacuationOverride.rotors[routeKey] || [1, 1, 1, 1];
+    return code.split("").map((digit, index) => {
+      const letter = encodeRotorLetter(digit, shifts[index]);
+      return `ROTOR ${routeNames[routeKey]} ${["I", "II", "III", "IV"][index]}: ${letter} = ${letterIndex(letter)} // resta ${shifts[index]}`;
+    });
+  };
   const chimera = getChimeraCodeParts();
   const [c1, c2, c3] = chimera.digits.split("");
 
@@ -1738,12 +1918,13 @@ function getFiles() {
       "2. Repara el generador si vuelve a caer la red.",
       "3. Conten al Velociraptor mediante rotores.",
       "4. Conten al Tyrannosaurus rex mediante rotores.",
-      "5. Estabiliza el Sector C tras la pelea de Triceratops.",
-      "6. Redirige al Ankylosaurus fuera del corredor logistico.",
-      "7. Analiza crisis biologica del Estegosaurus si aparece.",
-      "8. Sobrevive a la activacion OMEGA.",
-      "9. Sincroniza rotores CHIMERA y contén al híbrido.",
-      "10. Abre la salida y evacua antes del colapso total.",
+      "5. Neutraliza Gryphovenator ALFA sin activar OMEGA.",
+      "6. Estabiliza el Sector C tras la pelea de Triceratops.",
+      "7. Redirige al Ankylosaurus fuera del corredor logistico.",
+      "8. Analiza crisis biologica del Estegosaurus si aparece.",
+      "9. Sobrevive a la activacion OMEGA.",
+      "10. Sincroniza rotores CHIMERA y contén al híbrido.",
+      "11. Abre la salida y evacua antes del colapso total.",
     ],
     "POWER.LOG": [
       "SUBESTACION OESTE // ENERGIA PRINCIPAL",
@@ -1795,6 +1976,52 @@ function getFiles() {
       `ROTOR II: ${encodeRotorLetter(t2, tr2)} = ${letterIndex(encodeRotorLetter(t2, tr2))} // gira ${tr2}`,
       `ROTOR III: ${encodeRotorLetter(t3, tr3)} = ${letterIndex(encodeRotorLetter(t3, tr3))} // gira ${tr3}`,
       "El módulo de rotores ejecuta el cierre cuando la secuencia queda sincronizada.",
+    ],
+    "GRYPHO.LOG": [
+      "GRYPHO.LOG // AMENAZA ALFA",
+      "Sujeto: Gryphovenator.",
+      "Composicion: Suchomimus / Velociraptor / ave del terror.",
+      "Clasificacion: ALFA. No es OMEGA.",
+      "Conducta: caza silenciosa, lectura tactica, manipulacion de rutas y sensores.",
+      "No busca destruir todo; busca que el operador dude de cada lectura.",
+      "Protocolo recomendado: aislar señuelos termicos, bloquear corredores variables y cargar ALPHA-CONTAINMENT.LOG.",
+      "Contencion: sincronizacion por rotores ALFA; no escribir claves manuales.",
+    ],
+    "ALPHA-HYBRID.LOG": [
+      "ALPHA-HYBRID.LOG // PRIMER HIBRIDO EXITOSO",
+      "Gryphovenator demostro que la mezcla genetica podia obedecer una arquitectura depredadora estable.",
+      "Suchomimus aporto alcance y tolerancia acuatica.",
+      "Velociraptor aporto aprendizaje, memoria de rutas y respuesta a patrones humanos.",
+      "Ave del terror aporto persecucion vertical, golpe de pico y silencio en trayectos cortos.",
+      "Resultado: cazador perfecto, tactico y dominante.",
+      "Nota directiva: ALFA demuestra exito cientifico; OMEGA estudiara escala y supremacia.",
+    ],
+    "PREDATOR.TEST": [
+      "PREDATOR.TEST // EVALUACION DE CAZA",
+      "Prueba 07: el sujeto apago dos camaras sin dañar el cableado principal.",
+      "Prueba 11: genero lecturas falsas en tres sensores termicos usando movimiento alternado entre sectores.",
+      "Prueba 14: bloqueo un corredor y reaparecio detras del equipo de seguimiento.",
+      "Conclusion: no responde como Raptor ni como T-Rex. No persigue siempre; infiltra, espera y corta rutas.",
+      "Medida operativa: no confiar en una sola lectura. Confirmar con ALPHA-HYBRID.LOG y cargar ALPHA-CONTAINMENT.LOG.",
+    ],
+    "ALPHA-CONTAINMENT.LOG": [
+      "ALPHA-CONTAINMENT.LOG // PROTOCOLO DE CONTENCION ALFA",
+      "El Gryphovenator altera sensores durante la sincronizacion; usa redundancia optica y guarda rotores en orden.",
+      "PASOS: alinea cada rotor ALFA, guarda cada etapa y pulsa Enviar contención.",
+      "Diferencia: los rotores ALFA usan resta mas amplia y toleran menos improvisacion que R-01 o C-07.",
+      `ROTOR ALFA I: ${encodeRotorLetter(g1, gr1)} = ${letterIndex(encodeRotorLetter(g1, gr1))} // resta ${gr1}`,
+      `ROTOR ALFA II: ${encodeRotorLetter(g2, gr2)} = ${letterIndex(encodeRotorLetter(g2, gr2))} // resta ${gr2}`,
+      `ROTOR ALFA III: ${encodeRotorLetter(g3, gr3)} = ${letterIndex(encodeRotorLetter(g3, gr3))} // resta ${gr3}`,
+      "Validacion interna: no escribas el codigo. El modulo de rotores construye la contencion ALFA.",
+      "Advertencia: OMEGA permanece separado. Este protocolo no libera ni contiene Chimerasaurus.",
+    ],
+    "OMEGA-PROTOTYPE.LOG": [
+      "OMEGA-PROTOTYPE.LOG // PRECURSOR",
+      "Gryphovenator fue la base conceptual del proyecto Chimerasaurus.",
+      "ALFA probo inteligencia depredadora y control parcial.",
+      "Chimerasaurus probo la perdida total de control.",
+      "Diferencia critica: Gryphovenator sabotea y caza; Chimerasaurus colapsa la instalacion.",
+      "Advertencia: no activar OMEGA por contacto ALFA. Mantener protocolos separados.",
     ],
     "DILO.LOG": [
       "ACCESO PRINCIPAL // DILOPHOSAURUS",
@@ -1900,29 +2127,37 @@ function getFiles() {
       "Riesgo: NIVEL III",
     ],
     "DOOR.SYS": [
-      "PUERTA DE EVACUACION LAB-B",
-      "La puerta principal solo abre cuando no haya amenazas activas y el Chimerasaurus esté contenido temporalmente.",
+      "OVERRIDE MANUAL // PUERTA DE EVACUACION LAB-B",
+      "La puerta principal ya no responde a desbloqueo administrativo.",
+      "Forzar salida requiere cuatro rotores: potencia de sello, bisagra magnetica, presión hidráulica y cierre posterior.",
       state.escapeRoutes.main.lost ? "ESTADO: puerta principal deformada. Usa una ruta alternativa." : "ESTADO: ruta principal recuperable.",
-      "Codigo maestro: DOOR-LOCK-42",
-      "Comando: unlock door DOOR-LOCK-42",
+      "COMANDO DE CARGA: unlock door DOOR-LOCK-42",
+      ...routeRotorLines("main"),
+      state.omegaReleased ? "OMEGA altera el margen: no tardes despues de sincronizar." : "Advertencia: el override no abre una salida segura si hay amenaza principal activa.",
     ],
     "HELIPAD.SYS": [
-      "HELIPUERTO // AZOTEA NORTE",
+      "OVERRIDE MANUAL // HELIPUERTO // AZOTEA NORTE",
       state.escapeRoutes.helipad.planned ? "Ruta alternativa registrada por el Director." : "Ruta no priorizada en esta sesión.",
-      "Requiere energía auxiliar y comunicación externa.",
-      "Comando: activate helipad",
+      "Los cuatro rotores controlan energia de plataforma, autorización aérea, estabilización y balizas de aterrizaje.",
+      "Visual esperado: viento, luces rojas y radio fallando.",
+      "COMANDO DE CARGA: activate helipad",
+      ...routeRotorLines("helipad"),
     ],
     "TUNNEL.SYS": [
-      "TUNEL DE EMERGENCIA // SUBNIVEL V-02",
+      "OVERRIDE MANUAL // TUNEL DE EMERGENCIA // SUBNIVEL V-02",
       state.escapeRoutes.tunnel.planned ? "Ruta secundaria disponible si ventilación se mantiene limpia." : "Ruta sin lectura operativa esta sesión.",
-      "Requiere compuertas y ventilación funcional.",
-      "Comando: open tunnel",
+      "Los cuatro rotores controlan presión, ventilación, compuertas y drenaje de emergencia.",
+      "Visual esperado: vapor, oscuridad y alarmas mecánicas.",
+      "COMANDO DE CARGA: open tunnel",
+      ...routeRotorLines("tunnel"),
     ],
     "CARGO.SYS": [
-      "TRANSPORTE DE CARGA // HANGAR L-05",
+      "OVERRIDE MANUAL // TRANSPORTE DE CARGA // HANGAR L-05",
       state.escapeRoutes.cargo.planned ? "Vehículo interno recuperable para evacuación." : "Hangar no asignado como salida prioritaria.",
-      "Requiere combustible, hangar desbloqueado y ruta logística estable.",
-      "Comando: start cargo",
+      "Los cuatro rotores controlan encendido manual, liberación magnética, combustible y tracción de emergencia.",
+      "Visual esperado: motores, chispas y energía inestable.",
+      "COMANDO DE CARGA: start cargo",
+      ...routeRotorLines("cargo"),
     ],
     "FOUNDERS.LOG": [
       "FOUNDERS.LOG // GENETIC SYSTEMS",
@@ -2020,6 +2255,24 @@ const speciesZones = {
     incidents: () => [
       "03 OCT 2024 // Vehiculo retirado tras golpe en barrera externa.",
       "09 NOV 2026 // Huellas fuera del sendero asignado.",
+    ],
+  },
+  grypho: {
+    sector: "SECTOR ALFA // RUTAS VARIABLES",
+    name: "Gryphovenator",
+    image: "Dinosaurios/Creatacico/Velociraptor.jpeg",
+    status: () => state.gryphoActive && !state.gryphoContained ? "ACECHO ACTIVO" : state.gryphoContained ? "NEUTRALIZADO" : "SIN CONTACTO",
+    risk: () => state.gryphoActive && !state.gryphoContained ? "ALFA" : "EXTREMO",
+    activity: () => state.gryphoActive && !state.gryphoContained ? "SENSORES MANIPULADOS" : "LECTURA INTERMITENTE",
+    traits: () => "Hibrido Suchomimus / Velociraptor / ave del terror; tactico, silencioso y evasivo.",
+    riskLevel: () => "Nivel ALFA: depredador avanzado, superior a Raptor y T-Rex en inteligencia situacional.",
+    description: () => state.gryphoActive && !state.gryphoContained
+      ? "No destruye el laboratorio: apaga camaras, crea lecturas falsas, bloquea corredores y reaparece entre sectores."
+      : "Primer hibrido exitoso y precursor conceptual del proyecto OMEGA.",
+    incidents: () => [
+      "ALPHA-07 // Camaras apagadas sin daño fisico al cableado.",
+      "PREDATOR-11 // Tres lecturas termicas falsas durante persecucion silenciosa.",
+      "OMEGA-PROTOTYPE // Base conceptual del Chimerasaurus.",
     ],
   },
   dilo: {
@@ -2164,7 +2417,7 @@ function setPuzzleVisibility(mode) {
   }
   state.director.activePuzzle = mode;
   if (!cipherConsole) return;
-  const shouldShow = ["raptor", "trex", "dilo", "chimera"].includes(mode);
+  const shouldShow = ["raptor", "trex", "grypho", "dilo", "chimera", "evac-main", "evac-helipad", "evac-tunnel", "evac-cargo"].includes(mode);
   cipherConsole.classList.toggle("hidden", !shouldShow);
   if (shouldShow) {
     preservePuzzleViewport(1200);
@@ -2172,7 +2425,7 @@ function setPuzzleVisibility(mode) {
 }
 
 function isPuzzleActive() {
-  return ["raptor", "trex", "dilo", "chimera"].includes(state.director.activePuzzle) && !cipherConsole?.classList.contains("hidden");
+  return ["raptor", "trex", "grypho", "dilo", "chimera", "evac-main", "evac-helipad", "evac-tunnel", "evac-cargo"].includes(state.director.activePuzzle) && !cipherConsole?.classList.contains("hidden");
 }
 
 function preservePuzzleViewport(durationMs = 700) {
@@ -2338,6 +2591,7 @@ function applyPassivePressure() {
     !state.powerOnline || state.generatorDamaged,
     isEventPlanned("raptor") && !state.raptorContained,
     isEventPlanned("trex") && !state.trexContained,
+    isEventPlanned("grypho") && state.gryphoActive && !state.gryphoContained,
     isEventPlanned("dilo") && !state.diloNeutralized,
     isEventPlanned("barrier") && !state.barriersRestored,
     isEventPlanned("herd") && !state.herdCalmed,
@@ -2394,6 +2648,10 @@ function applyProfileEventConsequence(key) {
     applyDeterioration({ damage: 5, bio: 1, stability: -5, energy: -8 });
     addLine("Impacto sísmico en C-07: línea energética bajo estrés.", "warning");
   }
+  if (key === "grypho") {
+    applyDeterioration({ damage: 1, bio: 3, stability: -4, energy: -2 });
+    addLine("ALFA altera rutas sin colapso estructural: el laboratorio sigue en pie, pero las lecturas no son confiables.", "warning");
+  }
   if (key === "dilo" && profileKey === "bio") {
     applyDeterioration({ damage: 1, bio: 4, stability: -2, energy: 0 });
     addLine("Niebla tóxica detectada en filtros del acceso principal.", "warning");
@@ -2443,6 +2701,10 @@ function updateObjective() {
     objectiveText.textContent = "Lecturas sísmicas en C-07. Consulta TREX.KEY; alinea rotores y envía contención.";
     return;
   }
+  if (state.gryphoActive && !state.gryphoContained) {
+    objectiveText.textContent = "AMENAZA ALFA: Gryphovenator manipula sensores. Revisa GRYPHO.LOG, PREDATOR.TEST y ALPHA-CONTAINMENT.LOG; sincroniza rotores ALFA y envía contención.";
+    return;
+  }
   if (state.timelineFlags.dilo && !state.diloNeutralized) {
     objectiveText.textContent = "Dilophosaurus detectado. Revisa DILO.LOG y TOXIN.KEY; usa rotores y pulsa Enviar contención.";
     return;
@@ -2466,12 +2728,12 @@ function updateObjective() {
   if (state.omegaReleased && !state.escaped) {
     objectiveText.textContent = state.chimeraContained
       ? !hasMetAttackRequirements()
-        ? "Actividad depredadora inestable. Mantente operativo antes de abrir la salida."
+        ? "Actividad depredadora inestable. Mantente operativo antes de forzar la salida."
         : !hasAnyEscapeRouteAvailable()
-        ? "Busca una ruta de evacuación alternativa: helipuerto, túnel o transporte de carga."
+        ? "Fuerza una ruta con override manual de cuatro rotores: DOOR.SYS, HELIPAD.SYS, TUNNEL.SYS o CARGO.SYS."
         : state.doorUnlocked
         ? `OMEGA sigue inestable, pero hay salida por ${getAvailableEscapeRouteName() || "ruta autorizada"}: ejecuta escape antes de la siguiente ruptura.`
-        : "Chimerasaurus contenido temporalmente. Libera una ruta de evacuación antes de que vuelva a romperse."
+        : "Chimerasaurus contenido temporalmente. Fuerza un override de evacuación antes de que vuelva a romperse."
       : "NIVEL OMEGA ACTIVO. Lee OMEGA.LOG y CHIMERA.KEY, sincroniza rotores y pulsa Enviar contención.";
     return;
   }
@@ -2487,7 +2749,7 @@ function updateObjective() {
       tunnel: "TUNNEL.SYS",
       cargo: "CARGO.SYS",
     };
-    objectiveText.textContent = `Con todas las amenazas controladas, abre una ruta de evacuación. Revisa ${routeFiles[routeKey] || "DOOR.SYS"}.`;
+    objectiveText.textContent = `Con amenazas controladas, fuerza una evacuación imposible. Revisa ${routeFiles[routeKey] || "DOOR.SYS"} y sincroniza 4 rotores.`;
     return;
   }
   if (!state.escaped) {
@@ -2515,6 +2777,9 @@ function getAttackRequirementBlockers() {
   if (isEventPlanned("trex") && state.trexAttackCount < state.director.attackGoals.trex) {
     blockers.push("T-Rex");
   }
+  if (isEventPlanned("grypho") && state.gryphoStalkCount < state.director.attackGoals.grypho) {
+    blockers.push("Gryphovenator ALFA");
+  }
   if (state.chimeraBreakoutCount < state.director.attackGoals.chimera) {
     blockers.push("Chimerasaurus");
   }
@@ -2541,6 +2806,98 @@ function getAvailableEscapeRouteName() {
     return route.planned && route.available && !route.lost;
   });
   return routeKey ? labels[routeKey] : null;
+}
+
+function getRouteKeyFromCipherTarget(target) {
+  if (!target?.startsWith("evac-")) return null;
+  return target.replace("evac-", "");
+}
+
+function getCipherTargetForRoute(routeKey) {
+  return `evac-${routeKey}`;
+}
+
+function getDominantOverrideThreat() {
+  if (state.omegaReleased) return "omega";
+  if (state.gryphoActive || state.gryphoContained) return "grypho";
+  if (state.timelineFlags.trex) return "trex";
+  if (state.timelineFlags.raptor) return "raptor";
+  return "standard";
+}
+
+function getRouteVisualCue(routeKey) {
+  const cues = {
+    main: "Sellos magneticos forzados. Luces blancas fallan contra humo de pasillo.",
+    helipad: "Viento en azotea, luces rojas girando y radio cortada.",
+    tunnel: "Vapor bajo presión, oscuridad intermitente y alarmas mecánicas.",
+    cargo: "Motores tosiendo, chispas en rieles y energía inestable.",
+  };
+  return cues[routeKey] || cues.main;
+}
+
+function getOverrideThreatPattern() {
+  const threat = getDominantOverrideThreat();
+  const patterns = {
+    raptor: "Patron RAPTOR: ventanas cortas, giro rapido y confirmacion inmediata.",
+    trex: "Patron T-REX: sellos pesados, giro lento y presión estructural alta.",
+    grypho: "Patron ALFA: lecturas falsas; confirma el rotor visual, no el primer sensor.",
+    omega: "Patron OMEGA: colapso activo; cuatro rotores bajo margen extremo.",
+    standard: "Patron ESTANDAR: sincronizacion manual completa.",
+  };
+  return patterns[threat] || patterns.standard;
+}
+
+function canLoadEvacuationOverride(routeKey) {
+  const definition = getRouteDefinitions()[routeKey];
+  if (!definition) return { ok: false, message: "Override de evacuacion inexistente." };
+  const route = state.escapeRoutes[routeKey];
+  if (!route?.planned) return { ok: false, message: getRouteBlockedMessage(routeKey) };
+  if (route.lost) return { ok: false, message: getRouteBlockedMessage(routeKey) };
+  const missing = getRouteMissingRequirements(definition);
+  if (missing.length) return { ok: false, message: `${definition.name} no puede forzarse todavia: ${missing.join(", ")}.` };
+  return { ok: true, message: `${definition.name}: override manual listo.` };
+}
+
+function loadEvacuationOverride(routeKey) {
+  const availability = canLoadEvacuationOverride(routeKey);
+  if (!availability.ok) {
+    applyCommandPenalty("standard", availability.message);
+    return false;
+  }
+  const target = getCipherTargetForRoute(routeKey);
+  state.evacuationOverride.target = routeKey;
+  setCipherTarget(target);
+  setPuzzleVisibility(target);
+  startContinuousAlert(getDominantOverrideThreat() === "omega" ? 0.9 : 0.76);
+  triggerVisualGlitchBurst(getDominantOverrideThreat() === "omega" ? "severe" : "normal");
+  setCurrentAlert(`OVERRIDE MANUAL ${getRouteDefinitions()[routeKey].name} cargado. Sincroniza cuatro rotores.`, getDominantOverrideThreat() === "omega" ? "error" : "warning");
+  addLine(`OVERRIDE EVAC // ${getRouteDefinitions()[routeKey].name}`, "warning");
+  addLine(getRouteVisualCue(routeKey), "warning");
+  addLine(getOverrideThreatPattern(), getDominantOverrideThreat() === "omega" ? "error" : "warning");
+  return true;
+}
+
+async function completeEvacuationOverride(routeKey) {
+  const route = state.escapeRoutes[routeKey];
+  if (!route) return false;
+  route.available = true;
+  state.evacuationOverride.solved[routeKey] = true;
+  state.doorUnlocked = true;
+  state.evacuationRoute = routeKey;
+  markProgress("escape");
+  rewardRecovery(getDominantOverrideThreat() === "omega" ? "major" : "small", `${getRouteDefinitions()[routeKey].name} forzada por override`);
+  detenerAlerta("SITUACION CONTROLADA // Override de evacuacion sincronizado");
+  setPuzzleVisibility("none");
+  updateHud();
+  const labels = {
+    main: ["Rotores de sello sincronizados.", "Bisagra magnetica forzada.", "PUERTA NORTE ABIERTA POR OVERRIDE."],
+    helipad: ["Energia de plataforma estabilizada.", "Autorizacion aerea forzada.", "HELIPUERTO DISPONIBLE BAJO VIENTO EXTREMO."],
+    tunnel: ["Presion igualada.", "Ventilacion forzada.", "TUNEL DE EMERGENCIA ABIERTO ENTRE VAPOR."],
+    cargo: ["Encendido manual activo.", "Liberacion magnetica completada.", "TRANSPORTE DE CARGA LISTO CON ENERGIA INESTABLE."],
+  };
+  await printLines(labels[routeKey] || labels.main, "success");
+  addLine("Ejecuta: evacuate now", "success");
+  return true;
 }
 
 function ensureEscapeFallback() {
@@ -2579,6 +2936,7 @@ function getRandomDirectorCandidates() {
   const candidates = [];
   if (isEventPlanned("raptor") && !state.raptorContained && !state.timelineFlags.raptor) candidates.push("raptor");
   if (isEventPlanned("trex") && !state.trexContained && !state.timelineFlags.trex) candidates.push("trex");
+  if (isEventPlanned("grypho") && !state.gryphoContained && !state.timelineFlags.grypho) candidates.push("grypho");
   if (isEventPlanned("dilo") && !state.diloNeutralized && !state.timelineFlags.dilo) candidates.push("dilo");
   if (isEventPlanned("barrier") && !state.barriersRestored && !state.timelineFlags.barrier) candidates.push("barrier");
   if (isEventPlanned("herd") && !state.herdCalmed && !state.timelineFlags.herd) candidates.push("herd");
@@ -2818,7 +3176,7 @@ function getRouteStatus(routeKey, definition) {
   const route = state.escapeRoutes[routeKey];
   if (!route?.planned) return "NO ASIGNADA";
   if (route.lost) return "PERDIDA";
-  if (route.available) return "DISPONIBLE";
+  if (route.available) return "OVERRIDE SINCRONIZADO";
   const missing = definition.requirements.filter(([, ready]) => !ready);
   return missing.length ? "BLOQUEADA" : "LISTA PARA ACTIVAR";
 }
@@ -2831,13 +3189,13 @@ function getRouteBlockedMessage(routeKey) {
   const definition = getRouteDefinitions()[routeKey];
   if (!definition) return "Ruta no disponible.";
   const missing = getRouteMissingRequirements(definition);
-  if (!missing.length) return `${definition.name} lista. Ejecuta ${definition.command}.`;
+  if (!missing.length) return `${definition.name} lista para override manual. Carga ${definition.command} y sincroniza cuatro rotores.`;
   return `${definition.name} no disponible: falta ${missing.join(", ")}.`;
 }
 
 function getEvacuationRouteLines() {
   const definitions = getRouteDefinitions();
-  const lines = ["RUTAS DE EVACUACION // ESTADO OPERATIVO"];
+  const lines = ["OVERRIDES MANUALES DE EVACUACION // ESTADO OPERATIVO"];
   Object.entries(definitions).forEach(([key, definition]) => {
     const status = getRouteStatus(key, definition);
     const missing = getRouteMissingRequirements(definition);
@@ -2848,7 +3206,8 @@ function getEvacuationRouteLines() {
     lines.push(`Riesgo: ${definition.risk}.`);
     lines.push("Requiere:");
     definition.requirements.forEach(([label, ready]) => lines.push(`- ${label}: ${ready ? "OK" : "PENDIENTE"}`));
-    lines.push(`Comando: ${definition.command}`);
+    lines.push(`Carga override: ${definition.command}`);
+    lines.push("Ejecucion final: sincroniza 4 rotores y pulsa Enviar contención.");
     if (missing.length) lines.push(`No funciona porque falta: ${missing.join(", ")}.`);
   });
   return lines;
@@ -2862,13 +3221,14 @@ function renderEvacuationRoutesPanel() {
     const status = getRouteStatus(key, definition);
     const missing = getRouteMissingRequirements(definition);
     const statusClass = route?.available && !route.lost ? "is-open" : route?.lost ? "is-lost" : status === "NO ASIGNADA" ? "is-muted" : "is-blocked";
+    const overrideState = state.evacuationOverride.solved[key] ? "OVERRIDE SINCRONIZADO" : missing.length ? "OVERRIDE BLOQUEADO" : "OVERRIDE LISTO";
     return `
       <div class="evac-route ${statusClass}">
         <strong>${definition.name}</strong>
-        <span>Estado: ${status}</span>
+        <span>Estado: ${overrideState}</span>
         <p>Ventaja: ${definition.advantage}. Riesgo: ${definition.risk}.</p>
-        <p>Requiere: ${missing.length ? missing.join(", ") : "condiciones completas"}.</p>
-        <code>${definition.command}</code>
+        <p>Requiere: ${missing.length ? missing.join(", ") : "sincronización manual de cuatro rotores"}.</p>
+        <code>${definition.command} → 4 rotores</code>
       </div>
     `;
   }).join("");
@@ -2878,7 +3238,7 @@ function getEvacuationBlockers() {
   const blockers = [];
   const energyReady = state.powerOnline || (state.generatorRepaired && !state.generatorDamaged);
   if (!energyReady) blockers.push("Energía");
-  if ((isEventPlanned("raptor") && !state.raptorContained) || (isEventPlanned("trex") && !state.trexContained) || state.chimeraActive || state.activeThreat === "chimerasaurus") blockers.push("Amenaza principal activa");
+  if ((isEventPlanned("raptor") && !state.raptorContained) || (isEventPlanned("trex") && !state.trexContained) || (state.gryphoActive && !state.gryphoContained) || state.chimeraActive || state.activeThreat === "chimerasaurus") blockers.push("Amenaza principal activa");
   if (isEventPlanned("barrier") && !state.barriersRestored) blockers.push("Barreras");
   if (!state.omegaReleased || !state.chimeraContained || state.chimeraActive || state.omegaActive) blockers.push("Chimerasaurus");
   if (!hasMetAttackRequirements()) blockers.push("Actividad depredadora pendiente");
@@ -2901,9 +3261,9 @@ function verificarEvacuacionDisponible({ announce = false } = {}) {
   if (available) {
     if (!state.evacuationAnnounced || announce) {
       state.evacuationAnnounced = true;
-      addLine(`EVACUACIÓN DISPONIBLE por ${getAvailableEscapeRouteName() || "ruta autorizada"}.`, "success");
+      addLine(`EVACUACIÓN FORZADA por ${getAvailableEscapeRouteName() || "ruta autorizada"}.`, "success");
       addLine("Ejecuta: evacuate now", "success");
-      currentAlertText.textContent = "EVACUACIÓN DISPONIBLE. Ejecuta evacuate now.";
+      currentAlertText.textContent = "OVERRIDE DE EVACUACIÓN SINCRONIZADO. Ejecuta evacuate now.";
     }
     return { available, blockers };
   }
@@ -2921,6 +3281,7 @@ function getCurrentObjectiveKey() {
   if (!state.powerOnline) return state.generatorDamaged ? "generator" : "power";
   if (state.timelineFlags.raptor && !state.raptorContained) return "raptor";
   if (state.timelineFlags.trex && !state.trexContained) return "trex";
+  if (state.gryphoActive && !state.gryphoContained) return "grypho";
   if (state.timelineFlags.dilo && !state.diloNeutralized) return "dilo";
   if (state.timelineFlags.barrier && !state.barriersRestored) return "barrier";
   if (state.timelineFlags.herd && !state.herdCalmed) return "herd";
@@ -2984,6 +3345,15 @@ function getGuidance(key = getCurrentObjectiveKey()) {
       steps: ["cat TREX.KEY", "alinea los tres rotores", "guarda cada rotor", "pulsa Enviar contención"],
       risk: "CRITICO",
     },
+    grypho: {
+      title: "AMENAZA ALFA: GRYPHOVENATOR",
+      occurred: "El primer hibrido exitoso entro en fase de caza. Las camaras y sensores ya no son confiables.",
+      danger: "No colapsa el laboratorio como OMEGA; manipula el entorno, bloquea rutas, reaparece y fuerza decisiones bajo paranoia.",
+      objective: "Sincronizar rotores ALFA y neutralizar el acecho sin activar Chimerasaurus.",
+      files: "GRYPHO.LOG, ALPHA-HYBRID.LOG, PREDATOR.TEST y ALPHA-CONTAINMENT.LOG",
+      steps: ["cat GRYPHO.LOG", "cat ALPHA-HYBRID.LOG", "cat PREDATOR.TEST", "cat ALPHA-CONTAINMENT.LOG", "alinea rotores ALFA", "pulsa Enviar contención"],
+      risk: "ALFA",
+    },
     dilo: {
       title: "DILOPHOSAURUS EN ACCESO PRINCIPAL",
       occurred: "El acceso E-03 requiere bloqueo manual por toxina y niebla.",
@@ -3039,17 +3409,44 @@ function getGuidance(key = getCurrentObjectiveKey()) {
       risk: "OMEGA",
     },
     door: {
-      title: "SALIDA NORTE BLOQUEADA",
-      occurred: "La compuerta no abre mientras haya amenazas o fallas activas.",
-      danger: "Sin salida, el timer puede llevar al colapso.",
-      objective: "Abrir puerta de evacuacion.",
+      title: "OVERRIDE MANUAL: PUERTA NORTE",
+      occurred: "La compuerta ya no acepta desbloqueo normal. Solo queda forzar sellos y bisagras por rotores.",
+      danger: "El override puede quedar a medio ciclo si aparece otra ruptura.",
+      objective: "Cargar DOOR.SYS, sincronizar cuatro rotores y forzar salida.",
       files: "DOOR.SYS",
-      steps: ["cat DOOR.SYS", "lee el codigo maestro", "ejecuta unlock door [CODIGO]"],
+      steps: ["cat DOOR.SYS", "ejecuta unlock door DOOR-LOCK-42 para cargar override", "sincroniza cuatro rotores", "pulsa Enviar contención"],
+      risk: "ALTO",
+    },
+    helipad: {
+      title: "OVERRIDE MANUAL: HELIPUERTO",
+      occurred: "La azotea no tiene autorización aérea estable.",
+      danger: "Viento, radio fallando y luces rojas reducen margen de evacuacion.",
+      objective: "Forzar plataforma con cuatro rotores.",
+      files: "HELIPAD.SYS",
+      steps: ["cat HELIPAD.SYS", "ejecuta activate helipad", "sincroniza cuatro rotores", "pulsa Enviar contención"],
+      risk: "ALTO",
+    },
+    tunnel: {
+      title: "OVERRIDE MANUAL: TUNEL",
+      occurred: "El subnivel requiere presion, ventilacion y compuertas en ciclo manual.",
+      danger: "Vapor y oscuridad pueden bloquear la lectura del sistema.",
+      objective: "Forzar tunel con cuatro rotores.",
+      files: "TUNNEL.SYS",
+      steps: ["cat TUNNEL.SYS", "ejecuta open tunnel", "sincroniza cuatro rotores", "pulsa Enviar contención"],
+      risk: "ALTO",
+    },
+    cargo: {
+      title: "OVERRIDE MANUAL: TRANSPORTE",
+      occurred: "El transporte de carga requiere encendido y liberacion magnetica manual.",
+      danger: "Motores y energia inestable pueden cerrar el hangar si tardas.",
+      objective: "Forzar transporte con cuatro rotores.",
+      files: "CARGO.SYS",
+      steps: ["cat CARGO.SYS", "ejecuta start cargo", "sincroniza cuatro rotores", "pulsa Enviar contención"],
       risk: "ALTO",
     },
     escape: {
-      title: "EVACUACION DISPONIBLE",
-      occurred: "La ruta exterior esta abierta.",
+      title: "OVERRIDE SINCRONIZADO",
+      occurred: "La ruta exterior fue forzada manualmente.",
       danger: "OMEGA puede volver a romper contencion si tardas demasiado.",
       objective: "Salir del laboratorio.",
       files: "ninguno",
@@ -3107,6 +3504,7 @@ function updateMissionStates() {
   setMissionState(missionGenerator, state.generatorRepaired ? "COMPLETA" : state.generatorDamaged ? "ACTIVA" : "MONITOREO", state.generatorRepaired ? "is-done" : state.generatorDamaged ? "is-active" : "is-locked");
   setMissionState(missionRaptor, !state.powerOnline ? "BLOQUEADA" : state.raptorContained ? "COMPLETA" : "ACTIVA", !state.powerOnline ? "is-locked" : state.raptorContained ? "is-done" : "is-active");
   setMissionState(missionTrex, !state.powerOnline ? "BLOQUEADA" : state.trexContained ? "COMPLETA" : state.timelineFlags.trex ? "ACTIVA" : "MONITOREO", !state.powerOnline ? "is-locked" : state.trexContained ? "is-done" : state.timelineFlags.trex ? "is-active" : "is-locked");
+  setMissionState(missionGrypho, !state.powerOnline ? "BLOQUEADA" : state.gryphoContained ? "COMPLETA" : state.gryphoActive ? "ALFA" : "MONITOREO", !state.powerOnline ? "is-locked" : state.gryphoContained ? "is-done" : state.gryphoActive ? "is-active" : "is-locked");
   setMissionState(missionDilo, !state.powerOnline ? "BLOQUEADA" : state.diloNeutralized ? "COMPLETA" : state.timelineFlags.dilo ? "ACTIVA" : "MONITOREO", !state.powerOnline ? "is-locked" : state.diloNeutralized ? "is-done" : state.timelineFlags.dilo ? "is-active" : "is-locked");
   setMissionState(missionBarrier, !state.powerOnline ? "BLOQUEADA" : state.barriersRestored ? "COMPLETA" : state.timelineFlags.barrier ? "ACTIVA" : "MONITOREO", !state.powerOnline ? "is-locked" : state.barriersRestored ? "is-done" : state.timelineFlags.barrier ? "is-active" : "is-locked");
   setMissionState(missionHerd, !state.powerOnline ? "BLOQUEADA" : state.herdCalmed ? "COMPLETA" : state.timelineFlags.herd ? "ACTIVA" : "MONITOREO", !state.powerOnline ? "is-locked" : state.herdCalmed ? "is-done" : state.timelineFlags.herd ? "is-active" : "is-locked");
@@ -3136,6 +3534,7 @@ function updateMissionStates() {
 function updateThreatMap() {
   threatRaptor.classList.toggle("is-contained", state.raptorContained);
   threatTrex.classList.toggle("is-contained", state.trexContained);
+  threatGrypho?.classList.toggle("is-contained", !state.gryphoActive || state.gryphoContained);
   threatDilo.classList.toggle("is-contained", state.diloNeutralized);
 
   if (state.omegaReleased) {
@@ -3144,6 +3543,8 @@ function updateThreatMap() {
       : "CHIMERASAURUS REX LIBERADO // NIVEL OMEGA";
   } else if (state.generatorDamaged) {
     labThreatState.textContent = "GENERADOR DAÑADO // RIESGO ESTRUCTURAL";
+  } else if (state.gryphoActive && !state.gryphoContained) {
+    labThreatState.textContent = "AMENAZA ALFA // CAMARAS Y SENSORES NO CONFIABLES";
   } else if (state.timelineFlags.dilo && !state.diloNeutralized) {
     labThreatState.textContent = "DILOPHOSAURUS CERCA DEL ACCESO PRINCIPAL";
   } else if (state.timelineFlags.barrier && !state.barriersRestored) {
@@ -3167,6 +3568,7 @@ function renderSpeciesList() {
   const entries = [
     ["Velociraptor", speciesZones.raptor.risk(), "Nivel V, cazador social"],
     ["Tyrannosaurus rex", speciesZones.trex.risk(), "Nivel V, apex estructural"],
+    ["Gryphovenator", speciesZones.grypho.risk(), "Nivel ALFA, hibrido tactico"],
     ["Dilophosaurus", speciesZones.dilo.risk(), "Nivel IV, selva humeda"],
     ["Triceratops", speciesZones.herb.risk(), "Nivel III, impacto en Sector C"],
     ["Ankylosaurus", speciesZones.anky.risk(), "Nivel IV, bloqueo logistico"],
@@ -3217,7 +3619,7 @@ function updateActionButtons() {
     if (command === "stabilize triceratops TRI-STABLE-41" && state.herdCalmed) disabled = true;
     if (command === "redirect anky ANKY-PORT-55" && state.ankyRedirected) disabled = true;
     if (command === "analyze stego STEGO-BIO-28" && (!state.timelineFlags.stego || state.stegoAnalyzed)) disabled = true;
-    if (command === "unlock door DOOR-LOCK-42" && (!evacuation.available || state.doorUnlocked)) disabled = true;
+    if (command === "unlock door DOOR-LOCK-42" && state.escapeRoutes.main.available) disabled = true;
     if ((command === "escape" || command === "evacuate now") && (!evacuation.available || state.escaped)) disabled = true;
     button.disabled = disabled;
   }
@@ -3230,12 +3632,16 @@ function updateHud() {
   powerState.style.color = state.powerOnline ? "#9cff57" : "";
   raptorState.textContent = state.raptorContained ? "INACTIVA" : "ACTIVA";
   raptorState.style.color = state.raptorContained ? "#9cff57" : "";
-  doorState.textContent = state.doorUnlocked ? "ABIERTA" : "BLOQUEADA";
+  if (alphaState) {
+    alphaState.textContent = state.gryphoActive && !state.gryphoContained ? "ALFA ACTIVA" : state.gryphoContained ? "NEUTRALIZADA" : "LATENTE";
+    alphaState.style.color = state.gryphoActive && !state.gryphoContained ? "#ffb347" : state.gryphoContained ? "#9cff57" : "";
+  }
+  doorState.textContent = state.doorUnlocked ? "OVERRIDE" : "BLOQUEADA";
   doorState.style.color = state.doorUnlocked ? "#9cff57" : "";
-  escapeState.textContent = state.escaped ? "COMPLETA" : state.evacuationAvailable ? "DISPONIBLE" : "PENDIENTE";
+  escapeState.textContent = state.escaped ? "COMPLETA" : state.evacuationAvailable ? "FORZADA" : "PENDIENTE";
   escapeState.style.color = state.escaped || state.evacuationAvailable ? "#9cff57" : "";
   const plannedOpenRisk = (isEventPlanned("dilo") && !state.diloNeutralized) || (isEventPlanned("barrier") && !state.barriersRestored);
-  threatLevelState.textContent = state.gameOver ? "COLAPSO" : state.omegaReleased && !state.chimeraContained ? "OMEGA" : state.damageInstalacion >= 70 || state.riesgoBiologico >= 70 ? "CRITICO" : state.damageInstalacion >= 40 || plannedOpenRisk ? "ALTO" : state.doorUnlocked ? "CONTROLADO" : "MEDIO";
+  threatLevelState.textContent = state.gameOver ? "COLAPSO" : state.omegaReleased && !state.chimeraContained ? "OMEGA" : state.gryphoActive && !state.gryphoContained ? "ALFA" : state.damageInstalacion >= 70 || state.riesgoBiologico >= 70 ? "CRITICO" : state.damageInstalacion >= 40 || plannedOpenRisk ? "ALTO" : state.doorUnlocked ? "CONTROLADO" : "MEDIO";
   countdownState.textContent = formatCountdown(state.countdownSeconds);
   if (omegaCountdown) omegaCountdown.textContent = `TIEMPO CRITICO ${formatCountdown(state.countdownSeconds)}`;
   countdownState.style.color = state.countdownSeconds <= 120 ? "#ff5a4f" : state.countdownSeconds <= 300 ? "#ffd166" : "";
@@ -3262,8 +3668,8 @@ function updateHud() {
 
   setZoneState(zonePowerState, state.powerOnline ? "ONLINE" : "OFFLINE", state.powerOnline ? "online" : "offline");
   setZoneState(zoneRaptorState, state.raptorContained ? "ASEGURADA" : "ACTIVA", state.raptorContained ? "safe" : "danger");
-  setZoneState(zoneDoorState, state.doorUnlocked ? "ABIERTA" : "BLOQUEADA", state.doorUnlocked ? "open" : "locked");
-  setZoneState(zoneEscapeState, state.escaped ? "COMPLETA" : state.evacuationAvailable ? "DISPONIBLE" : "PENDIENTE", state.escaped || state.evacuationAvailable ? "done" : "pending");
+  setZoneState(zoneDoorState, state.doorUnlocked ? "OVERRIDE" : "BLOQUEADA", state.doorUnlocked ? "open" : "locked");
+  setZoneState(zoneEscapeState, state.escaped ? "COMPLETA" : state.evacuationAvailable ? "FORZADA" : "PENDIENTE", state.escaped || state.evacuationAvailable ? "done" : "pending");
 
   updateObjective();
   updateMissionStates();
@@ -3513,18 +3919,19 @@ function showStatus() {
     `Generador: ${state.generatorDamaged ? "DAÑADO" : state.generatorRepaired ? "REPARADO" : "ESTABLE"}`,
     `Raptor: ${state.raptorContained ? "CONTENIDO" : state.timelineFlags.raptor ? "ACTIVO" : "SIN CONTACTO"}`,
     `T-Rex: ${state.trexContained ? "CONTENIDO" : state.timelineFlags.trex ? "ACTIVO" : "SIN CONTACTO"}`,
+    `Gryphovenator ALFA: ${state.gryphoContained ? "NEUTRALIZADO" : state.gryphoActive ? "ACECHANDO / SENSORES NO CONFIABLES" : "LATENTE"}`,
     `Dilophosaurus: ${!isEventPlanned("dilo") ? "SIN LECTURA" : state.diloNeutralized ? "NEUTRALIZADO" : state.timelineFlags.dilo ? "ACTIVO" : "LATENTE"}`,
     `Chimerasaurus: ${state.omegaReleased ? state.chimeraContained ? "CONTENIDO TEMPORAL" : "LIBERADO" : "NO DETECTADO"}`,
     `Barreras: ${!isEventPlanned("barrier") ? "SIN INCIDENTE" : state.barriersRestored ? "RESTAURADAS" : state.timelineFlags.barrier ? "COMPROMETIDAS" : "LATENTE"}`,
     `Triceratops: ${!isEventPlanned("herd") ? "SIN INCIDENTE" : state.herdCalmed ? "ESTABILIZADO" : state.timelineFlags.herd ? "SECTOR C INESTABLE" : "LATENTE"}`,
     `Ankylosaurus: ${!isEventPlanned("anky") ? "SIN INCIDENTE" : state.ankyRedirected ? "REDIRIGIDO" : state.timelineFlags.anky ? "BLOQUEANDO RUTA" : "LATENTE"}`,
     `Estegosaurus: ${!isEventPlanned("stego") ? "SIN INCIDENTE" : state.timelineFlags.stego ? state.stegoAnalyzed ? "ANALIZADO" : "ENFERMO" : "LATENTE"}`,
-    `Puerta: ${state.doorUnlocked ? "ABIERTA" : "BLOQUEADA"}`,
-    `Ruta principal: ${state.escapeRoutes.main.lost ? "PERDIDA" : state.escapeRoutes.main.available ? "ABIERTA" : "RECUPERABLE"}`,
+    `Puerta: ${state.doorUnlocked ? "OVERRIDE SINCRONIZADO" : "BLOQUEADA"}`,
+    `Ruta principal: ${state.escapeRoutes.main.lost ? "PERDIDA" : state.escapeRoutes.main.available ? "FORZADA" : "RECUPERABLE"}`,
     `Helipuerto: ${!state.escapeRoutes.helipad.planned ? "NO ASIGNADO" : state.escapeRoutes.helipad.lost ? "PERDIDO" : state.escapeRoutes.helipad.available ? "ABIERTO" : "RECUPERABLE"}`,
     `Túnel: ${!state.escapeRoutes.tunnel.planned ? "NO ASIGNADO" : state.escapeRoutes.tunnel.lost ? "PERDIDO" : state.escapeRoutes.tunnel.available ? "ABIERTO" : "RECUPERABLE"}`,
     `Carga: ${!state.escapeRoutes.cargo.planned ? "NO ASIGNADO" : state.escapeRoutes.cargo.lost ? "PERDIDO" : state.escapeRoutes.cargo.available ? "ABIERTO" : "RECUPERABLE"}`,
-    `Evacuacion: ${state.escaped ? "COMPLETADA" : state.evacuationAvailable ? "DISPONIBLE" : "BLOQUEADA"}`,
+    `Evacuacion: ${state.escaped ? "COMPLETADA" : state.evacuationAvailable ? "OVERRIDE LISTO" : "BLOQUEADA"}`,
     `Daño instalación: ${Math.round(state.damageInstalacion)}%`,
     `Riesgo biológico: ${Math.round(state.riesgoBiologico)}%`,
     `Estabilidad: ${Math.round(state.estabilidadLaboratorio)}%`,
@@ -3690,6 +4097,22 @@ const threatCinematicConfig = {
     tier: "principal",
     glitch: "severe",
   },
+  grypho: {
+    source: "assets/video/Gryphovenator.mp4",
+    label: "AMENAZA ALFA",
+    title: "GRYPHOVENATOR EN CAZA",
+    text: "DEPREDADOR ALFA ACTIVO // PROTOCOLO ALFA REQUIERE ROTORES",
+    sound: "raptor",
+    volume: 0.58,
+    alertVolume: 0.8,
+    damage: 2,
+    bio: 5,
+    stability: -6,
+    energy: -4,
+    severity: "grypho",
+    tier: "alfa",
+    glitch: "severe",
+  },
   chimera: {
     source: "assets/video/Chimerasaurus Escape.MP4",
     label: "NIVEL OMEGA ACTIVADO",
@@ -3796,6 +4219,7 @@ function triggerThreatEscapeCinematic(threatKey) {
   }
   if (threatKey === "raptor") state.raptorAttackCount += 1;
   if (threatKey === "trex") state.trexAttackCount += 1;
+  if (threatKey === "grypho") state.gryphoStalkCount += 1;
   if (config.damage || config.bio || config.stability || config.energy) {
     applyDeterioration({
       damage: config.damage,
@@ -3812,6 +4236,7 @@ function triggerThreatEscapeCinematic(threatKey) {
   omegaOverlayText.textContent = config.text;
   startContinuousAlert(config.alertVolume);
   playDinoSound(config.sound, config.volume);
+  if (threatKey === "grypho") triggerGryphoTacticalEffects("cinematic");
   if (threatKey === "chimera") reproducirGarrasAleatorio(true);
   if (["herd", "anky", "dilo"].includes(threatKey)) triggerVisualGlitchBurst("normal");
   triggerVisualGlitchBurst(config.glitch);
@@ -3835,9 +4260,11 @@ function cerrarEventoAmenaza() {
   omegaOverlay?.classList.remove(
     "omega-overlay--raptor",
     "omega-overlay--trex",
+    "omega-overlay--grypho",
     "omega-overlay--chimera",
     "omega-overlay--minor",
     "omega-overlay--tier-principal",
+    "omega-overlay--tier-alfa",
     "omega-overlay--tier-climax",
     "omega-overlay--tier-secundaria-cinematica"
   );
@@ -3849,6 +4276,7 @@ function cerrarEventoAmenaza() {
   const messages = {
     raptor: "VELOCIRAPTOR LIBERADO. Protocolo R-01 activo: revisa RAPTOR.KEY y sincroniza rotores.",
     trex: "T-REX LIBERADO. Protocolo C-07 activo: revisa TREX.KEY y cierra contencion pesada.",
+    grypho: "AMENAZA ALFA: GRYPHOVENATOR EN CAZA. Revisa ALPHA-CONTAINMENT.LOG y sincroniza rotores.",
     chimera: "CHIMERASAURUS REX HA ROTO LA CAPSULA DE CONTENCION. Regresando a la consola en estado OMEGA.",
     dilo: "EVENTO SECUNDARIO: DILOPHOSAURUS EN ACCESO PRINCIPAL. Protocolo TOXIN activo: revisa DILO.LOG y TOXIN.KEY.",
     herd: "EVENTO SECUNDARIO: PELEA DE TRICERATOPS DETECTADA. Estabiliza el Sector C: cat TRICERATOPS.LOG.",
@@ -3858,6 +4286,7 @@ function cerrarEventoAmenaza() {
   addLine(messages[threatKey] || "BRECHA CINEMATICA FINALIZADA. Regresando a consola.", "warning");
   if (threatKey === "raptor") setCurrentAlert("VELOCIRAPTOR LIBERADO. BARRERA SECUNDARIA FALLIDA.", "error");
   if (threatKey === "trex") setCurrentAlert("T-REX LIBERADO. CONTENCION PESADA FALLIDA.", "error");
+  if (threatKey === "grypho") setCurrentAlert("AMENAZA ALFA: Gryphovenator acecha entre sectores. Protocolo ALFA activo en rotores.", "error");
   if (threatKey === "chimera") setCurrentAlert("NIVEL OMEGA ACTIVADO. CHIMERASAURUS REX LIBERADO. CAPSULA DE CONTENCION ROTA.", "error");
   if (threatKey === "dilo") setCurrentAlert("EVENTO SECUNDARIO: DILOPHOSAURUS EN ACCESO PRINCIPAL. Mantén protocolo TOXIN hasta neutralizar.", "warning");
   if (threatKey === "herd") setCurrentAlert("EVENTO SECUNDARIO: PELEA DE TRICERATOPS DETECTADA. Estabiliza el Sector C.", "warning");
@@ -3870,7 +4299,7 @@ function activateDirectorEvent(key) {
   rememberDirectorEvent(key);
   noteCriticalThreatLaunched(key);
   applyProfileEventConsequence(key);
-  const majorEvents = new Set(["raptor", "trex", "generator", "barrier", "dilo", "anky", "herd", "stego", "omega", "collapse"]);
+  const majorEvents = new Set(["raptor", "trex", "grypho", "generator", "barrier", "dilo", "anky", "herd", "stego", "omega", "collapse"]);
   if (majorEvents.has(key)) {
     state.director.lastMajorEventAt = state.countdownSeconds;
   }
@@ -3905,6 +4334,23 @@ function activateDirectorEvent(key) {
       setCurrentAlert("Huella de gran masa confirmada. Tyrannosaurus rex aproximándose al corredor C-07.", "error");
       showContextGuide("trex", "error");
       triggerThreatEscapeCinematic("trex");
+      break;
+    case "grypho":
+      startContinuousAlert(0.8);
+      playDinoSound("raptor", 0.48);
+      clonePlay(dinoSounds.garras, 0.44);
+      speak(narrationLines.grypho, null, { priority: "critical", retryOnInterrupt: false });
+      state.gryphoActive = true;
+      state.gryphoContained = false;
+      state.activeZone = "grypho";
+      state.currentProtocol = "grypho";
+      state.activeThreat = "grypho";
+      markProgress("grypho");
+      setCipherTarget("grypho");
+      setPuzzleVisibility("grypho");
+      setCurrentAlert("GRYPHOVENATOR DETECTADO. DEPREDADOR ALFA ACTIVO. PROTOCOLO ALFA cargado en rotores.", "error");
+      showContextGuide("grypho", "error");
+      triggerThreatEscapeCinematic("grypho");
       break;
     case "generator":
       state.generatorDamaged = true;
@@ -3982,14 +4428,16 @@ function activateDirectorEvent(key) {
 }
 
 function canActivateDirectorEvent(key) {
-  if (key === "omega") return state.countdownSeconds <= state.director.omegaEarliestAt && canLaunchCriticalThreat(key);
+  if (key === "omega") return !getActiveMajorThreat() && state.countdownSeconds <= state.director.omegaEarliestAt && canLaunchCriticalThreat(key);
+  if (key === "sensors") return !getActiveMajorThreat();
+  if (key === "collapse") return !getActiveMajorThreat();
   if (!isEventPlanned(key)) return false;
   if (!canLaunchCriticalThreat(key)) return false;
-  if (["raptor", "trex", "dilo", "herd", "anky", "stego"].includes(key) && !state.powerOnline) return false;
+  if (["raptor", "trex", "grypho", "dilo", "herd", "anky", "stego"].includes(key) && !state.powerOnline) return false;
   const activeMajor = getActiveMajorThreat();
+  if (activeMajor && key !== "omega") return false;
   if (activeMajor && isMinorDirectorEvent(key)) return false;
-  if (key === "sensors") return true;
-  const majorEvents = new Set(["raptor", "trex", "generator", "barrier", "dilo", "anky", "herd", "stego", "collapse"]);
+  const majorEvents = new Set(["raptor", "trex", "grypho", "generator", "barrier", "dilo", "anky", "herd", "stego", "collapse"]);
   if (!majorEvents.has(key)) return true;
   const gap = state.director.lastMajorEventAt - state.countdownSeconds;
   const requiredGap = getDirectorPhase() <= 2 ? 55 : getDirectorPhase() === 3 ? 45 : 34;
@@ -4011,6 +4459,7 @@ function processTimedThreats() {
 
   const beats = [
     ["sensors", 820],
+    ["grypho", 640],
     ["omega", state.director.omegaForceAt],
     ["collapse", 120],
   ];
@@ -4091,13 +4540,22 @@ function updateCipherHelper() {
   const targetLabels = {
     raptor: "RAPTOR",
     trex: "T-REX",
+    grypho: "GRYPHOVENATOR ALFA",
     dilo: "DILOPHOSAURUS",
     chimera: "CHIMERASAURUS",
+    "evac-main": "OVERRIDE PUERTA NORTE",
+    "evac-helipad": "OVERRIDE HELIPUERTO",
+    "evac-tunnel": "OVERRIDE TUNEL",
+    "evac-cargo": "OVERRIDE TRANSPORTE",
   };
 
   cipherConsoleTarget.textContent = `OBJETIVO: ${targetLabels[target] || "RAPTOR"}`;
-  cipherConsoleHint.textContent = target === "chimera"
+  cipherConsoleHint.textContent = getRouteKeyFromCipherTarget(target)
+    ? `OVERRIDE DE EVACUACION: cuatro rotores. ${getRouteVisualCue(getRouteKeyFromCipherTarget(target))}`
+    : target === "chimera"
     ? "Rotores CHIMERA: alinea y guarda las tres etapas; Enviar contención ejecuta el cierre internamente."
+    : target === "grypho"
+    ? "PROTOCOLO ALFA: el Gryphovenator interfiere sensores. Alinea, guarda en orden y envía contención sin escribir claves."
     : "Alinea y guarda los tres rotores. Enviar contención ejecuta el protocolo sin escribir códigos.";
   cipherEquationDisplay.textContent = `${activeRotor.label}: ${activeRotor.letter} = ${activeRotor.baseValue} | resta ${activeRotor.shift} | valor actual ${activeRotor.currentValue}`;
   cipherExplanation.textContent = stepsLeft > 0
@@ -4194,8 +4652,11 @@ function debugRotorState(context) {
 function getExpectedCodeForTarget(target) {
   if (target === "raptor") return state.raptorCode;
   if (target === "trex") return state.trexCode;
+  if (target === "grypho") return state.gryphoCode;
   if (target === "dilo") return state.diloCode;
   if (target === "chimera") return state.chimeraCode;
+  const routeKey = getRouteKeyFromCipherTarget(target);
+  if (routeKey) return state.evacuationOverride.codes[routeKey];
   return "";
 }
 
@@ -4204,7 +4665,7 @@ function isRotorProtocolReady(target = state.cipherHelper.target) {
   const expected = target === "chimera" ? getChimeraCodeParts().digits : getExpectedCodeForTarget(target);
   return state.cipherHelper.target === target &&
     state.cipherHelper.buffer === expected &&
-    state.cipherHelper.rotors.length === 3 &&
+    state.cipherHelper.rotors.length === expected.length &&
     state.cipherHelper.rotors.every((rotor) => rotor.savedValue !== null && isRotorAligned(rotor));
 }
 
@@ -4215,7 +4676,8 @@ function requireRotorProtocol(target, message = "Alinea y guarda los tres rotore
 }
 
 async function executeRotorContainment(target = state.cipherHelper.target) {
-  if (!["raptor", "trex", "dilo", "chimera"].includes(target)) {
+  const routeKey = getRouteKeyFromCipherTarget(target);
+  if (!["raptor", "trex", "grypho", "dilo", "chimera"].includes(target) && !routeKey) {
     setCurrentAlert("No hay protocolo de contención por rotores activo.", "warning");
     return false;
   }
@@ -4225,6 +4687,14 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
   }
   if (target === "chimera" && !state.omegaReleased) {
     await typeLine("No existe una amenaza Chimerasaurus activa en este momento.", "warning");
+    return false;
+  }
+  if (target === "grypho" && (!state.gryphoActive || state.gryphoContained)) {
+    await typeLine("No existe una amenaza Gryphovenator ALFA activa en este momento.", "warning");
+    return false;
+  }
+  if (target === "grypho" && state.currentProtocol !== "grypho") {
+    setCurrentAlert("PROTOCOLO ALFA no está activo. Espera detección confirmada o revisa ALPHA-CONTAINMENT.LOG.", "warning");
     return false;
   }
   if (target === "chimera" && (
@@ -4255,8 +4725,18 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
   }
   if (!isRotorProtocolReady(target)) {
     if (target === "chimera") logChimeraSession("rechazo-rotores");
-    requireRotorProtocol(target, "Contención incompleta. Alinea, guarda los tres rotores y vuelve a enviar.");
+    if (target === "grypho") {
+      state.gryphoRotorLockUntil = Date.now() + 1800;
+      triggerVisualGlitchBurst("normal");
+      clonePlay(dinoSounds.garras, 0.32);
+      currentAlertText.textContent = "ALFA bloquea temporalmente la telemetria del rotor. Revisa alineacion y vuelve a guardar en orden.";
+    }
+    requireRotorProtocol(target, routeKey ? "Override incompleto. Sincroniza los cuatro rotores antes de enviar." : "Contención incompleta. Alinea, guarda los tres rotores y vuelve a enviar.");
     return false;
+  }
+
+  if (routeKey) {
+    return completeEvacuationOverride(routeKey);
   }
 
   if (target === "raptor") {
@@ -4293,6 +4773,35 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     await printLines(["Rotores C-07 sincronizados.", "Compuertas pesadas cerradas.", "Tyrannosaurus rex CONTENIDO."], "success");
     if (state.trexAttackCount < state.director.attackGoals.trex) {
       scheduleAdditionalPredatorAttack("trex");
+    } else {
+      startDirectorEventIfNeeded("dilo");
+    }
+    return true;
+  }
+
+  if (target === "grypho") {
+    state.gryphoContained = true;
+    state.gryphoActive = false;
+    state.gryphoSabotageUntil = null;
+    state.gryphoRotorLockUntil = 0;
+    if (state.currentProtocol === "grypho") state.currentProtocol = null;
+    if (state.activeThreat === "grypho") state.activeThreat = null;
+    markProgress(state.gryphoStalkCount >= state.director.attackGoals.grypho ? "dilo" : "grypho");
+    rewardRecovery("major", "Gryphovenator ALFA neutralizado");
+    state.riesgoBiologico = clamp(state.riesgoBiologico - 10, 0, 100);
+    state.estabilidadLaboratorio = clamp(state.estabilidadLaboratorio + 8, 0, 100);
+    detenerAlerta("SITUACION CONTROLADA // Gryphovenator ALFA neutralizado");
+    setPuzzleVisibility("none");
+    updateHud();
+    await printLines([
+      "Rotores ALFA sincronizados.",
+      "Señuelos termicos desplegados.",
+      "Corredores variables sellados.",
+      "Camaras restauradas por redundancia optica.",
+      "GRYPHOVENATOR ALFA NEUTRALIZADO. OMEGA NO ACTIVADO.",
+    ], "success");
+    if (state.gryphoStalkCount < state.director.attackGoals.grypho) {
+      scheduleGryphoReappearance();
     } else {
       startDirectorEventIfNeeded("dilo");
     }
@@ -4350,6 +4859,11 @@ function resetProtocolAttempt(target, message = "Protocolo reiniciado. Vuelve a 
 
 function rotateCipherRotor(index, direction = -1, feedback = true) {
   preservePuzzleViewport();
+  if (state.cipherHelper.target === "grypho" && Date.now() < state.gryphoRotorLockUntil) {
+    currentAlertText.textContent = "Interferencia ALFA: rotor bloqueado por telemetria falsa. Espera un instante.";
+    triggerVisualGlitchBurst("normal");
+    return;
+  }
   const rotor = state.cipherHelper.rotors[index];
   if (!rotor) return;
   rotor.currentValue = (rotor.currentValue + direction + 10) % 10;
@@ -4385,6 +4899,8 @@ function setCipherTarget(target) {
   state.cipherHelper.target = target;
   if (target === "chimera") {
     if (state.chimeraActive) state.currentProtocol = "chimerasaurus";
+  } else if (getRouteKeyFromCipherTarget(target)) {
+    state.currentProtocol = target;
   } else {
     state.currentProtocol = isRotorThreatActive(target) ? target : null;
   }
@@ -4424,6 +4940,10 @@ function appendCipherResult() {
   if (state.cipherHelper.target === "chimera" && state.cipherHelper.buffer.length === 3) {
     state.omegaRotorsSolved = true;
     setCurrentAlert("Rotores CHIMERA alineados. Pulsa Enviar contención para cerrar el campo híbrido.", "warning");
+  } else if (state.cipherHelper.target === "grypho" && state.cipherHelper.buffer.length === 3) {
+    setCurrentAlert("Rotores ALFA sincronizados. Pulsa Enviar contención antes de que Gryphovenator cambie sector.", "warning");
+  } else if (getRouteKeyFromCipherTarget(state.cipherHelper.target) && state.cipherHelper.buffer.length === state.cipherHelper.rotors.length) {
+    setCurrentAlert("Cuatro rotores de override sincronizados. Pulsa Enviar contención para forzar evacuación.", "warning");
   } else if (state.cipherHelper.buffer.length === 3) {
     setCurrentAlert("Rotores alineados. Pulsa Enviar contención para ejecutar el protocolo.", "warning");
   }
@@ -4436,8 +4956,9 @@ function appendCipherResult() {
 
 async function sendRotorContainment() {
   syncCipherBufferFromRotors();
-  if (state.cipherHelper.buffer.length < 3) {
-    setCurrentAlert("Contención incompleta. Alinea cada rotor y pulsa Guardar digito en orden.", "warning");
+  const requiredLength = state.cipherHelper.rotors.length || 3;
+  if (state.cipherHelper.buffer.length < requiredLength) {
+    setCurrentAlert(`Contención incompleta. Alinea ${requiredLength} rotor(es) y pulsa Guardar digito en orden.`, "warning");
     return false;
   }
   return executeRotorContainment(state.cipherHelper.target);
@@ -4446,6 +4967,7 @@ async function sendRotorContainment() {
 function isRotorThreatActive(target) {
   if (target === "raptor") return state.timelineFlags.raptor && !state.raptorContained;
   if (target === "trex") return state.timelineFlags.trex && !state.trexContained;
+  if (target === "grypho") return state.gryphoActive && !state.gryphoContained;
   if (target === "dilo") return state.timelineFlags.dilo && !state.diloNeutralized;
   if (target === "chimera") return state.chimeraActive && state.omegaActive;
   return false;
@@ -4469,6 +4991,7 @@ function getPriorityZone() {
   if (state.generatorDamaged || !state.powerOnline) return "power";
   if (state.timelineFlags.raptor && !state.raptorContained) return "raptor";
   if (state.timelineFlags.trex && !state.trexContained) return "trex";
+  if (state.gryphoActive && !state.gryphoContained) return "grypho";
   if (state.timelineFlags.dilo && !state.diloNeutralized) return "dilo";
   if (state.timelineFlags.barrier && !state.barriersRestored) return "power";
   if (state.timelineFlags.herd && !state.herdCalmed) return "herb";
@@ -4490,6 +5013,7 @@ async function scanSector() {
       : "Escaneo de infraestructura: generador y red eléctrica muestran pérdida de estabilidad.",
     raptor: "Movimiento detectado en Sector B. Patrón de caza rápida asociado a Velociraptor.",
     trex: "Lectura sísmica elevada. Masa biológica extrema acercándose al corredor C-07.",
+    grypho: "ALFA no aparece donde los sensores dicen. Cámaras apagadas, lecturas falsas y corredores manipulados.",
     dilo: "Dilophosaurus detectado cerca del acceso principal. Riesgo de intrusión rápida.",
     herb: "Pelea de Triceratops en curso. Sector C está bajo presión.",
     anky: "Ankylosaurus detectado en perímetro logístico. La ruta de evacuación secundaria está bloqueada.",
@@ -4500,6 +5024,7 @@ async function scanSector() {
     chimera: "chimera",
     raptor: "raptor",
     trex: "trex",
+    grypho: "raptor",
     herb: "herb",
     anky: "anky",
     stego: "stego",
@@ -4517,9 +5042,10 @@ async function identifySpecies() {
   setActiveSpecies(zoneKey);
   const zone = speciesZones[zoneKey];
   if (!zone) return;
-  if (["raptor", "trex", "herb", "anky", "brachio", "dilo", "stego"].includes(zoneKey)) {
-    playDinoSound(zoneKey === "trex" ? "trex" : zoneKey === "herb" ? "herb" : zoneKey, 0.5);
+  if (["raptor", "trex", "grypho", "herb", "anky", "brachio", "dilo", "stego"].includes(zoneKey)) {
+    playDinoSound(zoneKey === "trex" ? "trex" : zoneKey === "herb" ? "herb" : zoneKey === "grypho" ? "raptor" : zoneKey, 0.5);
   }
+  if (zoneKey === "grypho") clonePlay(dinoSounds.garras, 0.36);
   if (zoneKey === "chimera") {
     playDinoSound("chimera", 0.5);
     reproducirGarrasAleatorio(true);
@@ -4536,6 +5062,7 @@ async function confirmContainmentFromActiveZone() {
   const zoneKey = state.activeZone || getPriorityZone();
   const commandByZone = {
     power: state.generatorDamaged ? "repair generator GEN-RESTART-84" : (!state.barriersRestored && state.diloNeutralized ? "restore barrier BARRIER-RESTORE-31" : "restore power RST-POWER-73"),
+    grypho: "cat ALPHA-CONTAINMENT.LOG",
     dilo: "cat TOXIN.KEY",
     herb: "stabilize triceratops TRI-STABLE-41",
     anky: "redirect anky ANKY-PORT-55",
@@ -4560,6 +5087,13 @@ async function confirmContainmentFromActiveZone() {
     updateCipherHelper();
     setPuzzleVisibility("dilo");
     setCurrentAlert("Dilophosaurus requiere protocolo TOXIN. Abre TOXIN.KEY, sincroniza y pulsa Enviar contención.", "warning");
+    return;
+  }
+  if (zoneKey === "grypho" && !state.gryphoContained) {
+    setCipherTarget("grypho");
+    updateCipherHelper();
+    setPuzzleVisibility("grypho");
+    setCurrentAlert("PROTOCOLO ALFA requiere rotores. Abre ALPHA-CONTAINMENT.LOG, sincroniza y pulsa Enviar contención.", "warning");
     return;
   }
   if (zoneKey === "chimera" && !state.chimeraContained) {
@@ -4695,15 +5229,16 @@ async function handleCommand(rawCommand) {
         "- missions: lista progreso de misiones.",
         "- hint: da una pista progresiva del objetivo activo.",
         "- evacuate now: ejecuta escape cuando una ruta este disponible.",
-        "PROTOCOLOS:",
+      "PROTOCOLOS:",
         "- restore power RST-POWER-73",
         "- repair generator GEN-RESTART-84",
+        "- Gryphovenator ALFA: cat ALPHA-CONTAINMENT.LOG y Enviar contención desde rotores",
         "- restore barrier BARRIER-RESTORE-31",
         "- stabilize triceratops TRI-STABLE-41",
         "- redirect anky ANKY-PORT-55",
         "- analyze stego STEGO-BIO-28",
-        "- unlock door DOOR-LOCK-42 / activate helipad / open tunnel / start cargo",
-        "ROTORES: consulta .KEY, gira hasta alinear, pulsa Guardar digito en orden y luego Enviar contención.",
+        "- overrides evacuacion: unlock door / activate helipad / open tunnel / start cargo cargan 4 rotores",
+        "ROTORES: consulta .KEY/.SYS, gira hasta alinear, pulsa Guardar digito en orden y luego Enviar contención.",
       ], "success");
       return;
 
@@ -4722,10 +5257,12 @@ async function handleCommand(rawCommand) {
       startDirectorEventForFile(fileName);
       if (fileName === "RAPTOR.KEY") setCipherTarget("raptor");
       if (fileName === "TREX.KEY") setCipherTarget("trex");
+      if (fileName === "ALPHA-CONTAINMENT.LOG") setCipherTarget("grypho");
       if (fileName === "TOXIN.KEY") setCipherTarget("dilo");
       if (state.omegaReleased && fileName === "CHIMERA.KEY") setCipherTarget("chimera");
       if (fileName === "RAPTOR.KEY") setPuzzleVisibility("raptor");
       if (fileName === "TREX.KEY") setPuzzleVisibility("trex");
+      if (fileName === "ALPHA-CONTAINMENT.LOG") setPuzzleVisibility("grypho");
       if (fileName === "TOXIN.KEY") setPuzzleVisibility("dilo");
       if (state.omegaReleased && fileName === "CHIMERA.KEY") setPuzzleVisibility("chimera");
       if (state.omegaReleased && fileName === "OMEGA.LOG") state.chimeraFragmentsKnown.omega = true;
@@ -4739,15 +5276,20 @@ async function handleCommand(rawCommand) {
         "GENERATOR.LOG": "Siguiente paso: repair generator GEN-RESTART-84",
         "DILO.LOG": "Siguiente paso: cat TOXIN.KEY",
         "TOXIN.KEY": "Siguiente paso: alinea rotores, guarda cada rotor y pulsa Enviar contención.",
+        "GRYPHO.LOG": "Siguiente paso: cat ALPHA-HYBRID.LOG, cat PREDATOR.TEST y cat ALPHA-CONTAINMENT.LOG.",
+        "ALPHA-HYBRID.LOG": "Siguiente paso: cat PREDATOR.TEST y cat ALPHA-CONTAINMENT.LOG.",
+        "PREDATOR.TEST": "Siguiente paso: cat ALPHA-CONTAINMENT.LOG.",
+        "ALPHA-CONTAINMENT.LOG": "Siguiente paso: alinea rotores ALFA, guarda cada rotor y pulsa Enviar contención.",
+        "OMEGA-PROTOTYPE.LOG": "Nota: este archivo explica que ALFA no activa OMEGA.",
         "BARRIER.SYS": "Siguiente paso: restore barrier BARRIER-RESTORE-31",
         "TRICERATOPS.LOG": "Siguiente paso: stabilize triceratops TRI-STABLE-41",
         "ANKY.LOG": "Siguiente paso: redirect anky ANKY-PORT-55",
         "ANKY.KEY": "Siguiente paso: redirect anky ANKY-PORT-55",
         "STEGO.LOG": "Siguiente paso: analyze stego STEGO-BIO-28",
-        "DOOR.SYS": "Siguiente paso: unlock door DOOR-LOCK-42",
-        "HELIPAD.SYS": "Siguiente paso: activate helipad",
-        "TUNNEL.SYS": "Siguiente paso: open tunnel",
-        "CARGO.SYS": "Siguiente paso: start cargo",
+        "DOOR.SYS": "Siguiente paso: unlock door DOOR-LOCK-42 para cargar override de 4 rotores.",
+        "HELIPAD.SYS": "Siguiente paso: activate helipad para cargar override de 4 rotores.",
+        "TUNNEL.SYS": "Siguiente paso: open tunnel para cargar override de 4 rotores.",
+        "CARGO.SYS": "Siguiente paso: start cargo para cargar override de 4 rotores.",
       };
       if (fileFollowups[fileName]) {
         await typeLine(fileFollowups[fileName], "success");
@@ -4791,14 +5333,15 @@ async function handleCommand(rawCommand) {
         `2. Generador: ${state.generatorRepaired ? "COMPLETA" : state.generatorDamaged ? "ACTIVA" : "EN ESPERA"}`,
         `3. Velociraptor: ${state.raptorContained ? "COMPLETA" : state.timelineFlags.raptor ? "ACTIVA" : "LATENTE"}`,
         `4. T-Rex: ${state.trexContained ? "COMPLETA" : state.timelineFlags.trex ? "ACTIVA" : "LATENTE"}`,
-        `5. Dilophosaurus: ${!isEventPlanned("dilo") ? "NO PROGRAMADA" : state.diloNeutralized ? "COMPLETA" : state.timelineFlags.dilo ? "ACTIVA" : "LATENTE"}`,
-        `6. Barreras: ${!isEventPlanned("barrier") ? "NO PROGRAMADA" : state.barriersRestored ? "COMPLETA" : state.timelineFlags.barrier ? "ACTIVA" : "LATENTE"}`,
-        `7. Triceratops: ${!isEventPlanned("herd") ? "NO PROGRAMADA" : state.herdCalmed ? "COMPLETA" : state.timelineFlags.herd ? "ACTIVA" : "LATENTE"}`,
-        `8. Ankylosaurus: ${!isEventPlanned("anky") ? "NO PROGRAMADA" : state.ankyRedirected ? "COMPLETA" : state.timelineFlags.anky ? "ACTIVA" : "LATENTE"}`,
-        `9. Estegosaurus: ${!isEventPlanned("stego") ? "NO PROGRAMADA" : state.timelineFlags.stego ? state.stegoAnalyzed ? "COMPLETA" : "ACTIVA" : "LATENTE"}`,
-        `10. Chimerasaurus: ${state.omegaReleased ? state.chimeraContained ? "COMPLETA" : "ACTIVA" : "LATENTE"}`,
-        `11. Puerta: ${state.doorUnlocked ? "COMPLETA" : "BLOQUEADA"}`,
-        `12. Evacuacion: ${state.escaped ? "COMPLETA" : "PENDIENTE"}`,
+        `5. Gryphovenator ALFA: ${state.gryphoContained ? "COMPLETA" : state.gryphoActive ? "ACTIVA" : "LATENTE"}`,
+        `6. Dilophosaurus: ${!isEventPlanned("dilo") ? "NO PROGRAMADA" : state.diloNeutralized ? "COMPLETA" : state.timelineFlags.dilo ? "ACTIVA" : "LATENTE"}`,
+        `7. Barreras: ${!isEventPlanned("barrier") ? "NO PROGRAMADA" : state.barriersRestored ? "COMPLETA" : state.timelineFlags.barrier ? "ACTIVA" : "LATENTE"}`,
+        `8. Triceratops: ${!isEventPlanned("herd") ? "NO PROGRAMADA" : state.herdCalmed ? "COMPLETA" : state.timelineFlags.herd ? "ACTIVA" : "LATENTE"}`,
+        `9. Ankylosaurus: ${!isEventPlanned("anky") ? "NO PROGRAMADA" : state.ankyRedirected ? "COMPLETA" : state.timelineFlags.anky ? "ACTIVA" : "LATENTE"}`,
+        `10. Estegosaurus: ${!isEventPlanned("stego") ? "NO PROGRAMADA" : state.timelineFlags.stego ? state.stegoAnalyzed ? "COMPLETA" : "ACTIVA" : "LATENTE"}`,
+        `11. Chimerasaurus: ${state.omegaReleased ? state.chimeraContained ? "COMPLETA" : "ACTIVA" : "LATENTE"}`,
+        `12. Puerta: ${state.doorUnlocked ? "COMPLETA" : "BLOQUEADA"}`,
+        `13. Evacuacion: ${state.escaped ? "COMPLETA" : "PENDIENTE"}`,
       ], "success");
       return;
 
@@ -4901,8 +5444,20 @@ async function handleCommand(rawCommand) {
         await executeRotorContainment("trex");
         return;
       }
+      if (argsLower[0] === "grypho") {
+        await executeRotorContainment("grypho");
+        return;
+      }
       if (argsLower[0] === "chimerasaurus") {
         await executeRotorContainment("chimera");
+        return;
+      }
+      break;
+
+    case "neutralize":
+      if (argsLower[0] === "grypho" && argsUpper.slice(1).join("-") === "ALPHA-SEAL-19") {
+        requireRotorProtocol("grypho", "PROTOCOLO ALFA requiere rotores. No se acepta neutralizacion por clave manual.");
+        await typeLine("ALFA-SEAL-19 solo autoriza el módulo; la contención real se ejecuta con rotores y Enviar contención.", "warning");
         return;
       }
       break;
@@ -4961,86 +5516,28 @@ async function handleCommand(rawCommand) {
 
     case "unlock":
       if (argsLower[0] === "door" && argsUpper.slice(1).join("-") === "DOOR-LOCK-42") {
-        if (state.escapeRoutes.main.lost) {
-          applyCommandPenalty("standard", getRouteBlockedMessage("main"));
-          return;
-        }
-        if (!state.omegaReleased || !state.chimeraContained || state.chimeraActive || state.omegaActive || !hasMetAttackRequirements()) {
-          applyCommandPenalty("standard", getRouteBlockedMessage("main"));
-          return;
-        }
-        state.doorUnlocked = true;
-        state.escapeRoutes.main.available = true;
-        state.evacuationRoute = "main";
-        markProgress("escape");
-        rewardRecovery("small", "ruta de evacuacion abierta");
-        detenerAlerta("SITUACION CONTROLADA // Ruta de evacuacion liberada");
-        updateHud();
-        speak(narrationLines.door, null, { priority: "medium", channel: "narrative", retryOnInterrupt: true });
-        await printLines(["Validando acceso de emergencia...", "Sellos magneticos liberados.", "Puerta de evacuacion ABIERTA."], "success");
+        loadEvacuationOverride("main");
         return;
       }
       break;
 
     case "activate":
       if (argsLower[0] === "helipad") {
-        if (!state.escapeRoutes.helipad.planned || state.escapeRoutes.helipad.lost) {
-          applyCommandPenalty("standard", getRouteBlockedMessage("helipad"));
-          return;
-        }
-        if (!state.powerOnline || !state.omegaReleased || !state.chimeraContained || !hasMetAttackRequirements()) {
-          applyCommandPenalty("standard", getRouteBlockedMessage("helipad"));
-          return;
-        }
-        state.escapeRoutes.helipad.available = true;
-        state.doorUnlocked = true;
-        state.evacuationRoute = "helipad";
-        markProgress("escape");
-        rewardRecovery("small", "helipuerto activado");
-        updateHud();
-        await printLines(["Energía auxiliar derivada a azotea.", "Comunicación externa enlazada.", "HELIPUERTO DISPONIBLE."], "success");
+        loadEvacuationOverride("helipad");
         return;
       }
       break;
 
     case "open":
       if (argsLower[0] === "tunnel") {
-        if (!state.escapeRoutes.tunnel.planned || state.escapeRoutes.tunnel.lost) {
-          applyCommandPenalty("standard", getRouteBlockedMessage("tunnel"));
-          return;
-        }
-        if ((state.timelineFlags.dilo && !state.diloNeutralized) || !state.omegaReleased || !state.chimeraContained || !hasMetAttackRequirements()) {
-          applyCommandPenalty("standard", getRouteBlockedMessage("tunnel"));
-          return;
-        }
-        state.escapeRoutes.tunnel.available = true;
-        state.doorUnlocked = true;
-        state.evacuationRoute = "tunnel";
-        markProgress("escape");
-        rewardRecovery("small", "túnel de emergencia abierto");
-        updateHud();
-        await printLines(["Abriendo compuertas del subnivel V-02...", "Ventilación restablecida.", "TUNEL DE EMERGENCIA DISPONIBLE."], "success");
+        loadEvacuationOverride("tunnel");
         return;
       }
       break;
 
     case "start":
       if (argsLower[0] === "cargo") {
-        if (!state.escapeRoutes.cargo.planned || state.escapeRoutes.cargo.lost) {
-          applyCommandPenalty("standard", getRouteBlockedMessage("cargo"));
-          return;
-        }
-        if ((state.timelineFlags.anky && !state.ankyRedirected) || !state.omegaReleased || !state.chimeraContained || !hasMetAttackRequirements()) {
-          applyCommandPenalty("standard", getRouteBlockedMessage("cargo"));
-          return;
-        }
-        state.escapeRoutes.cargo.available = true;
-        state.doorUnlocked = true;
-        state.evacuationRoute = "cargo";
-        markProgress("escape");
-        rewardRecovery("small", "transporte de carga preparado");
-        updateHud();
-        await printLines(["Combustible interno validado.", "Hangar L-05 desbloqueado.", "TRANSPORTE DE CARGA LISTO PARA EVACUAR."], "success");
+        loadEvacuationOverride("cargo");
         return;
       }
       break;
@@ -5200,8 +5697,11 @@ mapBackdrop.addEventListener("click", () => mapModal.classList.add("hidden"));
 speciesMarkers.forEach((marker) => {
   marker.addEventListener("click", () => {
     setActiveSpecies(marker.dataset.zone);
-    if (["raptor", "trex", "anky", "brachio", "dilo", "stego", "chimera"].includes(marker.dataset.zone)) {
-      playDinoSound(marker.dataset.zone === "trex" ? "trex" : marker.dataset.zone, 0.3);
+    if (["raptor", "trex", "grypho", "anky", "brachio", "dilo", "stego", "chimera"].includes(marker.dataset.zone)) {
+      playDinoSound(marker.dataset.zone === "trex" ? "trex" : marker.dataset.zone === "grypho" ? "raptor" : marker.dataset.zone, 0.3);
+      if (marker.dataset.zone === "grypho") {
+        clonePlay(dinoSounds.garras, 0.28);
+      }
       if (marker.dataset.zone === "chimera") {
         reproducirGarrasAleatorio(true);
       }
@@ -5240,6 +5740,15 @@ focusCipherRaptorButton.addEventListener("click", () => {
 });
 focusCipherTrexButton.addEventListener("click", () => {
   setCipherTarget("trex");
+  updateCipherHelper();
+});
+focusCipherGryphoButton?.addEventListener("click", () => {
+  if (!state.gryphoActive || state.gryphoContained) {
+    setCurrentAlert("PROTOCOLO ALFA todavía no está activo. Investiga GRYPHO.LOG cuando aparezca la amenaza.", "warning");
+    return;
+  }
+  setCipherTarget("grypho");
+  setPuzzleVisibility("grypho");
   updateCipherHelper();
 });
 focusCipherDiloButton.addEventListener("click", () => {
