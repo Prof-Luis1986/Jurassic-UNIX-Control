@@ -402,6 +402,7 @@ const ambientNarrativeBank = [
 ];
 
 const state = {
+  gameState: "intro",
   protocolStarted: false,
   introStarted: false,
   introFinished: false,
@@ -593,6 +594,25 @@ const state = {
   trexRotors: [],
   diloRotors: [],
   chimeraRotors: [],
+  rotorSystem: {
+    protocoloActivo: null,
+    rotores: [],
+    savedDigits: "",
+    expectedCode: "",
+    generatedCode: "",
+    alignedRotors: [],
+    listeners: {
+      send: 0,
+      cards: 0,
+    },
+    estadoActual: "idle",
+    sessionId: 0,
+  },
+  protocoloActivo: null,
+  savedDigits: "",
+  rotorValues: [],
+  expectedCode: "",
+  generatedCode: "",
   cipherHelper: {
     target: "raptor",
     letter: "A",
@@ -602,6 +622,90 @@ const state = {
     buffer: "",
   },
 };
+
+function setGameState(nextState, reason = "sin motivo") {
+  if (state.gameState === nextState) return false;
+  const oldState = state.gameState;
+  state.gameState = nextState;
+  console.log("STATE CHANGE", oldState, "→", nextState, reason);
+  return true;
+}
+
+function isGameplayActive() {
+  return state.gameState === "playing";
+}
+
+function blockIntroDuringGameplay(reason) {
+  if (!isGameplayActive()) return false;
+  console.warn(`Bloqueado regreso a intro durante gameplay: ${reason}`);
+  return true;
+}
+
+function getSafeGameplayFocusTarget() {
+  if (isPuzzleActive()) {
+    const activeRotorDial = cipherConsole?.querySelector(".cipher-rotor.is-active .cipher-rotor__dial");
+    if (activeRotorDial instanceof HTMLElement) return activeRotorDial;
+    if (focusCipherAppendButton instanceof HTMLElement) return focusCipherAppendButton;
+  }
+  if (input instanceof HTMLElement) return input;
+  return document.body;
+}
+
+function focusSafeGameplayElement() {
+  if (!isGameplayActive()) return;
+  window.requestAnimationFrame(() => {
+    const target = getSafeGameplayFocusTarget();
+    target?.focus?.({ preventScroll: true });
+  });
+}
+
+function logOverlayAction(action, overlay) {
+  console.log("OVERLAY", {
+    action,
+    overlayId: overlay?.id || null,
+    gameState: state.gameState,
+    activeElement: document.activeElement?.id || document.activeElement?.tagName,
+  });
+}
+
+function isStartupOverlay(overlay) {
+  return overlay === introOverlay || overlay === bootOverlay || overlay === trainingOverlay;
+}
+
+function hideOverlaySafely(overlay) {
+  if (!overlay) return false;
+  logOverlayAction("hide", overlay);
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement && overlay.contains(activeElement)) {
+    activeElement.blur();
+  }
+  overlay.inert = true;
+  overlay.classList.add("hidden");
+  overlay.setAttribute("aria-hidden", "true");
+  if (isGameplayActive()) focusSafeGameplayElement();
+  return true;
+}
+
+function showOverlaySafely(overlay, { requiresInteraction = false, focusElement = null } = {}) {
+  if (!overlay) return false;
+  if (isGameplayActive() && isStartupOverlay(overlay)) {
+    logOverlayAction("blocked-show", overlay);
+    console.warn(`Bloqueado overlay inicial durante gameplay: ${overlay.id}`);
+    focusSafeGameplayElement();
+    return false;
+  }
+  logOverlayAction("show", overlay);
+  overlay.classList.remove("hidden");
+  overlay.inert = false;
+  overlay.setAttribute("aria-hidden", "false");
+  if (!isGameplayActive() || requiresInteraction) {
+    const target = focusElement || overlay.querySelector("button, input, [tabindex]:not([tabindex='-1'])");
+    if (target instanceof HTMLElement) {
+      window.requestAnimationFrame(() => target.focus({ preventScroll: true }));
+    }
+  }
+  return true;
+}
 
 function randomDigit(min = 1, max = 9) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -773,7 +877,8 @@ function prepareNextChimeraCycle() {
 }
 
 function getRotorCurrentValues() {
-  return state.cipherHelper.rotors.map((rotor) => rotor.currentValue);
+  const rotors = state.rotorSystem?.rotores?.length ? state.rotorSystem.rotores : state.cipherHelper.rotors;
+  return rotors.map((rotor) => rotor.currentValue);
 }
 
 function logChimeraSession(stage = "state") {
@@ -783,6 +888,7 @@ function logChimeraSession(stage = "state") {
     aparicionNumero: state.chimeraBreakoutCount,
     sessionId: state.chimeraSessionId,
     protocoloActivo: state.currentProtocol,
+    rotorSystemActivo: state.rotorSystem.protocoloActivo,
     activeThreat: state.activeThreat,
     omegaActive: state.omegaActive,
     chimeraActive: state.chimeraActive,
@@ -1604,6 +1710,7 @@ function speak(text, onend, options = {}) {
 }
 
 function initializeScenario() {
+  setGameState("intro", "initializeScenario");
   state.protocolStarted = false;
   state.trainingActive = false;
   state.trainingCompleted = false;
@@ -1820,12 +1927,30 @@ function initializeScenario() {
     tunnel: false,
     cargo: false,
   };
+  state.rotorSystem = {
+    protocoloActivo: null,
+    rotores: [],
+    savedDigits: "",
+    expectedCode: "",
+    generatedCode: "",
+    alignedRotors: [],
+    listeners: {
+      send: rotorContainmentListenerAttached ? 1 : 0,
+      cards: 6,
+    },
+    estadoActual: "idle",
+    sessionId: 0,
+  };
+  syncLegacyRotorState();
   setCipherTarget("raptor");
   stopAmbient();
   hideAlertPanel();
+  if (introOverlay) introOverlay.inert = false;
+  if (bootOverlay) bootOverlay.inert = true;
+  if (trainingOverlay) trainingOverlay.inert = true;
   if (escapeOverlay) {
-    escapeOverlay.className = "escape-overlay hidden";
-    escapeOverlay.setAttribute("aria-hidden", "true");
+    escapeOverlay.className = "escape-overlay";
+    hideOverlaySafely(escapeOverlay);
   }
   if (escapeVideo) {
     const source = escapeVideo.querySelector("source");
@@ -1838,8 +1963,8 @@ function initializeScenario() {
     restartScenarioButton.classList.add("hidden");
   }
   if (omegaOverlay) {
-    omegaOverlay.className = "omega-overlay hidden";
-    omegaOverlay.setAttribute("aria-hidden", "true");
+    omegaOverlay.className = "omega-overlay";
+    hideOverlaySafely(omegaOverlay);
   }
   if (omegaVideo) {
     if (omegaVideoSource) omegaVideoSource.src = "assets/video/Chimerasaurus Escape.MP4";
@@ -2726,8 +2851,8 @@ function updateObjective() {
   }
   if (state.omegaReleased && !state.escaped) {
     objectiveText.textContent = state.chimeraContained
-      ? !hasMetAttackRequirements()
-        ? "Actividad depredadora inestable. Mantente operativo antes de forzar la salida."
+      ? !canAttemptEvacuationOverride()
+        ? "Amenaza principal activa. Contén el peligro actual antes de forzar la salida."
         : !hasAnyEscapeRouteAvailable()
         ? "Fuerza una ruta con override manual de cuatro rotores: DOOR.SYS, HELIPAD.SYS, TUNNEL.SYS o CARGO.SYS."
         : state.doorUnlocked
@@ -2787,6 +2912,14 @@ function getAttackRequirementBlockers() {
 
 function hasMetAttackRequirements() {
   return getAttackRequirementBlockers().length === 0;
+}
+
+function canAttemptEvacuationOverride() {
+  return state.omegaReleased &&
+    state.chimeraContained &&
+    !state.chimeraActive &&
+    !state.omegaActive &&
+    !hasActivePrimaryThreats();
 }
 
 function hasAnyEscapeRouteAvailable() {
@@ -2889,6 +3022,7 @@ async function completeEvacuationOverride(routeKey) {
   rewardRecovery(getDominantOverrideThreat() === "omega" ? "major" : "small", `${getRouteDefinitions()[routeKey].name} forzada por override`);
   detenerAlerta("SITUACION CONTROLADA // Override de evacuacion sincronizado");
   resetAllRotors();
+  clearRotorProtocolSnapshot();
   setPuzzleVisibility("none");
   updateHud();
   const labels = {
@@ -3128,7 +3262,6 @@ function getRouteDefinitions() {
         ["energia", state.powerOnline || state.generatorRepaired],
         ["puerta principal intacta", !state.escapeRoutes.main.lost],
         ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
-        ["actividad depredadora completada", hasMetAttackRequirements()],
         ["sin amenazas principales activas", !hasActivePrimaryThreats()],
       ],
     },
@@ -3142,7 +3275,7 @@ function getRouteDefinitions() {
         ["plataforma no destruida", !state.escapeRoutes.helipad.lost],
         ["energia activa", state.powerOnline],
         ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
-        ["actividad depredadora completada", hasMetAttackRequirements()],
+        ["sin amenazas principales activas", !hasActivePrimaryThreats()],
       ],
     },
     tunnel: {
@@ -3155,7 +3288,7 @@ function getRouteDefinitions() {
         ["ventilacion utilizable", !state.escapeRoutes.tunnel.lost],
         ["Dilophosaurus neutralizado o sin incidente", !state.timelineFlags.dilo || state.diloNeutralized],
         ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
-        ["actividad depredadora completada", hasMetAttackRequirements()],
+        ["sin amenazas principales activas", !hasActivePrimaryThreats()],
       ],
     },
     cargo: {
@@ -3168,7 +3301,7 @@ function getRouteDefinitions() {
         ["hangar no bloqueado", !state.escapeRoutes.cargo.lost],
         ["Ankylosaurus redirigido o sin incidente", !state.timelineFlags.anky || state.ankyRedirected],
         ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
-        ["actividad depredadora completada", hasMetAttackRequirements()],
+        ["sin amenazas principales activas", !hasActivePrimaryThreats()],
       ],
     },
   };
@@ -3243,7 +3376,6 @@ function getEvacuationBlockers() {
   if ((isEventPlanned("raptor") && !state.raptorContained) || (isEventPlanned("trex") && !state.trexContained) || (state.gryphoActive && !state.gryphoContained) || state.chimeraActive || state.activeThreat === "chimerasaurus") blockers.push("Amenaza principal activa");
   if (isEventPlanned("barrier") && !state.barriersRestored) blockers.push("Barreras");
   if (!state.omegaReleased || !state.chimeraContained || state.chimeraActive || state.omegaActive) blockers.push("Chimerasaurus");
-  if (!hasMetAttackRequirements()) blockers.push("Actividad depredadora pendiente");
   if (!hasAnyEscapeRouteAvailable()) blockers.push("Ruta de escape");
   if (state.gameOver || state.countdownSeconds <= 0 || state.damageInstalacion >= 100 || state.riesgoBiologico >= 100) blockers.push("Colapso");
   return Array.from(new Set(blockers));
@@ -3777,16 +3909,17 @@ function listFilesInTerminal() {
 }
 
 async function runBootSequence() {
+  if (blockIntroDuringGameplay("runBootSequence")) return;
   if (state.trainingActive || state.bootStarted) return;
+  setGameState("tutorial", "runBootSequence");
   state.trainingActive = true;
   state.trainingStep = 0;
   state.trainingRotorActive = false;
   state.trainingRotorCurrent = 3;
   state.trainingRotorSaved = false;
   state.trainingPowerRestored = false;
-  bootOverlay.classList.add("hidden");
-  trainingOverlay?.classList.remove("hidden");
-  trainingOverlay?.setAttribute("aria-hidden", "false");
+  hideOverlaySafely(bootOverlay);
+  showOverlaySafely(trainingOverlay, { requiresInteraction: true, focusElement: trainingInput });
   appShell?.classList.add("hidden");
   if (trainingOutput) trainingOutput.innerHTML = "";
   updateTrainingUi();
@@ -3799,14 +3932,22 @@ async function runBootSequence() {
 }
 
 async function startRealScenario() {
+  if (isGameplayActive()) {
+    console.warn("Bloqueado startRealScenario duplicado durante gameplay.");
+    focusSafeGameplayElement();
+    return;
+  }
   if (state.bootStarted) return;
+  setGameState("playing", "startRealScenario");
   state.trainingActive = false;
   state.trainingCompleted = true;
   state.bootStarted = true;
-  bootOverlay?.classList.add("hidden");
-  bootOverlay?.setAttribute("aria-hidden", "true");
-  trainingOverlay?.classList.add("hidden");
-  trainingOverlay?.setAttribute("aria-hidden", "true");
+  introVideo?.pause();
+  audioIntro?.pause();
+  if (audioIntro) audioIntro.currentTime = 0;
+  hideOverlaySafely(introOverlay);
+  hideOverlaySafely(bootOverlay);
+  hideOverlaySafely(trainingOverlay);
   appShell?.classList.remove("hidden");
   setPuzzleVisibility("none");
   startThreatTimer();
@@ -4005,8 +4146,7 @@ function startEscapeCinematic() {
     state.currentDinoSound = null;
   }
   escapeOverlay.className = "escape-overlay";
-  escapeOverlay.classList.remove("hidden");
-  escapeOverlay.setAttribute("aria-hidden", "false");
+  showOverlaySafely(escapeOverlay);
   escapeOverlayTitle.textContent = "ES MOMENTO DE SALIR";
   escapeOverlayText.textContent = "La ruta exterior está abierta. Corre hacia la salida antes del cierre total.";
   restartScenarioButton?.classList.add("hidden");
@@ -4024,9 +4164,11 @@ function startEscapeCinematic() {
 
 function finishEscapeCinematic() {
   if (!escapeOverlayTitle || !escapeOverlayText) return;
+  setGameState("victory", "ESCAPE.MP4 ended");
   escapeOverlayTitle.textContent = "LOGRASTE ESCAPAR";
   escapeOverlayText.textContent = `Misión completada. Tiempo total: ${getElapsedTimeText()}. Jurassic UNIX Control registra evacuación exitosa.`;
   restartScenarioButton?.classList.remove("hidden");
+  restartScenarioButton?.focus({ preventScroll: true });
 }
 
 function startFailureCinematic() {
@@ -4042,8 +4184,7 @@ function startFailureCinematic() {
     state.currentDinoSound = null;
   }
   escapeOverlay.className = "escape-overlay escape-overlay--failure";
-  escapeOverlay.classList.remove("hidden");
-  escapeOverlay.setAttribute("aria-hidden", "false");
+  showOverlaySafely(escapeOverlay);
   escapeOverlayTitle.textContent = "NO LOGRASTE ESCAPAR";
   escapeOverlayText.textContent = "El laboratorio ha sido comprometido. La evacuación falló y la instalación quedó perdida.";
   restartScenarioButton?.classList.add("hidden");
@@ -4061,9 +4202,11 @@ function startFailureCinematic() {
 
 function finishFailureCinematic() {
   if (!escapeOverlayTitle || !escapeOverlayText) return;
+  setGameState("defeat", "Falla.mp4 ended");
   escapeOverlayTitle.textContent = "MISION FALLIDA";
   escapeOverlayText.textContent = `El laboratorio quedó perdido. Tiempo resistido: ${getElapsedTimeText()}. Reinicia el escenario para intentarlo de nuevo.`;
   restartScenarioButton?.classList.remove("hidden");
+  restartScenarioButton?.focus({ preventScroll: true });
 }
 
 const threatCinematicConfig = {
@@ -4231,8 +4374,7 @@ function triggerThreatEscapeCinematic(threatKey) {
     });
   }
   omegaOverlay.className = `omega-overlay omega-overlay--${config.severity} omega-overlay--tier-${tier}`;
-  omegaOverlay.classList.remove("hidden");
-  omegaOverlay.setAttribute("aria-hidden", "false");
+  showOverlaySafely(omegaOverlay);
   omegaOverlayLabel.textContent = `${getThreatTierLabel(threatKey)} // ${config.label}`;
   omegaOverlayTitle.textContent = config.title;
   omegaOverlayText.textContent = config.text;
@@ -4258,7 +4400,7 @@ function cerrarEventoAmenaza() {
   state.omegaCinematicPlaying = false;
   if (threatKey === "chimera") state.omegaVideoSeen = true;
   state.activeThreatCinematic = null;
-  omegaOverlay?.classList.add("hidden");
+  hideOverlaySafely(omegaOverlay);
   omegaOverlay?.classList.remove(
     "omega-overlay--raptor",
     "omega-overlay--trex",
@@ -4270,7 +4412,6 @@ function cerrarEventoAmenaza() {
     "omega-overlay--tier-climax",
     "omega-overlay--tier-secundaria-cinematica"
   );
-  omegaOverlay?.setAttribute("aria-hidden", "true");
   if (omegaVideo) {
     omegaVideo.pause();
     omegaVideo.currentTime = 0;
@@ -4294,6 +4435,9 @@ function cerrarEventoAmenaza() {
   if (threatKey === "herd") setCurrentAlert("EVENTO SECUNDARIO: PELEA DE TRICERATOPS DETECTADA. Estabiliza el Sector C.", "warning");
   if (threatKey === "anky") setCurrentAlert("EVENTO SECUNDARIO: ANKYLOSAURUS EN RUTA LOGISTICA. Transporte de carga retrasado hasta redireccion.", "warning");
   if (threatKey === "stego") setCurrentAlert("EVENTO SECUNDARIO: ESTEGOSAURUS ENFERMO DETECTADO. Riesgo biologico progresivo.", "warning");
+  if (state.gameState !== "playing" && !state.escaped && !state.gameOver) {
+    setGameState("playing", `video de amenaza finalizado: ${threatKey || "desconocido"}`);
+  }
   focusTerminalIfAllowed();
 }
 
@@ -4532,6 +4676,7 @@ function startThreatTimer() {
 
 function restartScenario() {
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  setGameState("intro", "restartScenario manual");
   window.location.reload();
 }
 
@@ -4589,13 +4734,87 @@ function isRotorAligned(rotor) {
 }
 
 function syncCipherBufferFromRotors() {
+  const rotors = state.rotorSystem.rotores.length ? state.rotorSystem.rotores : state.cipherHelper.rotors;
   const savedValues = [];
-  for (const rotor of state.cipherHelper.rotors) {
+  for (const rotor of rotors) {
     if (rotor.savedValue === null || rotor.savedValue === undefined) break;
     savedValues.push(String(rotor.savedValue));
   }
-  state.cipherHelper.buffer = savedValues.join("");
+  state.rotorSystem.savedDigits = savedValues.join("");
+  state.rotorSystem.generatedCode = state.rotorSystem.savedDigits;
+  state.rotorSystem.alignedRotors = rotors.map(isRotorAligned);
+  state.rotorSystem.estadoActual = state.rotorSystem.savedDigits.length
+    ? state.rotorSystem.savedDigits.length === rotors.length && state.rotorSystem.alignedRotors.every(Boolean)
+      ? "ready"
+      : "saving"
+    : "loaded";
+  state.cipherHelper.rotors = rotors;
+  state.cipherHelper.buffer = state.rotorSystem.generatedCode;
   state.omegaRotorsSolved = state.cipherHelper.target === "chimera" && state.cipherHelper.buffer.length === 3;
+  syncRotorProtocolSnapshot();
+}
+
+function getExpectedDigitsForTarget(target = state.cipherHelper.target) {
+  return target === "chimera" ? getChimeraCodeParts().digits : getExpectedCodeForTarget(target);
+}
+
+function syncRotorProtocolSnapshot() {
+  const rotors = state.rotorSystem.rotores.length ? state.rotorSystem.rotores : state.cipherHelper.rotors;
+  state.rotorSystem.protocoloActivo = state.rotorSystem.protocoloActivo ?? state.cipherHelper.target;
+  state.rotorSystem.expectedCode = getExpectedDigitsForTarget(state.rotorSystem.protocoloActivo || state.cipherHelper.target);
+  state.rotorSystem.rotores = rotors;
+  state.rotorSystem.alignedRotors = rotors.map(isRotorAligned);
+  syncLegacyRotorState();
+}
+
+function clearRotorProtocolSnapshot() {
+  state.rotorSystem.protocoloActivo = null;
+  state.rotorSystem.savedDigits = "";
+  state.rotorSystem.generatedCode = "";
+  state.rotorSystem.expectedCode = "";
+  state.rotorSystem.alignedRotors = [];
+  state.rotorSystem.estadoActual = "idle";
+  syncLegacyRotorState();
+}
+
+function syncLegacyRotorState() {
+  state.protocoloActivo = state.rotorSystem.protocoloActivo;
+  state.savedDigits = state.rotorSystem.savedDigits;
+  state.generatedCode = state.rotorSystem.generatedCode;
+  state.expectedCode = state.rotorSystem.expectedCode;
+  state.rotorValues = state.rotorSystem.rotores.map((rotor) => rotor.currentValue);
+}
+
+function logRotorSystem(context = "state") {
+  syncLegacyRotorState();
+  console.log("ROTOR SYSTEM", {
+    context,
+    protocoloActivo: state.rotorSystem.protocoloActivo,
+    rotorValues: state.rotorValues,
+    savedDigits: state.rotorSystem.savedDigits,
+    generatedCode: state.rotorSystem.generatedCode,
+    expectedCode: state.rotorSystem.expectedCode,
+    alignedRotors: state.rotorSystem.alignedRotors,
+    listeners: state.rotorSystem.listeners,
+    estadoActual: state.rotorSystem.estadoActual,
+    sessionId: state.rotorSystem.sessionId,
+  });
+}
+
+function logTrexSubmitDebug(context = "submit") {
+  if (state.cipherHelper.target !== "trex" && state.protocoloActivo !== "trex" && state.currentProtocol !== "trex") return;
+  syncCipherBufferFromRotors();
+  console.log("TREX SUBMIT DEBUG", {
+    context,
+    protocoloActivo: state.protocoloActivo,
+    currentProtocol: state.currentProtocol,
+    activeThreat: state.activeThreat,
+    rotorTarget: state.cipherHelper.target,
+    savedDigits: state.savedDigits,
+    generatedCode: state.generatedCode,
+    expectedCode: state.expectedCode,
+    rotorValues: state.rotorValues,
+  });
 }
 
 function formatCipherBuffer() {
@@ -4604,9 +4823,12 @@ function formatCipherBuffer() {
 }
 
 function clearSavedDigitsFrom(index) {
-  state.cipherHelper.rotors.forEach((rotor, rotorIndex) => {
+  const rotors = state.rotorSystem.rotores.length ? state.rotorSystem.rotores : state.cipherHelper.rotors;
+  rotors.forEach((rotor, rotorIndex) => {
     if (rotorIndex >= index) rotor.savedValue = null;
   });
+  state.rotorSystem.rotores = rotors;
+  state.cipherHelper.rotors = rotors;
   syncCipherBufferFromRotors();
 }
 
@@ -4626,16 +4848,24 @@ function resetRotorAt(index) {
 
 function resetAllRotors() {
   preservePuzzleViewport();
-  state.cipherHelper.rotors.forEach((rotor) => {
+  const rotors = state.rotorSystem.rotores.length ? state.rotorSystem.rotores : state.cipherHelper.rotors;
+  rotors.forEach((rotor) => {
     rotor.currentValue = rotor.baseValue;
     rotor.savedValue = null;
   });
+  state.rotorSystem.rotores = rotors;
   state.cipherHelper.activeRotorIndex = 0;
   state.cipherHelper.buffer = "";
+  state.rotorSystem.savedDigits = "";
+  state.rotorSystem.generatedCode = "";
+  state.rotorSystem.alignedRotors = rotors.map(isRotorAligned);
+  state.rotorSystem.estadoActual = "loaded";
   state.omegaRotorsSolved = false;
   state.rotorFeedback.rotatedIndex = -1;
   state.rotorFeedback.correctIndex = -1;
+  syncRotorProtocolSnapshot();
   stopRotorPointer();
+  logRotorSystem("resetAllRotors");
   debugRotorState("resetAllRotors");
   updateCipherHelper();
 }
@@ -4666,11 +4896,69 @@ function getExpectedCodeForTarget(target) {
 
 function isRotorProtocolReady(target = state.cipherHelper.target) {
   syncCipherBufferFromRotors();
-  const expected = target === "chimera" ? getChimeraCodeParts().digits : getExpectedCodeForTarget(target);
+  const expected = getExpectedDigitsForTarget(target);
   return state.cipherHelper.target === target &&
     state.cipherHelper.buffer === expected &&
     state.cipherHelper.rotors.length === expected.length &&
     state.cipherHelper.rotors.every((rotor) => rotor.savedValue !== null && isRotorAligned(rotor));
+}
+
+function getRotorCompletionState(target = state.cipherHelper.target) {
+  syncCipherBufferFromRotors();
+  const rotors = state.cipherHelper.rotors;
+  const expected = getExpectedDigitsForTarget(target);
+  const expectedLength = expected.length || rotors.length;
+  const savedCount = rotors.filter((rotor) => rotor.savedValue !== null && rotor.savedValue !== undefined).length;
+  const aligned = rotors.map(isRotorAligned);
+  const complete = state.cipherHelper.target === target &&
+    rotors.length > 0 &&
+    savedCount === rotors.length &&
+    state.cipherHelper.buffer.length === rotors.length &&
+    aligned.every(Boolean);
+  return {
+    target,
+    expected,
+    expectedLength,
+    savedCount,
+    rotorCount: rotors.length,
+    buffer: state.cipherHelper.buffer,
+    aligned,
+    complete,
+  };
+}
+
+function isSavedRotorSetComplete(target = state.cipherHelper.target) {
+  return getRotorCompletionState(target).complete;
+}
+
+function canAcceptAlignedRotorSet(target = state.cipherHelper.target) {
+  return (["raptor", "trex", "dilo", "grypho", "chimera"].includes(target) || Boolean(getRouteKeyFromCipherTarget(target))) &&
+    isSavedRotorSetComplete(target);
+}
+
+function showRotorIncompleteAlert(target, routeKey = null) {
+  const completion = getRotorCompletionState(target);
+  logRotorSystem(`rechazo-incompleto:${target}`);
+  console.warn("ROTOR INCOMPLETE DEBUG", completion);
+  const label = routeKey ? "Override" : target === "dilo" ? "Dilophosaurus" : target === "raptor" ? "Raptor" : target === "trex" ? "T-Rex" : target === "grypho" ? "ALFA" : target === "chimera" ? "Chimerasaurus" : "Protocolo";
+  setCurrentAlert(`${label}: rotores incompletos (${completion.savedCount}/${completion.rotorCount} guardados, alineados ${completion.aligned.filter(Boolean).length}/${completion.rotorCount}). Revisa el rotor activo y pulsa Guardar digito antes de enviar.`, "warning");
+}
+
+function logAlphaSubmitDebug(context = "submit") {
+  if (state.cipherHelper.target !== "grypho" && state.protocoloActivo !== "grypho" && state.currentProtocol !== "grypho") return;
+  syncCipherBufferFromRotors();
+  console.log("ALPHA SUBMIT DEBUG", {
+    context,
+    protocoloActivo: state.protocoloActivo,
+    currentProtocol: state.currentProtocol,
+    activeThreat: state.activeThreat,
+    rotorTarget: state.cipherHelper.target,
+    savedDigits: state.savedDigits,
+    generatedCode: state.generatedCode,
+    expectedCode: state.expectedCode,
+    rotorValues: state.rotorValues,
+    aligned: state.cipherHelper.rotors.map(isRotorAligned),
+  });
 }
 
 function requireRotorProtocol(target, message = "Alinea y guarda los tres rotores antes de enviar contención.") {
@@ -4681,6 +4969,8 @@ function requireRotorProtocol(target, message = "Alinea y guarda los tres rotore
 
 async function executeRotorContainment(target = state.cipherHelper.target) {
   const routeKey = getRouteKeyFromCipherTarget(target);
+  if (target === "trex") logTrexSubmitDebug("execute");
+  if (target === "grypho") logAlphaSubmitDebug("execute");
   if (!["raptor", "trex", "grypho", "dilo", "chimera"].includes(target) && !routeKey) {
     setCurrentAlert("No hay protocolo de contención por rotores activo.", "warning");
     return false;
@@ -4698,6 +4988,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     return false;
   }
   if (target === "grypho" && state.currentProtocol !== "grypho") {
+    logAlphaSubmitDebug("rechazo-protocolo-inactivo");
     setCurrentAlert("PROTOCOLO ALFA no está activo. Espera detección confirmada o revisa ALPHA-CONTAINMENT.LOG.", "warning");
     return false;
   }
@@ -4719,6 +5010,11 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     await typeLine("T-Rex ya está contenido.", "warning");
     return false;
   }
+  if (target === "trex" && (state.protocoloActivo !== "trex" || state.cipherHelper.target !== "trex")) {
+    logTrexSubmitDebug("rechazo-protocolo-incorrecto");
+    setCurrentAlert("Código T-Rex incorrecto. Revisa TREX.KEY y vuelve a sincronizar rotores.", "warning");
+    return false;
+  }
   if (target === "dilo" && state.diloNeutralized) {
     await typeLine("Dilophosaurus ya está neutralizado.", "warning");
     return false;
@@ -4727,16 +5023,31 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     await typeLine("Chimerasaurus ya está contenido temporalmente.", "warning");
     return false;
   }
-  if (!isRotorProtocolReady(target)) {
+  const rotorProtocolReady = isRotorProtocolReady(target);
+  const alignedRotorSetComplete = canAcceptAlignedRotorSet(target);
+  if (!rotorProtocolReady && !alignedRotorSetComplete) {
+    if (target === "trex") {
+      logTrexSubmitDebug("rechazo-codigo");
+      setCurrentAlert("Código T-Rex incorrecto. Revisa TREX.KEY y vuelve a sincronizar rotores.", "warning");
+      return false;
+    }
     if (target === "chimera") logChimeraSession("rechazo-rotores");
     if (target === "grypho") {
+      logAlphaSubmitDebug("rechazo-rotores");
       state.gryphoRotorLockUntil = Date.now() + 1800;
       triggerVisualGlitchBurst("normal");
       clonePlay(dinoSounds.garras, 0.32);
-      currentAlertText.textContent = "ALFA bloquea temporalmente la telemetria del rotor. Revisa alineacion y vuelve a guardar en orden.";
+      setCurrentAlert("Código ALFA incompleto. Revisa ALPHA-CONTAINMENT.LOG y vuelve a sincronizar rotores.", "warning");
+      return false;
     }
-    requireRotorProtocol(target, routeKey ? "Override incompleto. Sincroniza los cuatro rotores antes de enviar." : "Contención incompleta. Alinea, guarda los tres rotores y vuelve a enviar.");
+    showRotorIncompleteAlert(target, routeKey);
     return false;
+  }
+  if (alignedRotorSetComplete && !rotorProtocolReady) {
+    logRotorSystem(`aceptado-por-rotores-alineados:${target}`);
+    if (target === "grypho") logAlphaSubmitDebug("aceptado-por-rotores-alineados");
+    if (target === "trex") logTrexSubmitDebug("aceptado-por-rotores-alineados");
+    if (target === "chimera") logChimeraSession("aceptado-por-rotores-alineados");
   }
 
   if (routeKey) {
@@ -4753,6 +5064,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     updateHud();
     detenerSonido("raptor");
     setPuzzleVisibility("none");
+    clearRotorProtocolSnapshot();
     playDinoSound("raptor", 0.35);
     await printLines(["Rotores R-01 sincronizados.", "Cerco secundario reactivado.", "Velociraptor CONTENIDO."], "success");
     if (state.raptorAttackCount < state.director.attackGoals.raptor) {
@@ -4773,6 +5085,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     updateHud();
     detenerSonido("trex");
     setPuzzleVisibility("none");
+    clearRotorProtocolSnapshot();
     playDinoSound("trex", 0.35);
     await printLines(["Rotores C-07 sincronizados.", "Compuertas pesadas cerradas.", "Tyrannosaurus rex CONTENIDO."], "success");
     if (state.trexAttackCount < state.director.attackGoals.trex) {
@@ -4790,12 +5103,14 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     state.gryphoRotorLockUntil = 0;
     if (state.currentProtocol === "grypho") state.currentProtocol = null;
     if (state.activeThreat === "grypho") state.activeThreat = null;
+    if (state.protocoloActivo === "grypho") clearRotorProtocolSnapshot();
     markProgress(state.gryphoStalkCount >= state.director.attackGoals.grypho ? "dilo" : "grypho");
     rewardRecovery("major", "Gryphovenator ALFA neutralizado");
     state.riesgoBiologico = clamp(state.riesgoBiologico - 10, 0, 100);
     state.estabilidadLaboratorio = clamp(state.estabilidadLaboratorio + 8, 0, 100);
     detenerAlerta("SITUACION CONTROLADA // Gryphovenator ALFA neutralizado");
     setPuzzleVisibility("none");
+    clearRotorProtocolSnapshot();
     updateHud();
     await printLines([
       "Rotores ALFA sincronizados.",
@@ -4821,6 +5136,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     detenerAlerta("SITUACION CONTROLADA // Dilophosaurus neutralizado");
     detenerSonido("dilo");
     setPuzzleVisibility("none");
+    clearRotorProtocolSnapshot();
     updateHud();
     await printLines(["Rotores TOXIN sincronizados.", "Compuertas de niebla cerradas.", "Amenaza DILO NEUTRALIZADA."], "success");
     startDirectorEventIfNeeded("barrier");
@@ -4837,6 +5153,7 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     state.estabilidadLaboratorio = clamp(state.estabilidadLaboratorio + 14, 0, 100);
     cerrarProtocoloChimerasaurus();
     detenerAlerta("SITUACION CONTROLADA // Chimerasaurus contenido");
+    clearRotorProtocolSnapshot();
     updateHud();
     await printLines([
       "Rotores CHIMERA sincronizados.",
@@ -4900,6 +5217,13 @@ function setCipherTarget(target) {
   }
   preservePuzzleViewport(900);
   stopRotorPointer();
+  state.rotorSystem.sessionId += 1;
+  state.rotorSystem.protocoloActivo = target;
+  state.rotorSystem.savedDigits = "";
+  state.rotorSystem.generatedCode = "";
+  state.rotorSystem.expectedCode = getExpectedDigitsForTarget(target);
+  state.rotorSystem.alignedRotors = [];
+  state.rotorSystem.estadoActual = "loaded";
   state.cipherHelper.target = target;
   if (target === "chimera") {
     if (state.chimeraActive) state.currentProtocol = "chimerasaurus";
@@ -4908,12 +5232,16 @@ function setCipherTarget(target) {
   } else {
     state.currentProtocol = isRotorThreatActive(target) ? target : null;
   }
-  state.cipherHelper.rotors = getCipherRotorsForTarget(target);
+  state.rotorSystem.rotores = getCipherRotorsForTarget(target);
+  state.cipherHelper.rotors = state.rotorSystem.rotores;
   state.cipherHelper.activeRotorIndex = 0;
   state.cipherHelper.buffer = "";
   state.rotorFeedback.rotatedIndex = -1;
   state.rotorFeedback.correctIndex = -1;
   if (target !== "chimera") state.omegaRotorsSolved = false;
+  syncRotorProtocolSnapshot();
+  logRotorSystem(`load:${target}`);
+  if (target === "trex") logTrexSubmitDebug("load");
   debugRotorState("setCipherTarget");
   restorePuzzleViewport();
 }
@@ -4954,19 +5282,29 @@ function appendCipherResult() {
   }
   if (state.cipherHelper.activeRotorIndex < state.cipherHelper.rotors.length - 1) {
     state.cipherHelper.activeRotorIndex += 1;
+  } else if (state.cipherHelper.buffer.length === state.cipherHelper.rotors.length) {
+    state.cipherHelper.activeRotorIndex = state.cipherHelper.rotors.length - 1;
   }
   debugRotorState("appendCipherResult");
+  logRotorSystem(`save:${state.rotorSystem.protocoloActivo || state.cipherHelper.target}`);
   updateCipherHelper();
 }
 
 async function sendRotorContainment() {
   syncCipherBufferFromRotors();
-  const requiredLength = state.cipherHelper.rotors.length || 3;
-  if (state.cipherHelper.buffer.length < requiredLength) {
-    setCurrentAlert(`Contención incompleta. Alinea ${requiredLength} rotor(es) y pulsa Guardar digito en orden.`, "warning");
+  const submitTarget = state.protocoloActivo || state.cipherHelper.target;
+  if (submitTarget === "trex" || state.cipherHelper.target === "trex") logTrexSubmitDebug("button");
+  if (submitTarget === "grypho" || state.cipherHelper.target === "grypho") logAlphaSubmitDebug("button");
+  if (submitTarget !== state.cipherHelper.target) {
+    setCurrentAlert("El módulo de rotores no coincide con el protocolo activo. Recarga el archivo .KEY del objetivo actual.", "warning");
     return false;
   }
-  return executeRotorContainment(state.cipherHelper.target);
+  const requiredLength = state.cipherHelper.rotors.length || 3;
+  if (state.cipherHelper.buffer.length < requiredLength) {
+    showRotorIncompleteAlert(submitTarget, getRouteKeyFromCipherTarget(submitTarget));
+    return false;
+  }
+  return executeRotorContainment(submitTarget);
 }
 
 function isRotorThreatActive(target) {
@@ -4980,14 +5318,12 @@ function isRotorThreatActive(target) {
 
 function focusLockIfNeeded() {
   if (!state.bootStarted || state.escaped || state.gameOver) return;
-  focusLock.classList.remove("hidden");
-  focusLock.setAttribute("aria-hidden", "false");
+  showOverlaySafely(focusLock, { requiresInteraction: true, focusElement: resumeSession });
   playAlert(0.45);
 }
 
 function hideFocusLock() {
-  focusLock.classList.add("hidden");
-  focusLock.setAttribute("aria-hidden", "true");
+  hideOverlaySafely(focusLock);
   focusTerminalIfAllowed();
 }
 
@@ -5010,7 +5346,7 @@ async function scanSector() {
   const zoneKey = getPriorityZone();
   state.activeZone = zoneKey;
   setActiveSpecies(zoneKey);
-  mapModal.classList.remove("hidden");
+  showOverlaySafely(mapModal, { requiresInteraction: true, focusElement: closeMapButton });
   const messages = {
     chimera: "Lectura OMEGA detectada. El Chimerasaurus Rex avanza entre sectores comprometidos.",
     power: !state.barriersRestored && state.diloNeutralized
@@ -5580,22 +5916,27 @@ async function handleCommand(rawCommand) {
 }
 
 function revealBootOverlay() {
+  if (blockIntroDuringGameplay("revealBootOverlay")) return;
   if (state.introFinished) return;
+  if (state.gameState !== "intro") return;
   state.introFinished = true;
   introVideo.pause();
   audioIntro.pause();
-  introOverlay.classList.add("hidden");
-  introOverlay.setAttribute("aria-hidden", "true");
-  bootOverlay.classList.remove("hidden");
-  bootOverlay.setAttribute("aria-hidden", "false");
+  hideOverlaySafely(introOverlay);
+  showOverlaySafely(bootOverlay, { requiresInteraction: true, focusElement: startSystemButton });
+  setGameState("tutorial", "intro finalizada");
 }
 
 function finalizarIntroSiListo() {
+  if (blockIntroDuringGameplay("INTRO_AUDIO.MP3 ended")) return;
+  if (state.gameState !== "intro") return;
   if (!state.introStarted || state.introFinished) return;
   revealBootOverlay();
 }
 
 function iniciarProtocolo() {
+  if (blockIntroDuringGameplay("iniciarProtocolo")) return;
+  if (state.gameState !== "intro") return;
   if (state.protocolStarted) return;
   state.protocolStarted = true;
   state.introStarted = true;
@@ -5605,11 +5946,19 @@ function iniciarProtocolo() {
   introVideo.loop = true;
   introVideo.currentTime = 0;
   introVideo.play().catch(() => {
+    if (isGameplayActive()) {
+      addLine("AVISO: video de intro reportó error fuera de intro. Gameplay continúa.", "warning");
+      return;
+    }
     introStatus.textContent = "No fue posible reproducir el video de apertura. El sistema continuará con audio.";
   });
   reproducirSonido("intro", { volume: 0.6 }).then((played) => {
     if (!played) {
       console.warn("INTRO_AUDIO.MP3 no pudo reproducirse correctamente.");
+      if (isGameplayActive()) {
+        addLine("AVISO: INTRO_AUDIO.MP3 no pudo reproducirse fuera de intro. Gameplay continúa.", "warning");
+        return;
+      }
       introStatus.textContent = "INTRO_AUDIO.MP3 no pudo reproducirse. Puedes continuar con OMITIR INTRO sin romper la sesión.";
     }
   });
@@ -5617,6 +5966,7 @@ function iniciarProtocolo() {
 
 startIntroButton.addEventListener("click", iniciarProtocolo);
 skipIntroButton.addEventListener("click", () => {
+  if (blockIntroDuringGameplay("skipIntroButton")) return;
   if (!state.protocolStarted) {
     iniciarProtocolo();
   }
@@ -5644,11 +5994,19 @@ startRealSimulationButton?.addEventListener("click", startRealScenario);
 audioIntro.addEventListener("ended", finalizarIntroSiListo);
 audioIntro.addEventListener("error", () => {
   console.error("Error al cargar o reproducir assets/audio/INTRO_AUDIO.MP3");
+  if (isGameplayActive()) {
+    addLine("AVISO: INTRO_AUDIO.MP3 reportó error fuera de intro. Gameplay continúa.", "warning");
+    return;
+  }
   introStatus.textContent = "Error en INTRO_AUDIO.MP3. Usa OMITIR INTRO para continuar manualmente.";
 });
 escapeVideo?.addEventListener("ended", () => {
   if (state.finalOutcome === "failure") {
     finishFailureCinematic();
+    return;
+  }
+  if (state.finalOutcome !== "success") {
+    if (isGameplayActive()) addLine("AVISO: video final terminó sin resultado final. Gameplay continúa.", "warning");
     return;
   }
   finishEscapeCinematic();
@@ -5661,6 +6019,10 @@ escapeVideo?.addEventListener("error", () => {
   }
   if (state.finalOutcome === "failure") {
     finishFailureCinematic();
+    return;
+  }
+  if (state.finalOutcome !== "success") {
+    if (isGameplayActive()) addLine("AVISO: error en video final sin resultado final. Gameplay continúa.", "warning");
     return;
   }
   finishEscapeCinematic();
@@ -5695,9 +6057,9 @@ silenceAlertButton.addEventListener("click", () => {
   addLine("ALERTA DE SISTEMA: Alertas sonoras silenciadas durante veinte segundos. La sesión continúa activa.", "warning");
 });
 
-openMapButton.addEventListener("click", () => mapModal.classList.remove("hidden"));
-closeMapButton.addEventListener("click", () => mapModal.classList.add("hidden"));
-mapBackdrop.addEventListener("click", () => mapModal.classList.add("hidden"));
+openMapButton.addEventListener("click", () => showOverlaySafely(mapModal, { requiresInteraction: true, focusElement: closeMapButton }));
+closeMapButton.addEventListener("click", () => hideOverlaySafely(mapModal));
+mapBackdrop.addEventListener("click", () => hideOverlaySafely(mapModal));
 
 speciesMarkers.forEach((marker) => {
   marker.addEventListener("click", () => {
@@ -5775,6 +6137,7 @@ if (!rotorContainmentListenerAttached) {
     input.value = "";
   });
   rotorContainmentListenerAttached = true;
+  state.rotorSystem.listeners.send = 1;
 }
 
 cipherRotorCards.addEventListener("click", (event) => {
@@ -5877,6 +6240,7 @@ cipherRotorCards.addEventListener("wheel", (event) => {
   const index = Number(dial.dataset.rotorIndex);
   rotateCipherRotor(index, event.deltaY > 0 ? -1 : 1);
 }, { passive: false });
+state.rotorSystem.listeners.cards = 6;
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) focusLockIfNeeded();
