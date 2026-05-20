@@ -746,6 +746,28 @@ body.state-omega::after {
   animation: alertBlinkCritical 0.9s linear infinite;
 }
 
+.system-alert--escape {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  padding: 16px 18px;
+  border: 2px solid rgba(255, 209, 102, 0.72);
+  background:
+    linear-gradient(180deg, rgba(255, 90, 79, 0.34), rgba(0, 0, 0, 0.24)),
+    rgba(8, 17, 12, 0.96);
+  box-shadow: 0 0 28px rgba(255, 90, 79, 0.22);
+}
+
+.system-alert--escape .system-alert__state {
+  color: var(--warning);
+  font-size: 0.9rem;
+}
+
+.system-alert--escape .system-alert__message {
+  color: #fff7c2;
+  font-size: 1.05rem;
+}
+
 .system-alert--controlled {
   border-color: rgba(125, 255, 155, 0.28);
   background: linear-gradient(180deg, rgba(125, 255, 155, 0.14), rgba(0, 0, 0, 0.16));

@@ -449,6 +449,22 @@ const state = {
   stegoAnalyzed: false,
   doorUnlocked: false,
   evacuationRoute: null,
+  escapeWindowActive: false,
+  currentEscapeRoute: null,
+  escapeOpportunity: {
+    count: 0,
+    required: 2,
+    activeId: null,
+    activeType: null,
+    deadlineAt: null,
+    schedule: [
+      { id: "early", threshold: 480, triggered: false },
+      { id: "final", threshold: 180, triggered: false },
+    ],
+    failedRoutes: [],
+    usedRoutes: [],
+    lastResortUsed: false,
+  },
   escapeRoutes: {
     main: { planned: true, available: false, lost: false },
     helipad: { planned: false, available: false, lost: false },
@@ -860,6 +876,13 @@ function initializeEscapeRoutesForPlan() {
   routes.forEach((route) => {
     state.escapeRoutes[route].planned = true;
   });
+}
+
+function createEscapeOpportunitySchedule() {
+  return [
+    { id: "early", threshold: randomDigit(360, 480), triggered: false },
+    { id: "final", threshold: randomDigit(90, 180), triggered: false },
+  ];
 }
 
 function resetChimeraFragments() {
@@ -1467,11 +1490,16 @@ function stopAmbient() {
 
 function showAlertPanel(message, mode = "active") {
   if (!systemAlertPanel || !systemAlertState || !systemAlertMessage) return;
+  if (state.escapeWindowActive && state.currentEscapeRoute && mode !== "off") {
+    const secondsLeft = Math.max(0, state.countdownSeconds - (state.escapeOpportunity.deadlineAt ?? state.countdownSeconds));
+    showEscapeOpportunityOverlay(state.currentEscapeRoute, secondsLeft, getEscapeOpportunityMessage(state.currentEscapeRoute, state.escapeOpportunity.activeType));
+    return;
+  }
   if (state.alertPanelTimer) {
     window.clearTimeout(state.alertPanelTimer);
     state.alertPanelTimer = null;
   }
-  systemAlertPanel.classList.remove("hidden", "system-alert--active", "system-alert--critical", "system-alert--controlled", "system-alert--off");
+  systemAlertPanel.classList.remove("hidden", "system-alert--active", "system-alert--critical", "system-alert--controlled", "system-alert--off", "system-alert--escape");
   systemAlertPanel.classList.add(`system-alert--${mode}`);
   const labels = {
     active: "ALERTA ACTIVA",
@@ -1488,7 +1516,7 @@ function showAlertPanel(message, mode = "active") {
 
 function hideAlertPanel() {
   if (!systemAlertPanel || !systemAlertState || !systemAlertMessage) return;
-  systemAlertPanel.classList.remove("system-alert--active", "system-alert--critical", "system-alert--controlled");
+  systemAlertPanel.classList.remove("system-alert--active", "system-alert--critical", "system-alert--controlled", "system-alert--escape");
   systemAlertPanel.classList.add("system-alert--off", "hidden");
   systemAlertState.textContent = "ALERTA APAGADA";
   systemAlertMessage.textContent = "Sistema estable.";
@@ -1754,6 +1782,19 @@ function initializeScenario() {
   state.stegoAnalyzed = false;
   state.doorUnlocked = false;
   state.evacuationRoute = null;
+  state.escapeWindowActive = false;
+  state.currentEscapeRoute = null;
+  state.escapeOpportunity = {
+    count: 0,
+    required: 2,
+    activeId: null,
+    activeType: null,
+    deadlineAt: null,
+    schedule: createEscapeOpportunitySchedule(),
+    failedRoutes: [],
+    usedRoutes: [],
+    lastResortUsed: false,
+  };
   state.escapeRoutes = {
     main: { planned: true, available: false, lost: false },
     helipad: { planned: false, available: false, lost: false },
@@ -2806,6 +2847,11 @@ function updateObjective() {
     objectiveText.textContent = "Escenario perdido. El laboratorio ha colapsado bajo ataque masivo.";
     return;
   }
+  if (state.escapeWindowActive && state.currentEscapeRoute) {
+    const secondsLeft = Math.max(0, state.countdownSeconds - (state.escapeOpportunity.deadlineAt ?? state.countdownSeconds));
+    objectiveText.textContent = `OPORTUNIDAD DE ESCAPE: ${getEscapeRouteName(state.currentEscapeRoute)}. Tiempo disponible ${formatCountdown(secondsLeft)}. Sincroniza cuatro rotores y pulsa Enviar contención.`;
+    return;
+  }
   const major = getActiveMajorThreat();
   if (major) {
     objectiveText.textContent = `PRIORIDAD ABSOLUTA: ${major.label}. Ignora ruido secundario y completa ${major.protocol}.`;
@@ -2915,11 +2961,11 @@ function hasMetAttackRequirements() {
 }
 
 function canAttemptEvacuationOverride() {
-  return state.omegaReleased &&
-    state.chimeraContained &&
+  return (state.escapeWindowActive || state.omegaReleased || state.countdownSeconds <= 480) &&
     !state.chimeraActive &&
     !state.omegaActive &&
-    !hasActivePrimaryThreats();
+    !state.omegaCinematicPlaying &&
+    !state.gameOver;
 }
 
 function hasAnyEscapeRouteAvailable() {
@@ -2938,6 +2984,165 @@ function getAvailableEscapeRouteName() {
     return route.planned && route.available && !route.lost;
   });
   return routeKey ? labels[routeKey] : null;
+}
+
+function getEscapeRouteName(routeKey) {
+  return {
+    main: "Puerta principal",
+    helipad: "Helipuerto",
+    tunnel: "Túnel de emergencia",
+    cargo: "Transporte de carga",
+  }[routeKey] || "Ruta de escape";
+}
+
+function getEscapeOpportunityMessage(routeKey, type = "window") {
+  if (type === "override") return "PUERTA PRINCIPAL PUEDE SER FORZADA MANUALMENTE.";
+  if (type === "helipad") return "SEÑAL DE HELIPUERTO RESTABLECIDA.";
+  if (type === "tunnel") return "RUTA SUBTERRÁNEA DISPONIBLE.";
+  if (type === "last-resort") return "PROTOCOLO DE ESCAPE DE ÚLTIMO RECURSO ACTIVO.";
+  if (routeKey === "helipad") return "SEÑAL DE HELIPUERTO RESTABLECIDA.";
+  if (routeKey === "tunnel") return "RUTA SUBTERRÁNEA DISPONIBLE.";
+  if (routeKey === "main") return "PUERTA PRINCIPAL PUEDE SER FORZADA MANUALMENTE.";
+  return "RUTA DE ESCAPE DISPONIBLE POR TIEMPO LIMITADO.";
+}
+
+function getForcibleEscapeRoutes() {
+  return Object.keys(state.escapeRoutes).filter((routeKey) => {
+    const route = state.escapeRoutes[routeKey];
+    return route?.planned && !route.lost && !route.available;
+  });
+}
+
+function canCreateEscapeOpportunityNow() {
+  return state.bootStarted &&
+    !state.gameOver &&
+    !state.escaped &&
+    !state.omegaCinematicPlaying &&
+    !state.cinematicStarted &&
+    !state.rotorSystem.protocoloActivo &&
+    !state.currentProtocol &&
+    !state.chimeraActive &&
+    !state.omegaActive &&
+    (state.chimeraContained || state.countdownSeconds <= 480 || state.escapeOpportunity.count < state.escapeOpportunity.required);
+}
+
+function chooseEscapeRoute(preferredRoute = null) {
+  if (preferredRoute && state.escapeRoutes[preferredRoute] && !state.escapeRoutes[preferredRoute].lost) return preferredRoute;
+  const candidates = getForcibleEscapeRoutes().filter((routeKey) => !state.escapeOpportunity.usedRoutes.includes(routeKey));
+  if (candidates.length) return pickRandomItem(candidates);
+  const fallback = getForcibleEscapeRoutes();
+  if (fallback.length) return pickRandomItem(fallback);
+  return "tunnel";
+}
+
+function showEscapeOpportunityOverlay(routeKey, secondsAvailable, message) {
+  if (!systemAlertPanel) return;
+  systemAlertPanel.className = "system-alert system-alert--critical system-alert--escape";
+  systemAlertState.textContent = "OPORTUNIDAD DE ESCAPE";
+  systemAlertMessage.textContent = `Ruta: ${getEscapeRouteName(routeKey)} // Tiempo disponible: ${formatCountdown(secondsAvailable)} // Acción: sincroniza 4 rotores de evacuación.`;
+  currentAlertText.textContent = message;
+}
+
+function crearOportunidadEscape(tipoRuta = null) {
+  if (!state.bootStarted || state.gameOver || state.escaped) return false;
+  if (state.omegaCinematicPlaying || state.cinematicStarted) return false;
+  if (state.rotorSystem.protocoloActivo || state.currentProtocol || state.chimeraActive || state.omegaActive) return false;
+  if (state.escapeWindowActive && state.currentEscapeRoute) return true;
+
+  const routeKey = chooseEscapeRoute(tipoRuta);
+  const route = state.escapeRoutes[routeKey] || state.escapeRoutes.tunnel;
+  route.planned = true;
+  route.lost = false;
+  route.available = false;
+
+  state.escapeWindowActive = true;
+  state.currentEscapeRoute = routeKey;
+  state.escapeOpportunity.count += 1;
+  state.escapeOpportunity.activeId = state.escapeOpportunity.activeId || `escape-${state.escapeOpportunity.count}`;
+  state.escapeOpportunity.activeType = tipoRuta || routeKey;
+  state.escapeOpportunity.deadlineAt = Math.max(0, state.countdownSeconds - (tipoRuta === "last-resort" ? 90 : 70));
+  if (!state.escapeOpportunity.usedRoutes.includes(routeKey)) state.escapeOpportunity.usedRoutes.push(routeKey);
+
+  const secondsAvailable = state.countdownSeconds - state.escapeOpportunity.deadlineAt;
+  const message = getEscapeOpportunityMessage(routeKey, tipoRuta);
+  addLine("⚠ OPORTUNIDAD DE ESCAPE", "error");
+  addLine(message, "warning");
+  addLine(`Ruta: ${getEscapeRouteName(routeKey)}. Tiempo disponible: ${formatCountdown(secondsAvailable)}.`, "success");
+  addLine("Acción: sincroniza rotores de evacuación y pulsa Enviar contención.", "success");
+  showEscapeOpportunityOverlay(routeKey, secondsAvailable, message);
+  markProgress(routeKey === "main" ? "door" : routeKey);
+  activarOverrideEvacuacion(routeKey);
+  updateHud();
+  return true;
+}
+
+function activarOverrideEvacuacion(ruta) {
+  return loadEvacuationOverride(ruta, { forceOpportunity: true });
+}
+
+function forzarRutaAlternativa() {
+  if (state.escaped || state.gameOver) return false;
+  const previousRoute = state.currentEscapeRoute;
+  if (previousRoute && !state.escapeOpportunity.failedRoutes.includes(previousRoute)) {
+    state.escapeOpportunity.failedRoutes.push(previousRoute);
+  }
+  state.escapeWindowActive = false;
+  state.currentEscapeRoute = null;
+  state.escapeOpportunity.activeId = null;
+  state.escapeOpportunity.deadlineAt = null;
+  const nextRoute = chooseEscapeRoute();
+  if (!state.escapeRoutes[nextRoute]) return activarEscapeUltimoRecurso();
+  addLine("VENTANA DE EVACUACIÓN CERRADA. Director buscando ruta alternativa...", "warning");
+  applyDeterioration({ damage: 3, bio: 1, stability: -3, energy: -2 });
+  return crearOportunidadEscape(nextRoute);
+}
+
+function activarEscapeUltimoRecurso() {
+  if (state.escapeOpportunity.lastResortUsed || state.escaped || state.gameOver) return false;
+  state.escapeOpportunity.lastResortUsed = true;
+  state.escapeRoutes.tunnel = { planned: true, available: false, lost: false };
+  return crearOportunidadEscape("last-resort");
+}
+
+function processEscapeOpportunities() {
+  if (!state.bootStarted || state.gameOver || state.escaped) return;
+  if (state.omegaCinematicPlaying || state.cinematicStarted) return;
+
+  if (!state.escapeWindowActive && !hasAnyEscapeRouteAvailable() && state.chimeraContained && canCreateEscapeOpportunityNow()) {
+    crearOportunidadEscape();
+    return;
+  }
+
+  for (const windowConfig of state.escapeOpportunity.schedule) {
+    if (!windowConfig.triggered && state.countdownSeconds <= windowConfig.threshold) {
+      state.escapeOpportunity.activeId = windowConfig.id;
+      if (crearOportunidadEscape(windowConfig.id === "early" ? null : chooseEscapeRoute())) {
+        windowConfig.triggered = true;
+      }
+      break;
+    }
+  }
+
+  if (state.escapeWindowActive && state.currentEscapeRoute) {
+    const route = state.escapeRoutes[state.currentEscapeRoute];
+    if (route?.available) {
+      state.escapeWindowActive = false;
+      state.escapeOpportunity.activeId = null;
+      state.escapeOpportunity.deadlineAt = null;
+      verificarOportunidadEscape({ announce: true });
+    } else if (state.escapeOpportunity.deadlineAt !== null && state.countdownSeconds <= state.escapeOpportunity.deadlineAt) {
+      forzarRutaAlternativa();
+    }
+  }
+
+  const allRoutesClosed = Object.values(state.escapeRoutes).every((route) => !route.available && (route.lost || !route.planned));
+  if ((allRoutesClosed || state.countdownSeconds <= 75) && !hasAnyEscapeRouteAvailable() && !state.escapeWindowActive) {
+    activarEscapeUltimoRecurso();
+  }
+}
+
+async function resolverEvacuacion() {
+  return iniciarEscapeFinal();
 }
 
 function getRouteKeyFromCipherTarget(target) {
@@ -2979,20 +3184,29 @@ function getOverrideThreatPattern() {
   return patterns[threat] || patterns.standard;
 }
 
-function canLoadEvacuationOverride(routeKey) {
+function canLoadEvacuationOverride(routeKey, { forceOpportunity = false } = {}) {
   const definition = getRouteDefinitions()[routeKey];
   if (!definition) return { ok: false, message: "Override de evacuacion inexistente." };
   const route = state.escapeRoutes[routeKey];
   if (!route?.planned) return { ok: false, message: getRouteBlockedMessage(routeKey) };
   if (route.lost) return { ok: false, message: getRouteBlockedMessage(routeKey) };
+  if (state.gameOver || state.escaped) return { ok: false, message: "Escenario terminado." };
+  if (state.omegaCinematicPlaying || state.cinematicStarted) return { ok: false, message: "EVACUACIÓN BLOQUEADA: video crítico en curso." };
+  if (state.rotorSystem.protocoloActivo && state.rotorSystem.protocoloActivo !== getCipherTargetForRoute(routeKey)) {
+    return { ok: false, message: "EVACUACIÓN BLOQUEADA: protocolo de rotor activo. Termina o reinicia el módulo actual." };
+  }
+  if (forceOpportunity || state.escapeWindowActive || route.available) return { ok: true, message: `${definition.name}: ventana de oportunidad activa.` };
   const missing = getRouteMissingRequirements(definition);
   if (missing.length) return { ok: false, message: `${definition.name} no puede forzarse todavia: ${missing.join(", ")}.` };
   return { ok: true, message: `${definition.name}: override manual listo.` };
 }
 
-function loadEvacuationOverride(routeKey) {
-  const availability = canLoadEvacuationOverride(routeKey);
+function loadEvacuationOverride(routeKey, options = {}) {
+  const availability = canLoadEvacuationOverride(routeKey, options);
   if (!availability.ok) {
+    addLine("EVACUACIÓN BLOQUEADA:", "warning");
+    addLine(`- ${availability.message}`, "warning");
+    addLine("Director buscando ruta alternativa...", "warning");
     applyCommandPenalty("standard", availability.message);
     return false;
   }
@@ -3016,6 +3230,10 @@ async function completeEvacuationOverride(routeKey) {
   state.evacuationOverride.solved[routeKey] = true;
   state.doorUnlocked = true;
   state.evacuationRoute = routeKey;
+  state.escapeWindowActive = false;
+  state.currentEscapeRoute = null;
+  state.escapeOpportunity.activeId = null;
+  state.escapeOpportunity.deadlineAt = null;
   state.evacuationOverride.target = null;
   if (state.currentProtocol === getCipherTargetForRoute(routeKey)) state.currentProtocol = null;
   markProgress("escape");
@@ -3261,8 +3479,7 @@ function getRouteDefinitions() {
       requirements: [
         ["energia", state.powerOnline || state.generatorRepaired],
         ["puerta principal intacta", !state.escapeRoutes.main.lost],
-        ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
-        ["sin amenazas principales activas", !hasActivePrimaryThreats()],
+        ["ventana de escape activa o ruta ya sincronizada", state.escapeWindowActive || state.escapeRoutes.main.available],
       ],
     },
     helipad: {
@@ -3273,9 +3490,8 @@ function getRouteDefinitions() {
       requirements: [
         ["ruta asignada por Director", state.escapeRoutes.helipad.planned],
         ["plataforma no destruida", !state.escapeRoutes.helipad.lost],
-        ["energia activa", state.powerOnline],
-        ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
-        ["sin amenazas principales activas", !hasActivePrimaryThreats()],
+        ["energia activa o balizas forzables", state.powerOnline || state.escapeWindowActive],
+        ["ventana de escape activa o ruta ya sincronizada", state.escapeWindowActive || state.escapeRoutes.helipad.available],
       ],
     },
     tunnel: {
@@ -3286,9 +3502,7 @@ function getRouteDefinitions() {
       requirements: [
         ["ruta asignada por Director", state.escapeRoutes.tunnel.planned],
         ["ventilacion utilizable", !state.escapeRoutes.tunnel.lost],
-        ["Dilophosaurus neutralizado o sin incidente", !state.timelineFlags.dilo || state.diloNeutralized],
-        ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
-        ["sin amenazas principales activas", !hasActivePrimaryThreats()],
+        ["presion forzable durante ventana limitada", state.escapeWindowActive || state.escapeRoutes.tunnel.available],
       ],
     },
     cargo: {
@@ -3299,9 +3513,7 @@ function getRouteDefinitions() {
       requirements: [
         ["ruta asignada por Director", state.escapeRoutes.cargo.planned],
         ["hangar no bloqueado", !state.escapeRoutes.cargo.lost],
-        ["Ankylosaurus redirigido o sin incidente", !state.timelineFlags.anky || state.ankyRedirected],
-        ["Chimerasaurus contenido temporalmente", state.omegaReleased && state.chimeraContained],
-        ["sin amenazas principales activas", !hasActivePrimaryThreats()],
+        ["traccion forzable durante ventana limitada", state.escapeWindowActive || state.escapeRoutes.cargo.available],
       ],
     },
   };
@@ -3371,17 +3583,14 @@ function renderEvacuationRoutesPanel() {
 
 function getEvacuationBlockers() {
   const blockers = [];
-  const energyReady = state.powerOnline || (state.generatorRepaired && !state.generatorDamaged);
-  if (!energyReady) blockers.push("Energía");
-  if ((isEventPlanned("raptor") && !state.raptorContained) || (isEventPlanned("trex") && !state.trexContained) || (state.gryphoActive && !state.gryphoContained) || state.chimeraActive || state.activeThreat === "chimerasaurus") blockers.push("Amenaza principal activa");
-  if (isEventPlanned("barrier") && !state.barriersRestored) blockers.push("Barreras");
-  if (!state.omegaReleased || !state.chimeraContained || state.chimeraActive || state.omegaActive) blockers.push("Chimerasaurus");
+  if (state.omegaCinematicPlaying || state.cinematicStarted) blockers.push("video crítico en curso");
+  if (state.rotorSystem.protocoloActivo || state.currentProtocol) blockers.push("protocolo de rotor activo");
   if (!hasAnyEscapeRouteAvailable()) blockers.push("Ruta de escape");
   if (state.gameOver || state.countdownSeconds <= 0 || state.damageInstalacion >= 100 || state.riesgoBiologico >= 100) blockers.push("Colapso");
   return Array.from(new Set(blockers));
 }
 
-function verificarEvacuacionDisponible({ announce = false } = {}) {
+function verificarOportunidadEscape({ announce = false } = {}) {
   const blockers = getEvacuationBlockers();
   const available = blockers.length === 0 && !state.escaped && !state.gameOver;
   state.evacuationAvailable = available;
@@ -3406,8 +3615,13 @@ function verificarEvacuacionDisponible({ announce = false } = {}) {
     addLine("EVACUACIÓN BLOQUEADA.", "warning");
     addLine("Falta resolver:", "warning");
     blockers.forEach((blocker) => addLine(`- ${blocker}`, "warning"));
+    if (state.escapeWindowActive) addLine("Director buscando ruta alternativa si esta ventana falla...", "warning");
   }
   return { available, blockers };
+}
+
+function verificarEvacuacionDisponible(options = {}) {
+  return verificarOportunidadEscape(options);
 }
 
 function getCurrentObjectiveKey() {
@@ -4105,9 +4319,48 @@ function triggerGameOver() {
   updateHud();
 }
 
+async function guardarTiempoEvacuacion() {
+  const payload = {
+    outcome: "success",
+    elapsedSeconds: state.elapsedSeconds,
+    elapsedText: getElapsedTimeText(),
+    remainingSeconds: state.countdownSeconds,
+    route: state.evacuationRoute,
+    escapeOpportunities: state.escapeOpportunity.count,
+    createdAt: new Date().toISOString(),
+  };
+  try {
+    if (window.firebase?.database) {
+      await window.firebase.database().ref("jurassicUnixControl/evacuations").push(payload);
+      return "firebase";
+    }
+    if (window.firebase?.firestore) {
+      await window.firebase.firestore().collection("jurassicUnixControlEvacuations").add(payload);
+      return "firebase";
+    }
+    window.localStorage?.setItem("jurassicUnixControl:lastEvacuation", JSON.stringify(payload));
+    console.info("Firebase no configurado; tiempo de evacuacion guardado localmente.", payload);
+    return "local";
+  } catch (error) {
+    console.error("No fue posible guardar tiempo de evacuacion.", error);
+    return "error";
+  }
+}
+
 async function iniciarEscapeFinal() {
   const evacuation = verificarEvacuacionDisponible({ announce: true });
   if (!evacuation.available) {
+    if (!hasAnyEscapeRouteAvailable() && canCreateEscapeOpportunityNow()) {
+      const created = crearOportunidadEscape();
+      if (created) {
+        await printLines([
+          "EVACUACION AUN NO EJECUTABLE.",
+          "El Director abrió una oportunidad de escape en vez de penalizar el intento.",
+          "Sincroniza los 4 rotores cargados y pulsa Enviar contención. Luego ejecuta evacuate now.",
+        ], "warning");
+        return false;
+      }
+    }
     await printLines(getEvacuationRouteLines(), "warning");
     await typeLine("SUGERENCIA: activa una ruta disponible o resuelve los requisitos pendientes marcados arriba.", "warning");
     applyCommandPenalty("standard", "ESCAPE DENEGADO: evacuación bloqueada.");
@@ -4122,6 +4375,7 @@ async function iniciarEscapeFinal() {
   stopAmbient();
   detenerAlerta("SITUACION CONTROLADA // Evacuacion completada");
   updateHud();
+  guardarTiempoEvacuacion();
   speak(narrationLines.escape, null, { priority: "critical", retryOnInterrupt: false });
   await printLines([
     "Iniciando protocolo de escape...",
@@ -4602,6 +4856,7 @@ function processTimedThreats() {
     state.director.cooldown -= 1;
   }
   processScheduledPredatorAttacks();
+  processEscapeOpportunities();
   maybeActivateRandomDirectorEvent();
   maybeTriggerAmbientIncident();
 
@@ -5160,7 +5415,10 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
       "Cerrando campos híbridos del núcleo central...",
       `CHIMERASAURUS REX CONTENIDO // VENTANA TEMPORAL ${getChimeraContainmentWindow()}s`,
     ], "success");
-    if (state.chimeraBreakoutCount < state.director.attackGoals.chimera) {
+    if (!hasAnyEscapeRouteAvailable() && canCreateEscapeOpportunityNow()) {
+      addLine("OMEGA sigue inestable, pero hay una oportunidad limitada. Salgan ahora.", "warning");
+      crearOportunidadEscape();
+    } else if (state.chimeraBreakoutCount < state.director.attackGoals.chimera) {
       addLine("OMEGA AUN NO CEDE: las lecturas híbridas siguen inestables.", "warning");
     } else {
       addLine("OMEGA continúa como estado crítico. Aprovecha la ventana de contención del híbrido para evacuar.", "warning");
