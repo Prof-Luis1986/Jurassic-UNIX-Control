@@ -2849,7 +2849,7 @@ function updateObjective() {
   }
   if (state.escapeWindowActive && state.currentEscapeRoute) {
     const secondsLeft = Math.max(0, state.countdownSeconds - (state.escapeOpportunity.deadlineAt ?? state.countdownSeconds));
-    objectiveText.textContent = `OPORTUNIDAD DE ESCAPE: ${getEscapeRouteName(state.currentEscapeRoute)}. Tiempo disponible ${formatCountdown(secondsLeft)}. Sincroniza cuatro rotores y pulsa Enviar contención.`;
+    objectiveText.textContent = `OPORTUNIDAD DE ESCAPE: ${getEscapeRouteName(state.currentEscapeRoute)}. Tiempo disponible ${formatCountdown(secondsLeft)}. Sincroniza y guarda cuatro rotores para escapar.`;
     return;
   }
   const major = getActiveMajorThreat();
@@ -3039,7 +3039,7 @@ function showEscapeOpportunityOverlay(routeKey, secondsAvailable, message) {
   if (!systemAlertPanel) return;
   systemAlertPanel.className = "system-alert system-alert--critical system-alert--escape";
   systemAlertState.textContent = "OPORTUNIDAD DE ESCAPE";
-  systemAlertMessage.textContent = `Ruta: ${getEscapeRouteName(routeKey)} // Tiempo disponible: ${formatCountdown(secondsAvailable)} // Acción: sincroniza 4 rotores de evacuación.`;
+  systemAlertMessage.textContent = `Ruta: ${getEscapeRouteName(routeKey)} // Tiempo disponible: ${formatCountdown(secondsAvailable)} // Acción: guarda 4 rotores para escapar.`;
   currentAlertText.textContent = message;
 }
 
@@ -3068,7 +3068,7 @@ function crearOportunidadEscape(tipoRuta = null) {
   addLine("⚠ OPORTUNIDAD DE ESCAPE", "error");
   addLine(message, "warning");
   addLine(`Ruta: ${getEscapeRouteName(routeKey)}. Tiempo disponible: ${formatCountdown(secondsAvailable)}.`, "success");
-  addLine("Acción: sincroniza rotores de evacuación y pulsa Enviar contención.", "success");
+  addLine("Acción: sincroniza y guarda los 4 rotores de evacuación. El escape se ejecutará al guardar el cuarto.", "success");
   showEscapeOpportunityOverlay(routeKey, secondsAvailable, message);
   markProgress(routeKey === "main" ? "door" : routeKey);
   activarOverrideEvacuacion(routeKey);
@@ -3250,8 +3250,8 @@ async function completeEvacuationOverride(routeKey) {
     cargo: ["Encendido manual activo.", "Liberacion magnetica completada.", "TRANSPORTE DE CARGA LISTO CON ENERGIA INESTABLE."],
   };
   await printLines(labels[routeKey] || labels.main, "success");
-  addLine("Ejecuta: evacuate now", "success");
-  return true;
+  addLine("Escape automático activado por override.", "success");
+  return iniciarEscapeFinal();
 }
 
 function ensureEscapeFallback() {
@@ -3554,7 +3554,7 @@ function getEvacuationRouteLines() {
     lines.push("Requiere:");
     definition.requirements.forEach(([label, ready]) => lines.push(`- ${label}: ${ready ? "OK" : "PENDIENTE"}`));
     lines.push(`Carga override: ${definition.command}`);
-    lines.push("Ejecucion final: sincroniza 4 rotores y pulsa Enviar contención.");
+    lines.push("Ejecucion final: sincroniza y guarda 4 rotores. El escape se ejecuta automaticamente.");
     if (missing.length) lines.push(`No funciona porque falta: ${missing.join(", ")}.`);
   });
   return lines;
@@ -3605,8 +3605,8 @@ function verificarOportunidadEscape({ announce = false } = {}) {
     if (!state.evacuationAnnounced || announce) {
       state.evacuationAnnounced = true;
       addLine(`EVACUACIÓN FORZADA por ${getAvailableEscapeRouteName() || "ruta autorizada"}.`, "success");
-      addLine("Ejecuta: evacuate now", "success");
-      currentAlertText.textContent = "OVERRIDE DE EVACUACIÓN SINCRONIZADO. Ejecuta evacuate now.";
+      addLine("Escape automático activado por override.", "success");
+      currentAlertText.textContent = "OVERRIDE DE EVACUACIÓN SINCRONIZADO. Escape automático activado.";
     }
     return { available, blockers };
   }
@@ -3762,7 +3762,7 @@ function getGuidance(key = getCurrentObjectiveKey()) {
       danger: "El override puede quedar a medio ciclo si aparece otra ruptura.",
       objective: "Cargar DOOR.SYS, sincronizar cuatro rotores y forzar salida.",
       files: "DOOR.SYS",
-      steps: ["cat DOOR.SYS", "ejecuta unlock door DOOR-LOCK-42 para cargar override", "sincroniza cuatro rotores", "pulsa Enviar contención"],
+      steps: ["cat DOOR.SYS", "ejecuta unlock door DOOR-LOCK-42 para cargar override", "sincroniza y guarda cuatro rotores"],
       risk: "ALTO",
     },
     helipad: {
@@ -3771,7 +3771,7 @@ function getGuidance(key = getCurrentObjectiveKey()) {
       danger: "Viento, radio fallando y luces rojas reducen margen de evacuacion.",
       objective: "Forzar plataforma con cuatro rotores.",
       files: "HELIPAD.SYS",
-      steps: ["cat HELIPAD.SYS", "ejecuta activate helipad", "sincroniza cuatro rotores", "pulsa Enviar contención"],
+      steps: ["cat HELIPAD.SYS", "ejecuta activate helipad", "sincroniza y guarda cuatro rotores"],
       risk: "ALTO",
     },
     tunnel: {
@@ -3780,7 +3780,7 @@ function getGuidance(key = getCurrentObjectiveKey()) {
       danger: "Vapor y oscuridad pueden bloquear la lectura del sistema.",
       objective: "Forzar tunel con cuatro rotores.",
       files: "TUNNEL.SYS",
-      steps: ["cat TUNNEL.SYS", "ejecuta open tunnel", "sincroniza cuatro rotores", "pulsa Enviar contención"],
+      steps: ["cat TUNNEL.SYS", "ejecuta open tunnel", "sincroniza y guarda cuatro rotores"],
       risk: "ALTO",
     },
     cargo: {
@@ -3789,7 +3789,7 @@ function getGuidance(key = getCurrentObjectiveKey()) {
       danger: "Motores y energia inestable pueden cerrar el hangar si tardas.",
       objective: "Forzar transporte con cuatro rotores.",
       files: "CARGO.SYS",
-      steps: ["cat CARGO.SYS", "ejecuta start cargo", "sincroniza cuatro rotores", "pulsa Enviar contención"],
+      steps: ["cat CARGO.SYS", "ejecuta start cargo", "sincroniza y guarda cuatro rotores"],
       risk: "ALTO",
     },
     escape: {
@@ -4356,7 +4356,7 @@ async function iniciarEscapeFinal() {
         await printLines([
           "EVACUACION AUN NO EJECUTABLE.",
           "El Director abrió una oportunidad de escape en vez de penalizar el intento.",
-          "Sincroniza los 4 rotores cargados y pulsa Enviar contención. Luego ejecuta evacuate now.",
+          "Sincroniza y guarda los 4 rotores cargados. El escape se ejecuta al guardar el cuarto.",
         ], "warning");
         return false;
       }
@@ -5015,7 +5015,9 @@ function getExpectedDigitsForTarget(target = state.cipherHelper.target) {
 
 function syncRotorProtocolSnapshot() {
   const rotors = state.rotorSystem.rotores.length ? state.rotorSystem.rotores : state.cipherHelper.rotors;
-  state.rotorSystem.protocoloActivo = state.rotorSystem.protocoloActivo ?? state.cipherHelper.target;
+  if (!state.rotorSystem.protocoloActivo && getExpectedDigitsForTarget(state.cipherHelper.target)) {
+    state.rotorSystem.protocoloActivo = state.cipherHelper.target;
+  }
   state.rotorSystem.expectedCode = getExpectedDigitsForTarget(state.rotorSystem.protocoloActivo || state.cipherHelper.target);
   state.rotorSystem.rotores = rotors;
   state.rotorSystem.alignedRotors = rotors.map(isRotorAligned);
@@ -5024,11 +5026,16 @@ function syncRotorProtocolSnapshot() {
 
 function clearRotorProtocolSnapshot() {
   state.rotorSystem.protocoloActivo = null;
+  state.rotorSystem.rotores = [];
   state.rotorSystem.savedDigits = "";
   state.rotorSystem.generatedCode = "";
   state.rotorSystem.expectedCode = "";
   state.rotorSystem.alignedRotors = [];
   state.rotorSystem.estadoActual = "idle";
+  state.cipherHelper.target = "none";
+  state.cipherHelper.rotors = [];
+  state.cipherHelper.buffer = "";
+  state.cipherHelper.activeRotorIndex = 0;
   syncLegacyRotorState();
 }
 
@@ -5504,7 +5511,7 @@ function setCipherTarget(target) {
   restorePuzzleViewport();
 }
 
-function appendCipherResult() {
+async function appendCipherResult() {
   syncCipherBufferFromRotors();
   const rotor = state.cipherHelper.rotors[state.cipherHelper.activeRotorIndex];
   if (!rotor) return;
@@ -5534,7 +5541,7 @@ function appendCipherResult() {
   } else if (state.cipherHelper.target === "grypho" && state.cipherHelper.buffer.length === 3) {
     setCurrentAlert("Rotores ALFA sincronizados. Pulsa Enviar contención antes de que Gryphovenator cambie sector.", "warning");
   } else if (getRouteKeyFromCipherTarget(state.cipherHelper.target) && state.cipherHelper.buffer.length === state.cipherHelper.rotors.length) {
-    setCurrentAlert("Cuatro rotores de override sincronizados. Pulsa Enviar contención para forzar evacuación.", "warning");
+    setCurrentAlert("Cuatro rotores de override sincronizados. Escape automático en curso.", "warning");
   } else if (state.cipherHelper.buffer.length === 3) {
     setCurrentAlert("Rotores alineados. Pulsa Enviar contención para ejecutar el protocolo.", "warning");
   }
@@ -5546,6 +5553,9 @@ function appendCipherResult() {
   debugRotorState("appendCipherResult");
   logRotorSystem(`save:${state.rotorSystem.protocoloActivo || state.cipherHelper.target}`);
   updateCipherHelper();
+  if (getRouteKeyFromCipherTarget(state.cipherHelper.target) && state.cipherHelper.buffer.length === state.cipherHelper.rotors.length) {
+    await sendRotorContainment();
+  }
 }
 
 async function sendRotorContainment() {
