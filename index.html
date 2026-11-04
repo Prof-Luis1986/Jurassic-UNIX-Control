@@ -151,7 +151,7 @@
         </div>
         <div class="status-box">
           <span>Tiempo Critico</span>
-          <strong id="countdownState">15:00</strong>
+          <strong id="countdownState">30:00</strong>
         </div>
       </div>
       <div class="mission-box">
@@ -271,7 +271,7 @@
         <p class="label">MODO GUIADO</p>
         <p>Accesos mínimos. La investigación real ocurre en la terminal con <code>ls</code>, <code>cat</code> y <code>hint</code>.</p>
         <div class="action-grid" id="actionGrid">
-          <button class="action-button" data-command="ls">Ver archivos</button>
+          <button class="action-button action-button--primary" data-command="ls">1. VER ARCHIVOS</button>
           <button class="action-button action-button--primary" data-command="cat CREW.LOG">Ver incidentes</button>
           <button class="action-button action-button--primary" data-command="status">Estado actual</button>
           <button class="action-button action-button--danger" data-command="hint">Solicitar pista</button>
@@ -344,7 +344,7 @@
         <span class="scan-pill">SECURITY LEVEL: OMEGA</span>
         <span class="scan-pill">INPUT MODE: GUIADO + TERMINAL</span>
       </div>
-      <section class="cipher-console" id="cipherConsole">
+      <section class="cipher-console hidden" id="cipherConsole">
         <div class="cipher-console__header">
           <div>
             <p class="label">DESCIFRADO ACTIVO</p>
@@ -367,13 +367,8 @@
               <strong id="cipherConsoleBuffer">_ _ _</strong>
             </div>
             <div class="cipher-console__actions">
-              <button type="button" class="action-button action-button--primary" id="focusCipherRaptor">Cargar Raptor</button>
-              <button type="button" class="action-button" id="focusCipherTrex">Cargar T-Rex</button>
-              <button type="button" class="action-button" id="focusCipherGrypho">Cargar ALFA</button>
-              <button type="button" class="action-button" id="focusCipherDilo">Cargar Dilo</button>
-              <button type="button" class="action-button" id="focusCipherChimera">Cargar Chimera</button>
               <button type="button" class="action-button" id="focusCipherAppend">Guardar digito</button>
-              <button type="button" class="action-button" id="focusCipherSend">Enviar contención</button>
+              <button type="button" class="action-button action-button--primary" id="focusCipherSend">Confirmar protocolo</button>
             </div>
           </div>
         </div>
@@ -415,7 +410,7 @@
       <p class="label" id="omegaOverlayLabel">NIVEL OMEGA ACTIVADO</p>
       <h3 id="omegaOverlayTitle">CHIMERASAURUS REX LIBERADO</h3>
       <p id="omegaOverlayText">CAPSULA DE CONTENCION ROTA. El juego continua al terminar el evento.</p>
-      <strong class="omega-countdown" id="omegaCountdown">15:00</strong>
+      <strong class="omega-countdown" id="omegaCountdown">30:00</strong>
     </div>
   </div>
 

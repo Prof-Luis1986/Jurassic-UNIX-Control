@@ -865,8 +865,8 @@ body.state-omega::after {
 
 .cipher-console__body {
   display: grid;
-  grid-template-columns: 1.5fr 0.9fr;
-  gap: 8px;
+  grid-template-columns: 1fr;
+  gap: 14px;
   margin-top: 8px;
   align-items: start;
 }
@@ -884,7 +884,10 @@ body.state-omega::after {
 }
 
 .cipher-console__rotors {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  max-width: 780px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .cipher-rotor-shell {
@@ -895,7 +898,8 @@ body.state-omega::after {
   border: 1px solid rgba(125, 255, 155, 0.18);
   background: radial-gradient(circle at center, rgba(125, 255, 155, 0.12), rgba(0, 0, 0, 0.24));
   color: var(--text);
-  padding: 10px;
+  min-width: 0;
+  padding: 12px;
   text-align: center;
   display: grid;
   justify-items: center;
@@ -923,7 +927,7 @@ body.state-omega::after {
 }
 
 .cipher-rotor__dial {
-  width: 118px;
+  width: clamp(92px, 10vw, 118px);
   aspect-ratio: 1;
   border-radius: 50%;
   border: 1px solid rgba(125, 255, 155, 0.24);
@@ -957,7 +961,7 @@ body.state-omega::after {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: 100%;
-  gap: 6px;
+  gap: 5px;
 }
 
 .cipher-rotor__button {
@@ -965,7 +969,8 @@ body.state-omega::after {
   background: rgba(125, 255, 155, 0.08);
   color: var(--text);
   font: inherit;
-  padding: 8px 10px;
+  min-width: 0;
+  padding: 8px 4px;
   cursor: pointer;
   font-size: 0.78rem;
   text-align: center;
@@ -1028,6 +1033,7 @@ body.state-omega::after {
 
 .cipher-console__side {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(220px, 0.8fr);
   gap: 8px;
 }
 
@@ -1055,6 +1061,12 @@ body.state-omega::after {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
+}
+
+.cipher-console__actions .action-button {
+  min-height: 100%;
+  padding: 10px;
+  letter-spacing: 0.04rem;
 }
 
 .terminal-output {
@@ -1131,6 +1143,13 @@ body.state-omega::after {
   background: transparent;
   color: var(--text);
   font: inherit;
+}
+
+#commandInput:focus-visible,
+#trainingInput:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 3px;
 }
 
 #commandInput::placeholder {
@@ -2255,6 +2274,14 @@ body.glitch-severe .terminal-topbar {
     grid-template-columns: 1fr 1fr;
   }
 
+  .cipher-console__side {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cipher-console__actions {
+    grid-column: 1 / -1;
+  }
+
   .map-board {
     min-height: 470px;
   }
@@ -2428,5 +2455,15 @@ body.glitch-severe .terminal-topbar {
 
   .species-marker span {
     font-size: 0.56rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 }
