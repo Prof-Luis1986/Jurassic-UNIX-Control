@@ -1,0 +1,619 @@
+[debug] [2026-11-04T17:43:03.738Z] ----------------------------------------------------------------------
+[debug] [2026-11-04T17:43:03.740Z] Command:       /usr/local/bin/node /Users/luismartinez/.npm/_npx/ba4f1959e38407b5/node_modules/.bin/firebase hosting:channel:deploy preview --project jurassic-unix --expires 1d
+[debug] [2026-11-04T17:43:03.740Z] CLI Version:   15.34.2
+[debug] [2026-11-04T17:43:03.741Z] Platform:      darwin
+[debug] [2026-11-04T17:43:03.741Z] Node Version:  v24.21.0
+[debug] [2026-11-04T17:43:03.741Z] Detected Agent: codex_cli
+[debug] [2026-11-04T17:43:03.741Z] Time:          Wed Nov 04 2026 11:43:03 GMT-0600 (Central Standard Time)
+[debug] [2026-11-04T17:43:03.741Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-11-04T17:43:03.753Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-11-04T17:43:04.471Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-11-04T17:43:04.471Z] > authorizing via signed-in user (lmartinez@cetis50cdmx.edu.mx)
+[debug] [2026-11-04T17:43:04.472Z] [iam] checking project jurassic-unix for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-11-04T17:43:04.472Z] Checked if tokens are valid: false, expires at: 1793044620568
+[debug] [2026-11-04T17:43:04.472Z] Checked if tokens are valid: false, expires at: 1793044620568
+[debug] [2026-11-04T17:43:04.472Z] > refreshing access token with scopes: []
+[debug] [2026-11-04T17:43:04.473Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-11-04T17:43:04.473Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-11-04T17:43:04.618Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-11-04T17:43:04.618Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-11-04T17:43:04.650Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-11-04T17:43:04.650Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-11-04T17:43:04.650Z] [iam] error while checking permissions, command may fail: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-11-04T17:43:04.652Z] Checked if tokens are valid: false, expires at: 1793044620568
+[debug] [2026-11-04T17:43:04.652Z] Checked if tokens are valid: false, expires at: 1793044620568
+[debug] [2026-11-04T17:43:04.652Z] > refreshing access token with scopes: []
+[debug] [2026-11-04T17:43:04.653Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-11-04T17:43:04.653Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-11-04T17:43:04.748Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-11-04T17:43:04.748Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] 
+[error] Error: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-11-04T17:43:21.636Z] ----------------------------------------------------------------------
+[debug] [2026-11-04T17:43:21.638Z] Command:       /usr/local/bin/node /Users/luismartinez/.npm/_npx/ba4f1959e38407b5/node_modules/.bin/firebase login --reauth
+[debug] [2026-11-04T17:43:21.639Z] CLI Version:   15.34.2
+[debug] [2026-11-04T17:43:21.639Z] Platform:      darwin
+[debug] [2026-11-04T17:43:21.639Z] Node Version:  v24.21.0
+[debug] [2026-11-04T17:43:21.639Z] Detected Agent: codex_cli
+[debug] [2026-11-04T17:43:21.639Z] Time:          Wed Nov 04 2026 11:43:21 GMT-0600 (Central Standard Time)
+[debug] [2026-11-04T17:43:21.639Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-11-04T17:43:21.746Z] >>> [apiv2][query] POST https://auth.firebase.tools/attest [none]
+[debug] [2026-11-04T17:43:21.746Z] >>> [apiv2][body] POST https://auth.firebase.tools/attest {"session_id":"3d399c1d-051d-4e6d-9678-d697cb9ca724"}
+[debug] [2026-11-04T17:43:22.037Z] <<< [apiv2][status] POST https://auth.firebase.tools/attest 200
+[debug] [2026-11-04T17:46:30.740Z] ----------------------------------------------------------------------
+[debug] [2026-11-04T17:46:30.742Z] Command:       /usr/local/bin/node /Users/luismartinez/.npm/_npx/ba4f1959e38407b5/node_modules/.bin/firebase login --reauth
+[debug] [2026-11-04T17:46:30.742Z] CLI Version:   15.34.2
+[debug] [2026-11-04T17:46:30.743Z] Platform:      darwin
+[debug] [2026-11-04T17:46:30.743Z] Node Version:  v24.21.0
+[debug] [2026-11-04T17:46:30.743Z] Detected Agent: codex_cli
+[debug] [2026-11-04T17:46:30.743Z] Time:          Wed Nov 04 2026 11:46:30 GMT-0600 (Central Standard Time)
+[debug] [2026-11-04T17:46:30.743Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-11-04T17:46:30.852Z] >>> [apiv2][query] POST https://auth.firebase.tools/attest [none]
+[debug] [2026-11-04T17:46:30.852Z] >>> [apiv2][body] POST https://auth.firebase.tools/attest {"session_id":"05d7e5e7-5f5b-47fe-8007-328cb368d5dd"}
+[debug] [2026-11-04T17:46:31.073Z] <<< [apiv2][status] POST https://auth.firebase.tools/attest 200
+[debug] [2026-11-04T17:47:58.627Z] ----------------------------------------------------------------------
+[debug] [2026-11-04T17:47:58.629Z] Command:       /usr/local/bin/node /Users/luismartinez/.npm/_npx/ba4f1959e38407b5/node_modules/.bin/firebase login 4/0AUn6Hd_lTOemUvNeJ59wTcECrFtdgygdttt0smobwBwc8K7l4Hr_u80vfJTdrWhkuBCMiQ
+[debug] [2026-11-04T17:47:58.629Z] CLI Version:   15.34.2
+[debug] [2026-11-04T17:47:58.629Z] Platform:      darwin
+[debug] [2026-11-04T17:47:58.629Z] Node Version:  v24.21.0
+[debug] [2026-11-04T17:47:58.629Z] Detected Agent: codex_cli
+[debug] [2026-11-04T17:47:58.629Z] Time:          Wed Nov 04 2026 11:47:58 GMT-0600 (Central Standard Time)
+[debug] [2026-11-04T17:47:58.629Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-11-04T17:47:58.741Z] >>> [apiv2][query] POST https://accounts.google.com/o/oauth2/token [none]
+[debug] [2026-11-04T17:47:58.741Z] >>> [apiv2][body] POST https://accounts.google.com/o/oauth2/token [omitted]
+[debug] [2026-11-04T17:47:59.075Z] <<< [apiv2][status] POST https://accounts.google.com/o/oauth2/token 200
+[debug] [2026-11-04T17:48:00.126Z] ----------------------------------------------------------------------
+[debug] [2026-11-04T17:48:00.128Z] Command:       /usr/local/bin/node /Users/luismartinez/.npm/_npx/ba4f1959e38407b5/node_modules/.bin/firebase deploy --only hosting --project jurassic-unix
+[debug] [2026-11-04T17:48:00.129Z] CLI Version:   15.34.2
+[debug] [2026-11-04T17:48:00.129Z] Platform:      darwin
+[debug] [2026-11-04T17:48:00.129Z] Node Version:  v24.21.0
+[debug] [2026-11-04T17:48:00.129Z] Detected Agent: codex_cli
+[debug] [2026-11-04T17:48:00.129Z] Time:          Wed Nov 04 2026 11:48:00 GMT-0600 (Central Standard Time)
+[debug] [2026-11-04T17:48:00.129Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-11-04T17:48:00.780Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-11-04T17:48:00.780Z] > authorizing via signed-in user (luismartinez.cetis50@gmail.com)
+[debug] [2026-11-04T17:48:00.780Z] [iam] checking project jurassic-unix for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-11-04T17:48:00.786Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:00.786Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:00.787Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions [none]
+[debug] [2026-11-04T17:48:00.787Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions  x-goog-user-project=jurassic-unix
+[debug] [2026-11-04T17:48:00.787Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-11-04T17:48:01.189Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions 200
+[debug] [2026-11-04T17:48:01.190Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-11-04T17:48:01.191Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:01.191Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:01.191Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/jurassic-unix/services/firebasehosting.googleapis.com [none]
+[debug] [2026-11-04T17:48:01.192Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/jurassic-unix/services/firebasehosting.googleapis.com  x-goog-user-project=jurassic-unix
+[debug] [2026-11-04T17:48:01.788Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/jurassic-unix/services/firebasehosting.googleapis.com 200
+[debug] [2026-11-04T17:48:01.788Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/jurassic-unix/services/firebasehosting.googleapis.com [omitted]
+[debug] [2026-11-04T17:48:01.798Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:01.798Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:01.798Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/jurassic-unix [none]
+[debug] [2026-11-04T17:48:02.069Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/jurassic-unix 200
+[debug] [2026-11-04T17:48:02.069Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/jurassic-unix {"projectId":"jurassic-unix","projectNumber":"864029641950","displayName":"JURASSIC UNIX","name":"projects/jurassic-unix","resources":{"hostingSite":"jurassic-unix"},"state":"ACTIVE","labels":{"firebase":"enabled"},"etag":"1_26b18810-6c64-40b1-9b68-56bbb503df63"}
+[info] 
+[info] === Deploying to 'jurassic-unix'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-11-04T17:48:02.075Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:02.075Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:02.075Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix [none]
+[debug] [2026-11-04T17:48:02.660Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix 200
+[debug] [2026-11-04T17:48:02.660Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix {"name":"projects/jurassic-unix/sites/jurassic-unix","defaultUrl":"https://jurassic-unix.web.app","appId":"1:864029641950:web:6ee51b97d2113c37ab864f","type":"DEFAULT_SITE"}
+[debug] [2026-11-04T17:48:02.662Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:02.662Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:02.662Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions [none]
+[debug] [2026-11-04T17:48:02.662Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-11-04T17:48:03.995Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions 200
+[debug] [2026-11-04T17:48:03.995Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions {"name":"projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[jurassic-unix]: beginning deploy... 
+[info] i  hosting[jurassic-unix]: found 74 files in . 
+[debug] [2026-11-04T17:48:04.032Z] [hosting] uploading with 200 concurrency
+[debug] [2026-11-04T17:48:04.033Z] [hosting] hash cache [] not populated
+[debug] [2026-11-04T17:48:05.328Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.330Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.342Z] [hosting] hash cache [] stored for 74 files
+[debug] [2026-11-04T17:48:05.342Z] [hosting][hash queue][FINAL] {"max":1291,"min":25,"avg":412.5135135135135,"active":0,"complete":74,"success":74,"errored":0,"retried":0,"total":74,"elapsed":1309}
+[debug] [2026-11-04T17:48:05.342Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e:populateFiles [none]
+[debug] [2026-11-04T17:48:05.342Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e:populateFiles {"files":{"/index.html":"c404bba34c16d5989775d8f308f9f088a9a33992ff4f8afe4a15c4c51b6d7e4b","/app.js":"72e3c0f29fe8e8b2203035e0b329dfa43bbb69c5c955ce5fd16e906e1e0b25b5","/styles.css":"1bed943e0923d7c09dc8a09cfebc264d5984375631b3c56c9391eefb39994a36","/._firebase-debug.log":"26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169","/._script.js":"26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169","/._firebase.json":"26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169","/._index.html":"26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169","/._.firebaserc":"26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169","/._app.js":"26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169","/.DS_Store":"461e0506dbae17d6c66d53b70d743c639736d5cae3c0b4479ea4685c4f00905a","/assets/.DS_Store":"95dbd458175ed0080e56215b10d961e397689788a793f3fa7710b1c70082f1b5","/assets/video/.DS_Store":"5b307521303304d2290482ee5e7c77e5be8f278d6bedba45daa1715580c71bdc","/Digital.mp3":"638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e","/texto.mp3":"2bd078f15a201fc85c184b6dbba5ab3b7594727b2c4b48f0081b14a3acbcd39a","/Señales/._Señal.jpg":"2918854218e080a7751f64e5c64783e229b4c576ffc483033cb536ff20ad0fa9","/Señales/.DS_Store":"35cb6cb9dd96fecf7c2d9fb6502563a41098a0ea530f15281edfc96e232dbacc","/Dinosaurios/.DS_Store":"6283d7f6ea63fc3e3d2f4bc9dd534142dee5e4e2da57b30accd3216be6d93e58","/assets/audio/ambiente.mp3":"638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e","/Señales/Maritima.jpg":"48d5cdec162144923c0f219d54034415c589a9c351b52a17abd1750f86520a37","/Señales/Señal.jpg":"f7cb1d86f813bf2b6ee17838bd752acc8a7505fcc08f610a0b81ee5a12a975af","/Dinosaurios/Triasico/Eoraptor.jpeg":"0b5b20e1ba2933bfe397c09547f4a2df8c6c8c4f1bafd41623e614a8b4de3faf","/script.js":"e64b058abffca220c9ea4233a387be62c205588b8e38f3254d5b2aa053818086","/assets/audio/Garras.mp3":"1ca23e53151ef129491bba621032a446ecd4f07fb0209072cb0da901d5fcbfac","/Dinosaurios/Jurasico/Stegosaurus.jpeg":"139172db7f28d70038d9a391fedbde33dc3944c32c219bba3234209cf4b0020c","/Dinosaurios/Jurasico/Dilophosaurus.webp":"6ddf21c4b125f7aa225f324e60265da68c26ac5bdffa2f7eefe91728bfb2554f","/Dinosaurios/Jurasico/Allosaurus.jpeg":"5b90568de1be0e88c711e0e8ed86e8575ffec0b36ac543fd5a492d4a35779ed3","/Dinosaurios/Jurasico/Diplodocus.jpeg":"17083507c85263cfb0e9758140e0be9fee4db049a904ed2c45fafba5217dfc4c","/Dinosaurios/Creatacico/Parasaurolophus.webp":"cf0f8582acf6925c5c954b3c1d4ae20175b4a3aed21e527ae2de1ea1dc7c7ee2","/sonidos /Sonido de Dilophosaurus en La Vida Real Segun La Ciencia #Dinosaurio #Shorts #Humor.mp3":"f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259","/assets/audio/dilo.mp3":"f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259","/Dinosaurios/Triasico/Herrerasaurus.jpeg":"8ef739079015cde76cd62c1dc4d41aee9740ba017515d15576973e8bca2f7ec6","/Alerta.mp3":"2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32","/Dinosaurios/Creatacico/Velociraptor.jpeg":"6b28811bccf541ea076e84a89aa947d85bcd276e398204fe56971df378241fba","/assets/audio/alerta.mp3":"2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32","/Dinosaurios/Jurasico/Brachiosaurus.jpg":"cb7cce44c54bed1bf1af872e0fec930aff51950c625c8b9e37a359ade0f46a51","/Dinosaurios/Creatacico/Triceratops.jpeg":"12662f9822e216f01a9048e6cd7a9e4caf94764d1dbc13cb43daf8153c3b804b","/sonidos /T.REX ROAR - Sound Design - Pierre Mendola.mp3":"52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085","/assets/audio/rex.mp3":"52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085","/sonidos /Chimerasaurus.mp3":"4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9","/logo_Jurassic-removebg-preview.png":"2bb744dc2355d985ed77dfe2c572715362b06e836832c8fb667a836121672dd5","/assets/audio/Chimerasaurus.mp3":"4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9","/Dinosaurios/Triasico/Coelophysis.jpeg":"45b5e72f3ca784055cbb65fea7b97f2d0f35e6e134e92fea39db0a2d97b3ff01","/Dinosaurios/Creatacico/Ankylosaurus.jpeg":"d298b13b78514b44ab6900cb49609c59c644b09a4dc2e2cc0666f06b5c1a74b9","/sonidos /JW Herrerasaurus sound effects.mp3":"912f3eb93eff342480071baf664ed398495d8aa1486626d892f22b673b8b5f2a","/AUDIO_INTRO.mp3":"1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37","/assets/audio/INTRO_AUDIO.MP3":"1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37","/Dinosaurios/Chimerasaurus.PNG":"1921a7a517cad8669f9c88a2bc1ea171f742c2e684b657beb4a05f29f164c127","/Dinosaurios/Creatacico/Tyrannosaurus rex.webp":"97fe0701ead747cf08ce674443496f1bb1f7391b06cc7026814877700c96a6bb","/assets/audio/brachio.mp3":"6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967","/sonidos /Brachiosaurus Sounds.mp3":"6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967","/sonidos /Real Parasaurolophus sound _ Dinosaur.mp3":"d86bdf30644ff676c11244588b955c0843dfda8065fc2e3ecb9ad0282729b0e6","/sonidos /Triceratops sounds.mp3":"b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f","/assets/audio/triceratops.mp3":"b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f","/sonidos /Stegosaurus Sounds J.P.mp3":"7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed","/assets/audio/stego.mp3":"7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed","/assets/video/Compi.mp4":"8a36ccee649e8925078bee06a3dc36a1f6340ff0a9f302504efad7da882c8883","/Intro.MP4":"b3e4e027a9cd54837050fe1477529394e0e0b817a5d6934369f51b1ff787fe9e","/sonidos /Ankylosaurus Sounds.mp3":"3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9","/assets/audio/ankylosaurus.mp3":"3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9","/Compi.mp4":"f894778ec5d9aeb0b8909fd2424612b91e748206fa8bfeccff07f2bf7b52e16f","/assets/audio/raptor.mp3":"042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4","/sonidos /Velociraptor sounds.mp3":"042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4","/assets/video/Compi.MOV":"ba63677d32b4230bb83ffc174e9b2691b1a827ae1fda9856bf620c7867d8fdd7","/assets/video/Chimerasaurus Escape.MP4":"e1bb837da30d089f2dd5946492c47e509f0aed1d1e5a9acc476a7b025dcdfa7b","/assets/video/Raptor_Escape.mp4":"df46fc3e01f64d60b09b16d6a771b9175eab7132c8bf4374e93544892078cd9e","/assets/video/Rex_Escape.mp4":"f5a3a5adb7454863da1f40f42674fbc89fee50b2743f4bf58862be7a7d5a1f57","/assets/video/Dilo_Attack.mp4":"2c5a056405f95de34bd268266341ddf0cd4f42eeceb8a9d43901ba61b3462311","/assets/video/Estegosaurus_Enfermo.mp4":"1059e9014af6447b7e66decbd5ac314ccdd66922a2a7750fd67e639a3f065241","/assets/video/Triceratops_Peleando.mp4":"7db06572c1c3abcaf9e814ef5c4d4eaf9d5d8044c7241dc4aa5a3292a60f08fa","/ESCAPE.MP4":"9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2","/assets/video/ESCAPE.MP4":"9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2","/assets/video/Falla.mp4":"f87f1171e3bd55654786bee812669df4e09710c56ca574863f99e862b103b7e9","/assets/video/Anky_Caminando.mp4":"64019f18aab002afc70f5a68bf00d111fae7756bd7e09854b69cbf3d0c8e313d","/assets/video/Gryphovenator.mp4":"f0eafc9782d72efd0f52fa62eb0b7477b4ac91652165ba66969e6acab9e15b39"}}
+[debug] [2026-11-04T17:48:05.823Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e:populateFiles 200
+[debug] [2026-11-04T17:48:05.823Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e:populateFiles {"uploadRequiredHashes":["042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4","9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2","c404bba34c16d5989775d8f308f9f088a9a33992ff4f8afe4a15c4c51b6d7e4b","45b5e72f3ca784055cbb65fea7b97f2d0f35e6e134e92fea39db0a2d97b3ff01","12662f9822e216f01a9048e6cd7a9e4caf94764d1dbc13cb43daf8153c3b804b","0b5b20e1ba2933bfe397c09547f4a2df8c6c8c4f1bafd41623e614a8b4de3faf","d86bdf30644ff676c11244588b955c0843dfda8065fc2e3ecb9ad0282729b0e6","139172db7f28d70038d9a391fedbde33dc3944c32c219bba3234209cf4b0020c","912f3eb93eff342480071baf664ed398495d8aa1486626d892f22b673b8b5f2a","97fe0701ead747cf08ce674443496f1bb1f7391b06cc7026814877700c96a6bb","f87f1171e3bd55654786bee812669df4e09710c56ca574863f99e862b103b7e9","2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32","52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085","f894778ec5d9aeb0b8909fd2424612b91e748206fa8bfeccff07f2bf7b52e16f","6b28811bccf541ea076e84a89aa947d85bcd276e398204fe56971df378241fba","8ef739079015cde76cd62c1dc4d41aee9740ba017515d15576973e8bca2f7ec6","72e3c0f29fe8e8b2203035e0b329dfa43bbb69c5c955ce5fd16e906e1e0b25b5","64019f18aab002afc70f5a68bf00d111fae7756bd7e09854b69cbf3d0c8e313d","26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169","6283d7f6ea63fc3e3d2f4bc9dd534142dee5e4e2da57b30accd3216be6d93e58","df46fc3e01f64d60b09b16d6a771b9175eab7132c8bf4374e93544892078cd9e","7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed","8a36ccee649e8925078bee06a3dc36a1f6340ff0a9f302504efad7da882c8883","b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f","5b90568de1be0e88c711e0e8ed86e8575ffec0b36ac543fd5a492d4a35779ed3","e64b058abffca220c9ea4233a387be62c205588b8e38f3254d5b2aa053818086","6ddf21c4b125f7aa225f324e60265da68c26ac5bdffa2f7eefe91728bfb2554f","35cb6cb9dd96fecf7c2d9fb6502563a41098a0ea530f15281edfc96e232dbacc","95dbd458175ed0080e56215b10d961e397689788a793f3fa7710b1c70082f1b5","f5a3a5adb7454863da1f40f42674fbc89fee50b2743f4bf58862be7a7d5a1f57","f7cb1d86f813bf2b6ee17838bd752acc8a7505fcc08f610a0b81ee5a12a975af","3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9","461e0506dbae17d6c66d53b70d743c639736d5cae3c0b4479ea4685c4f00905a","cf0f8582acf6925c5c954b3c1d4ae20175b4a3aed21e527ae2de1ea1dc7c7ee2","2bd078f15a201fc85c184b6dbba5ab3b7594727b2c4b48f0081b14a3acbcd39a","f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259","1921a7a517cad8669f9c88a2bc1ea171f742c2e684b657beb4a05f29f164c127","1059e9014af6447b7e66decbd5ac314ccdd66922a2a7750fd67e639a3f065241","2c5a056405f95de34bd268266341ddf0cd4f42eeceb8a9d43901ba61b3462311","b3e4e027a9cd54837050fe1477529394e0e0b817a5d6934369f51b1ff787fe9e","cb7cce44c54bed1bf1af872e0fec930aff51950c625c8b9e37a359ade0f46a51","6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967","1ca23e53151ef129491bba621032a446ecd4f07fb0209072cb0da901d5fcbfac","1bed943e0923d7c09dc8a09cfebc264d5984375631b3c56c9391eefb39994a36","17083507c85263cfb0e9758140e0be9fee4db049a904ed2c45fafba5217dfc4c","7db06572c1c3abcaf9e814ef5c4d4eaf9d5d8044c7241dc4aa5a3292a60f08fa","2bb744dc2355d985ed77dfe2c572715362b06e836832c8fb667a836121672dd5","48d5cdec162144923c0f219d54034415c589a9c351b52a17abd1750f86520a37","d298b13b78514b44ab6900cb49609c59c644b09a4dc2e2cc0666f06b5c1a74b9","2918854218e080a7751f64e5c64783e229b4c576ffc483033cb536ff20ad0fa9","f0eafc9782d72efd0f52fa62eb0b7477b4ac91652165ba66969e6acab9e15b39","e1bb837da30d089f2dd5946492c47e509f0aed1d1e5a9acc476a7b025dcdfa7b","4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9","638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e","1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37","5b307521303304d2290482ee5e7c77e5be8f278d6bedba45daa1715580c71bdc","ba63677d32b4230bb83ffc174e9b2691b1a827ae1fda9856bf620c7867d8fdd7"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files"}
+[debug] [2026-11-04T17:48:05.824Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.824Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.825Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.825Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.825Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.825Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.826Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.826Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.826Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.826Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.827Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.827Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.827Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.827Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.828Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.828Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.828Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.828Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.829Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.829Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.829Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.829Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.830Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.830Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.830Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.830Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.830Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.830Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.831Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.831Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.831Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.831Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.832Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.832Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.832Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.832Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.832Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.832Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.833Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.834Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.835Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.835Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.835Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.835Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.835Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.836Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.836Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.836Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.836Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.836Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.836Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.837Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.837Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.837Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.837Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.837Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.837Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.838Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.838Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.838Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.838Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.838Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.838Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.839Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.839Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.839Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.839Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.839Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.839Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.839Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.840Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.840Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.840Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.840Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.840Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.841Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.841Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.841Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.841Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.841Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.841Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.842Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.842Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.842Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.842Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.842Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.842Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.842Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.842Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.843Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.843Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.843Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.843Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.843Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.843Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.843Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.843Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:05.844Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4 [none]
+[debug] [2026-11-04T17:48:05.844Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4 [stream]
+[debug] [2026-11-04T17:48:05.847Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2 [none]
+[debug] [2026-11-04T17:48:05.847Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2 [stream]
+[debug] [2026-11-04T17:48:05.847Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/c404bba34c16d5989775d8f308f9f088a9a33992ff4f8afe4a15c4c51b6d7e4b [none]
+[debug] [2026-11-04T17:48:05.847Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/c404bba34c16d5989775d8f308f9f088a9a33992ff4f8afe4a15c4c51b6d7e4b [stream]
+[debug] [2026-11-04T17:48:05.848Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/45b5e72f3ca784055cbb65fea7b97f2d0f35e6e134e92fea39db0a2d97b3ff01 [none]
+[debug] [2026-11-04T17:48:05.848Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/45b5e72f3ca784055cbb65fea7b97f2d0f35e6e134e92fea39db0a2d97b3ff01 [stream]
+[debug] [2026-11-04T17:48:05.849Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/12662f9822e216f01a9048e6cd7a9e4caf94764d1dbc13cb43daf8153c3b804b [none]
+[debug] [2026-11-04T17:48:05.849Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/12662f9822e216f01a9048e6cd7a9e4caf94764d1dbc13cb43daf8153c3b804b [stream]
+[debug] [2026-11-04T17:48:05.849Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/0b5b20e1ba2933bfe397c09547f4a2df8c6c8c4f1bafd41623e614a8b4de3faf [none]
+[debug] [2026-11-04T17:48:05.849Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/0b5b20e1ba2933bfe397c09547f4a2df8c6c8c4f1bafd41623e614a8b4de3faf [stream]
+[debug] [2026-11-04T17:48:05.850Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/d86bdf30644ff676c11244588b955c0843dfda8065fc2e3ecb9ad0282729b0e6 [none]
+[debug] [2026-11-04T17:48:05.850Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/d86bdf30644ff676c11244588b955c0843dfda8065fc2e3ecb9ad0282729b0e6 [stream]
+[debug] [2026-11-04T17:48:05.851Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/139172db7f28d70038d9a391fedbde33dc3944c32c219bba3234209cf4b0020c [none]
+[debug] [2026-11-04T17:48:05.851Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/139172db7f28d70038d9a391fedbde33dc3944c32c219bba3234209cf4b0020c [stream]
+[debug] [2026-11-04T17:48:05.851Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/912f3eb93eff342480071baf664ed398495d8aa1486626d892f22b673b8b5f2a [none]
+[debug] [2026-11-04T17:48:05.851Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/912f3eb93eff342480071baf664ed398495d8aa1486626d892f22b673b8b5f2a [stream]
+[debug] [2026-11-04T17:48:05.852Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/97fe0701ead747cf08ce674443496f1bb1f7391b06cc7026814877700c96a6bb [none]
+[debug] [2026-11-04T17:48:05.852Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/97fe0701ead747cf08ce674443496f1bb1f7391b06cc7026814877700c96a6bb [stream]
+[debug] [2026-11-04T17:48:05.853Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f87f1171e3bd55654786bee812669df4e09710c56ca574863f99e862b103b7e9 [none]
+[debug] [2026-11-04T17:48:05.853Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f87f1171e3bd55654786bee812669df4e09710c56ca574863f99e862b103b7e9 [stream]
+[debug] [2026-11-04T17:48:05.853Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32 [none]
+[debug] [2026-11-04T17:48:05.853Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32 [stream]
+[debug] [2026-11-04T17:48:05.853Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085 [none]
+[debug] [2026-11-04T17:48:05.853Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085 [stream]
+[debug] [2026-11-04T17:48:05.854Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f894778ec5d9aeb0b8909fd2424612b91e748206fa8bfeccff07f2bf7b52e16f [none]
+[debug] [2026-11-04T17:48:05.854Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f894778ec5d9aeb0b8909fd2424612b91e748206fa8bfeccff07f2bf7b52e16f [stream]
+[debug] [2026-11-04T17:48:05.854Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6b28811bccf541ea076e84a89aa947d85bcd276e398204fe56971df378241fba [none]
+[debug] [2026-11-04T17:48:05.854Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6b28811bccf541ea076e84a89aa947d85bcd276e398204fe56971df378241fba [stream]
+[debug] [2026-11-04T17:48:05.855Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/8ef739079015cde76cd62c1dc4d41aee9740ba017515d15576973e8bca2f7ec6 [none]
+[debug] [2026-11-04T17:48:05.855Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/8ef739079015cde76cd62c1dc4d41aee9740ba017515d15576973e8bca2f7ec6 [stream]
+[debug] [2026-11-04T17:48:05.855Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/72e3c0f29fe8e8b2203035e0b329dfa43bbb69c5c955ce5fd16e906e1e0b25b5 [none]
+[debug] [2026-11-04T17:48:05.855Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/72e3c0f29fe8e8b2203035e0b329dfa43bbb69c5c955ce5fd16e906e1e0b25b5 [stream]
+[debug] [2026-11-04T17:48:05.856Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/64019f18aab002afc70f5a68bf00d111fae7756bd7e09854b69cbf3d0c8e313d [none]
+[debug] [2026-11-04T17:48:05.856Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/64019f18aab002afc70f5a68bf00d111fae7756bd7e09854b69cbf3d0c8e313d [stream]
+[debug] [2026-11-04T17:48:05.856Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169 [none]
+[debug] [2026-11-04T17:48:05.856Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169 [stream]
+[debug] [2026-11-04T17:48:05.856Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6283d7f6ea63fc3e3d2f4bc9dd534142dee5e4e2da57b30accd3216be6d93e58 [none]
+[debug] [2026-11-04T17:48:05.856Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6283d7f6ea63fc3e3d2f4bc9dd534142dee5e4e2da57b30accd3216be6d93e58 [stream]
+[debug] [2026-11-04T17:48:05.856Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/df46fc3e01f64d60b09b16d6a771b9175eab7132c8bf4374e93544892078cd9e [none]
+[debug] [2026-11-04T17:48:05.856Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/df46fc3e01f64d60b09b16d6a771b9175eab7132c8bf4374e93544892078cd9e [stream]
+[debug] [2026-11-04T17:48:05.857Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed [none]
+[debug] [2026-11-04T17:48:05.857Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed [stream]
+[debug] [2026-11-04T17:48:05.857Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/8a36ccee649e8925078bee06a3dc36a1f6340ff0a9f302504efad7da882c8883 [none]
+[debug] [2026-11-04T17:48:05.857Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/8a36ccee649e8925078bee06a3dc36a1f6340ff0a9f302504efad7da882c8883 [stream]
+[debug] [2026-11-04T17:48:05.858Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f [none]
+[debug] [2026-11-04T17:48:05.858Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f [stream]
+[debug] [2026-11-04T17:48:05.858Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/5b90568de1be0e88c711e0e8ed86e8575ffec0b36ac543fd5a492d4a35779ed3 [none]
+[debug] [2026-11-04T17:48:05.858Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/5b90568de1be0e88c711e0e8ed86e8575ffec0b36ac543fd5a492d4a35779ed3 [stream]
+[debug] [2026-11-04T17:48:05.858Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/e64b058abffca220c9ea4233a387be62c205588b8e38f3254d5b2aa053818086 [none]
+[debug] [2026-11-04T17:48:05.858Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/e64b058abffca220c9ea4233a387be62c205588b8e38f3254d5b2aa053818086 [stream]
+[debug] [2026-11-04T17:48:05.859Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6ddf21c4b125f7aa225f324e60265da68c26ac5bdffa2f7eefe91728bfb2554f [none]
+[debug] [2026-11-04T17:48:05.859Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6ddf21c4b125f7aa225f324e60265da68c26ac5bdffa2f7eefe91728bfb2554f [stream]
+[debug] [2026-11-04T17:48:05.859Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/35cb6cb9dd96fecf7c2d9fb6502563a41098a0ea530f15281edfc96e232dbacc [none]
+[debug] [2026-11-04T17:48:05.859Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/35cb6cb9dd96fecf7c2d9fb6502563a41098a0ea530f15281edfc96e232dbacc [stream]
+[debug] [2026-11-04T17:48:05.859Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/95dbd458175ed0080e56215b10d961e397689788a793f3fa7710b1c70082f1b5 [none]
+[debug] [2026-11-04T17:48:05.859Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/95dbd458175ed0080e56215b10d961e397689788a793f3fa7710b1c70082f1b5 [stream]
+[debug] [2026-11-04T17:48:05.859Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f5a3a5adb7454863da1f40f42674fbc89fee50b2743f4bf58862be7a7d5a1f57 [none]
+[debug] [2026-11-04T17:48:05.860Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f5a3a5adb7454863da1f40f42674fbc89fee50b2743f4bf58862be7a7d5a1f57 [stream]
+[debug] [2026-11-04T17:48:05.860Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f7cb1d86f813bf2b6ee17838bd752acc8a7505fcc08f610a0b81ee5a12a975af [none]
+[debug] [2026-11-04T17:48:05.860Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f7cb1d86f813bf2b6ee17838bd752acc8a7505fcc08f610a0b81ee5a12a975af [stream]
+[debug] [2026-11-04T17:48:05.860Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9 [none]
+[debug] [2026-11-04T17:48:05.860Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9 [stream]
+[debug] [2026-11-04T17:48:05.861Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/461e0506dbae17d6c66d53b70d743c639736d5cae3c0b4479ea4685c4f00905a [none]
+[debug] [2026-11-04T17:48:05.861Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/461e0506dbae17d6c66d53b70d743c639736d5cae3c0b4479ea4685c4f00905a [stream]
+[debug] [2026-11-04T17:48:05.861Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/cf0f8582acf6925c5c954b3c1d4ae20175b4a3aed21e527ae2de1ea1dc7c7ee2 [none]
+[debug] [2026-11-04T17:48:05.861Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/cf0f8582acf6925c5c954b3c1d4ae20175b4a3aed21e527ae2de1ea1dc7c7ee2 [stream]
+[debug] [2026-11-04T17:48:05.861Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2bd078f15a201fc85c184b6dbba5ab3b7594727b2c4b48f0081b14a3acbcd39a [none]
+[debug] [2026-11-04T17:48:05.861Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2bd078f15a201fc85c184b6dbba5ab3b7594727b2c4b48f0081b14a3acbcd39a [stream]
+[debug] [2026-11-04T17:48:05.862Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259 [none]
+[debug] [2026-11-04T17:48:05.862Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259 [stream]
+[debug] [2026-11-04T17:48:05.862Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1921a7a517cad8669f9c88a2bc1ea171f742c2e684b657beb4a05f29f164c127 [none]
+[debug] [2026-11-04T17:48:05.862Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1921a7a517cad8669f9c88a2bc1ea171f742c2e684b657beb4a05f29f164c127 [stream]
+[debug] [2026-11-04T17:48:05.862Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1059e9014af6447b7e66decbd5ac314ccdd66922a2a7750fd67e639a3f065241 [none]
+[debug] [2026-11-04T17:48:05.863Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1059e9014af6447b7e66decbd5ac314ccdd66922a2a7750fd67e639a3f065241 [stream]
+[debug] [2026-11-04T17:48:05.863Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2c5a056405f95de34bd268266341ddf0cd4f42eeceb8a9d43901ba61b3462311 [none]
+[debug] [2026-11-04T17:48:05.863Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2c5a056405f95de34bd268266341ddf0cd4f42eeceb8a9d43901ba61b3462311 [stream]
+[debug] [2026-11-04T17:48:05.863Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/b3e4e027a9cd54837050fe1477529394e0e0b817a5d6934369f51b1ff787fe9e [none]
+[debug] [2026-11-04T17:48:05.863Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/b3e4e027a9cd54837050fe1477529394e0e0b817a5d6934369f51b1ff787fe9e [stream]
+[debug] [2026-11-04T17:48:05.863Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/cb7cce44c54bed1bf1af872e0fec930aff51950c625c8b9e37a359ade0f46a51 [none]
+[debug] [2026-11-04T17:48:05.863Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/cb7cce44c54bed1bf1af872e0fec930aff51950c625c8b9e37a359ade0f46a51 [stream]
+[debug] [2026-11-04T17:48:05.864Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967 [none]
+[debug] [2026-11-04T17:48:05.864Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967 [stream]
+[debug] [2026-11-04T17:48:05.864Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1ca23e53151ef129491bba621032a446ecd4f07fb0209072cb0da901d5fcbfac [none]
+[debug] [2026-11-04T17:48:05.864Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1ca23e53151ef129491bba621032a446ecd4f07fb0209072cb0da901d5fcbfac [stream]
+[debug] [2026-11-04T17:48:05.864Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1bed943e0923d7c09dc8a09cfebc264d5984375631b3c56c9391eefb39994a36 [none]
+[debug] [2026-11-04T17:48:05.865Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1bed943e0923d7c09dc8a09cfebc264d5984375631b3c56c9391eefb39994a36 [stream]
+[debug] [2026-11-04T17:48:05.865Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/17083507c85263cfb0e9758140e0be9fee4db049a904ed2c45fafba5217dfc4c [none]
+[debug] [2026-11-04T17:48:05.865Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/17083507c85263cfb0e9758140e0be9fee4db049a904ed2c45fafba5217dfc4c [stream]
+[debug] [2026-11-04T17:48:05.865Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/7db06572c1c3abcaf9e814ef5c4d4eaf9d5d8044c7241dc4aa5a3292a60f08fa [none]
+[debug] [2026-11-04T17:48:05.866Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/7db06572c1c3abcaf9e814ef5c4d4eaf9d5d8044c7241dc4aa5a3292a60f08fa [stream]
+[debug] [2026-11-04T17:48:05.866Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2bb744dc2355d985ed77dfe2c572715362b06e836832c8fb667a836121672dd5 [none]
+[debug] [2026-11-04T17:48:05.866Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2bb744dc2355d985ed77dfe2c572715362b06e836832c8fb667a836121672dd5 [stream]
+[debug] [2026-11-04T17:48:05.866Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/48d5cdec162144923c0f219d54034415c589a9c351b52a17abd1750f86520a37 [none]
+[debug] [2026-11-04T17:48:05.866Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/48d5cdec162144923c0f219d54034415c589a9c351b52a17abd1750f86520a37 [stream]
+[debug] [2026-11-04T17:48:05.866Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/d298b13b78514b44ab6900cb49609c59c644b09a4dc2e2cc0666f06b5c1a74b9 [none]
+[debug] [2026-11-04T17:48:05.867Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/d298b13b78514b44ab6900cb49609c59c644b09a4dc2e2cc0666f06b5c1a74b9 [stream]
+[debug] [2026-11-04T17:48:05.867Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2918854218e080a7751f64e5c64783e229b4c576ffc483033cb536ff20ad0fa9 [none]
+[debug] [2026-11-04T17:48:05.867Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2918854218e080a7751f64e5c64783e229b4c576ffc483033cb536ff20ad0fa9 [stream]
+[debug] [2026-11-04T17:48:05.867Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f0eafc9782d72efd0f52fa62eb0b7477b4ac91652165ba66969e6acab9e15b39 [none]
+[debug] [2026-11-04T17:48:05.867Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f0eafc9782d72efd0f52fa62eb0b7477b4ac91652165ba66969e6acab9e15b39 [stream]
+[debug] [2026-11-04T17:48:05.868Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/e1bb837da30d089f2dd5946492c47e509f0aed1d1e5a9acc476a7b025dcdfa7b [none]
+[debug] [2026-11-04T17:48:05.868Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/e1bb837da30d089f2dd5946492c47e509f0aed1d1e5a9acc476a7b025dcdfa7b [stream]
+[debug] [2026-11-04T17:48:05.868Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9 [none]
+[debug] [2026-11-04T17:48:05.868Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9 [stream]
+[debug] [2026-11-04T17:48:05.868Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e [none]
+[debug] [2026-11-04T17:48:05.868Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e [stream]
+[debug] [2026-11-04T17:48:05.868Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37 [none]
+[debug] [2026-11-04T17:48:05.868Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37 [stream]
+[debug] [2026-11-04T17:48:05.869Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/5b307521303304d2290482ee5e7c77e5be8f278d6bedba45daa1715580c71bdc [none]
+[debug] [2026-11-04T17:48:05.869Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/5b307521303304d2290482ee5e7c77e5be8f278d6bedba45daa1715580c71bdc [stream]
+[debug] [2026-11-04T17:48:05.869Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/ba63677d32b4230bb83ffc174e9b2691b1a827ae1fda9856bf620c7867d8fdd7 [none]
+[debug] [2026-11-04T17:48:05.869Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/ba63677d32b4230bb83ffc174e9b2691b1a827ae1fda9856bf620c7867d8fdd7 [stream]
+[debug] [2026-11-04T17:48:05.885Z] [hosting][populate queue][FINAL] {"max":515,"min":515,"avg":515,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":557}
+[debug] [2026-11-04T17:48:05.885Z] [hosting] uploads queued: 57
+[info] i  hosting: uploading new files [0/57] (0%) 
+[debug] [2026-11-04T17:48:06.844Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/139172db7f28d70038d9a391fedbde33dc3944c32c219bba3234209cf4b0020c 200
+[debug] [2026-11-04T17:48:06.845Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/139172db7f28d70038d9a391fedbde33dc3944c32c219bba3234209cf4b0020c [stream]
+[debug] [2026-11-04T17:48:06.951Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/12662f9822e216f01a9048e6cd7a9e4caf94764d1dbc13cb43daf8153c3b804b 200
+[debug] [2026-11-04T17:48:06.951Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/12662f9822e216f01a9048e6cd7a9e4caf94764d1dbc13cb43daf8153c3b804b [stream]
+[debug] [2026-11-04T17:48:06.967Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e 200
+[debug] [2026-11-04T17:48:06.967Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e [stream]
+[debug] [2026-11-04T17:48:07.049Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/45b5e72f3ca784055cbb65fea7b97f2d0f35e6e134e92fea39db0a2d97b3ff01 200
+[debug] [2026-11-04T17:48:07.049Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/45b5e72f3ca784055cbb65fea7b97f2d0f35e6e134e92fea39db0a2d97b3ff01 [stream]
+[debug] [2026-11-04T17:48:07.061Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/35cb6cb9dd96fecf7c2d9fb6502563a41098a0ea530f15281edfc96e232dbacc 200
+[debug] [2026-11-04T17:48:07.061Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/35cb6cb9dd96fecf7c2d9fb6502563a41098a0ea530f15281edfc96e232dbacc [stream]
+[debug] [2026-11-04T17:48:07.114Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169 200
+[debug] [2026-11-04T17:48:07.114Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/26065001ae5052f6e2151b6790cc326e6cb4b2b8b2fc3493ce726b1ec3d02169 [stream]
+[debug] [2026-11-04T17:48:07.115Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/72e3c0f29fe8e8b2203035e0b329dfa43bbb69c5c955ce5fd16e906e1e0b25b5 200
+[debug] [2026-11-04T17:48:07.115Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/72e3c0f29fe8e8b2203035e0b329dfa43bbb69c5c955ce5fd16e906e1e0b25b5 [stream]
+[debug] [2026-11-04T17:48:07.115Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/48d5cdec162144923c0f219d54034415c589a9c351b52a17abd1750f86520a37 200
+[debug] [2026-11-04T17:48:07.115Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/48d5cdec162144923c0f219d54034415c589a9c351b52a17abd1750f86520a37 [stream]
+[debug] [2026-11-04T17:48:07.165Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/0b5b20e1ba2933bfe397c09547f4a2df8c6c8c4f1bafd41623e614a8b4de3faf 200
+[debug] [2026-11-04T17:48:07.165Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/0b5b20e1ba2933bfe397c09547f4a2df8c6c8c4f1bafd41623e614a8b4de3faf [stream]
+[debug] [2026-11-04T17:48:07.171Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/95dbd458175ed0080e56215b10d961e397689788a793f3fa7710b1c70082f1b5 200
+[debug] [2026-11-04T17:48:07.171Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/95dbd458175ed0080e56215b10d961e397689788a793f3fa7710b1c70082f1b5 [stream]
+[debug] [2026-11-04T17:48:07.182Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/e64b058abffca220c9ea4233a387be62c205588b8e38f3254d5b2aa053818086 200
+[debug] [2026-11-04T17:48:07.182Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/e64b058abffca220c9ea4233a387be62c205588b8e38f3254d5b2aa053818086 [stream]
+[debug] [2026-11-04T17:48:07.219Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/d298b13b78514b44ab6900cb49609c59c644b09a4dc2e2cc0666f06b5c1a74b9 200
+[debug] [2026-11-04T17:48:07.219Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/d298b13b78514b44ab6900cb49609c59c644b09a4dc2e2cc0666f06b5c1a74b9 [stream]
+[debug] [2026-11-04T17:48:07.257Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/8ef739079015cde76cd62c1dc4d41aee9740ba017515d15576973e8bca2f7ec6 200
+[debug] [2026-11-04T17:48:07.257Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/8ef739079015cde76cd62c1dc4d41aee9740ba017515d15576973e8bca2f7ec6 [stream]
+[debug] [2026-11-04T17:48:07.258Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/c404bba34c16d5989775d8f308f9f088a9a33992ff4f8afe4a15c4c51b6d7e4b 200
+[debug] [2026-11-04T17:48:07.258Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/c404bba34c16d5989775d8f308f9f088a9a33992ff4f8afe4a15c4c51b6d7e4b [stream]
+[debug] [2026-11-04T17:48:07.305Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/cf0f8582acf6925c5c954b3c1d4ae20175b4a3aed21e527ae2de1ea1dc7c7ee2 200
+[debug] [2026-11-04T17:48:07.305Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/cf0f8582acf6925c5c954b3c1d4ae20175b4a3aed21e527ae2de1ea1dc7c7ee2 [stream]
+[debug] [2026-11-04T17:48:07.316Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6283d7f6ea63fc3e3d2f4bc9dd534142dee5e4e2da57b30accd3216be6d93e58 200
+[debug] [2026-11-04T17:48:07.316Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6283d7f6ea63fc3e3d2f4bc9dd534142dee5e4e2da57b30accd3216be6d93e58 [stream]
+[debug] [2026-11-04T17:48:07.320Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/461e0506dbae17d6c66d53b70d743c639736d5cae3c0b4479ea4685c4f00905a 200
+[debug] [2026-11-04T17:48:07.320Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/461e0506dbae17d6c66d53b70d743c639736d5cae3c0b4479ea4685c4f00905a [stream]
+[debug] [2026-11-04T17:48:07.479Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6ddf21c4b125f7aa225f324e60265da68c26ac5bdffa2f7eefe91728bfb2554f 200
+[debug] [2026-11-04T17:48:07.479Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6ddf21c4b125f7aa225f324e60265da68c26ac5bdffa2f7eefe91728bfb2554f [stream]
+[debug] [2026-11-04T17:48:07.551Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1bed943e0923d7c09dc8a09cfebc264d5984375631b3c56c9391eefb39994a36 200
+[debug] [2026-11-04T17:48:07.552Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1bed943e0923d7c09dc8a09cfebc264d5984375631b3c56c9391eefb39994a36 [stream]
+[debug] [2026-11-04T17:48:07.578Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/912f3eb93eff342480071baf664ed398495d8aa1486626d892f22b673b8b5f2a 200
+[debug] [2026-11-04T17:48:07.578Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/912f3eb93eff342480071baf664ed398495d8aa1486626d892f22b673b8b5f2a [stream]
+[debug] [2026-11-04T17:48:07.581Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6b28811bccf541ea076e84a89aa947d85bcd276e398204fe56971df378241fba 200
+[debug] [2026-11-04T17:48:07.581Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6b28811bccf541ea076e84a89aa947d85bcd276e398204fe56971df378241fba [stream]
+[debug] [2026-11-04T17:48:07.609Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/97fe0701ead747cf08ce674443496f1bb1f7391b06cc7026814877700c96a6bb 200
+[debug] [2026-11-04T17:48:07.609Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/97fe0701ead747cf08ce674443496f1bb1f7391b06cc7026814877700c96a6bb [stream]
+[debug] [2026-11-04T17:48:07.614Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2bd078f15a201fc85c184b6dbba5ab3b7594727b2c4b48f0081b14a3acbcd39a 200
+[debug] [2026-11-04T17:48:07.615Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2bd078f15a201fc85c184b6dbba5ab3b7594727b2c4b48f0081b14a3acbcd39a [stream]
+[debug] [2026-11-04T17:48:07.895Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2bb744dc2355d985ed77dfe2c572715362b06e836832c8fb667a836121672dd5 200
+[debug] [2026-11-04T17:48:07.896Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2bb744dc2355d985ed77dfe2c572715362b06e836832c8fb667a836121672dd5 [stream]
+[debug] [2026-11-04T17:48:07.896Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2918854218e080a7751f64e5c64783e229b4c576ffc483033cb536ff20ad0fa9 200
+[debug] [2026-11-04T17:48:07.896Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2918854218e080a7751f64e5c64783e229b4c576ffc483033cb536ff20ad0fa9 [stream]
+[debug] [2026-11-04T17:48:07.904Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9 200
+[debug] [2026-11-04T17:48:07.904Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9 [stream]
+[debug] [2026-11-04T17:48:07.965Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/17083507c85263cfb0e9758140e0be9fee4db049a904ed2c45fafba5217dfc4c 200
+[debug] [2026-11-04T17:48:07.965Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/17083507c85263cfb0e9758140e0be9fee4db049a904ed2c45fafba5217dfc4c [stream]
+[debug] [2026-11-04T17:48:07.999Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259 200
+[debug] [2026-11-04T17:48:07.999Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259 [stream]
+[debug] [2026-11-04T17:48:08.012Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32 200
+[debug] [2026-11-04T17:48:08.013Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32 [stream]
+[debug] [2026-11-04T17:48:08.028Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/5b307521303304d2290482ee5e7c77e5be8f278d6bedba45daa1715580c71bdc 200
+[debug] [2026-11-04T17:48:08.028Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/5b307521303304d2290482ee5e7c77e5be8f278d6bedba45daa1715580c71bdc [stream]
+[info] i  hosting: uploading new files [30/57] (52%) 
+[debug] [2026-11-04T17:48:08.145Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f7cb1d86f813bf2b6ee17838bd752acc8a7505fcc08f610a0b81ee5a12a975af 200
+[debug] [2026-11-04T17:48:08.145Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f7cb1d86f813bf2b6ee17838bd752acc8a7505fcc08f610a0b81ee5a12a975af [stream]
+[debug] [2026-11-04T17:48:08.172Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1ca23e53151ef129491bba621032a446ecd4f07fb0209072cb0da901d5fcbfac 200
+[debug] [2026-11-04T17:48:08.172Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1ca23e53151ef129491bba621032a446ecd4f07fb0209072cb0da901d5fcbfac [stream]
+[debug] [2026-11-04T17:48:08.315Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/5b90568de1be0e88c711e0e8ed86e8575ffec0b36ac543fd5a492d4a35779ed3 200
+[debug] [2026-11-04T17:48:08.315Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/5b90568de1be0e88c711e0e8ed86e8575ffec0b36ac543fd5a492d4a35779ed3 [stream]
+[debug] [2026-11-04T17:48:08.474Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085 200
+[debug] [2026-11-04T17:48:08.475Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085 [stream]
+[debug] [2026-11-04T17:48:08.485Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f 200
+[debug] [2026-11-04T17:48:08.485Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f [stream]
+[debug] [2026-11-04T17:48:08.725Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/cb7cce44c54bed1bf1af872e0fec930aff51950c625c8b9e37a359ade0f46a51 200
+[debug] [2026-11-04T17:48:08.726Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/cb7cce44c54bed1bf1af872e0fec930aff51950c625c8b9e37a359ade0f46a51 [stream]
+[debug] [2026-11-04T17:48:09.114Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4 200
+[debug] [2026-11-04T17:48:09.115Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4 [stream]
+[debug] [2026-11-04T17:48:09.274Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37 200
+[debug] [2026-11-04T17:48:09.274Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37 [stream]
+[debug] [2026-11-04T17:48:09.552Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1921a7a517cad8669f9c88a2bc1ea171f742c2e684b657beb4a05f29f164c127 200
+[debug] [2026-11-04T17:48:09.553Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1921a7a517cad8669f9c88a2bc1ea171f742c2e684b657beb4a05f29f164c127 [stream]
+[debug] [2026-11-04T17:48:09.898Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/8a36ccee649e8925078bee06a3dc36a1f6340ff0a9f302504efad7da882c8883 200
+[debug] [2026-11-04T17:48:09.898Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/8a36ccee649e8925078bee06a3dc36a1f6340ff0a9f302504efad7da882c8883 [stream]
+[debug] [2026-11-04T17:48:09.975Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/d86bdf30644ff676c11244588b955c0843dfda8065fc2e3ecb9ad0282729b0e6 200
+[debug] [2026-11-04T17:48:09.975Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/d86bdf30644ff676c11244588b955c0843dfda8065fc2e3ecb9ad0282729b0e6 [stream]
+[info] i  hosting: uploading new files [41/57] (71%) 
+[debug] [2026-11-04T17:48:10.614Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/b3e4e027a9cd54837050fe1477529394e0e0b817a5d6934369f51b1ff787fe9e 200
+[debug] [2026-11-04T17:48:10.614Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/b3e4e027a9cd54837050fe1477529394e0e0b817a5d6934369f51b1ff787fe9e [stream]
+[debug] [2026-11-04T17:48:10.753Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/ba63677d32b4230bb83ffc174e9b2691b1a827ae1fda9856bf620c7867d8fdd7 200
+[debug] [2026-11-04T17:48:10.753Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/ba63677d32b4230bb83ffc174e9b2691b1a827ae1fda9856bf620c7867d8fdd7 [stream]
+[debug] [2026-11-04T17:48:11.579Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967 200
+[debug] [2026-11-04T17:48:11.579Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967 [stream]
+[debug] [2026-11-04T17:48:11.717Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed 200
+[debug] [2026-11-04T17:48:11.717Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed [stream]
+[debug] [2026-11-04T17:48:11.718Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9 200
+[debug] [2026-11-04T17:48:11.718Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9 [stream]
+[info] i  hosting: uploading new files [46/57] (80%) 
+[debug] [2026-11-04T17:48:12.580Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2c5a056405f95de34bd268266341ddf0cd4f42eeceb8a9d43901ba61b3462311 200
+[debug] [2026-11-04T17:48:12.580Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/2c5a056405f95de34bd268266341ddf0cd4f42eeceb8a9d43901ba61b3462311 [stream]
+[debug] [2026-11-04T17:48:12.744Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f87f1171e3bd55654786bee812669df4e09710c56ca574863f99e862b103b7e9 200
+[debug] [2026-11-04T17:48:12.744Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f87f1171e3bd55654786bee812669df4e09710c56ca574863f99e862b103b7e9 [stream]
+[debug] [2026-11-04T17:48:12.859Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/e1bb837da30d089f2dd5946492c47e509f0aed1d1e5a9acc476a7b025dcdfa7b 200
+[debug] [2026-11-04T17:48:12.859Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/e1bb837da30d089f2dd5946492c47e509f0aed1d1e5a9acc476a7b025dcdfa7b [stream]
+[debug] [2026-11-04T17:48:13.217Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f894778ec5d9aeb0b8909fd2424612b91e748206fa8bfeccff07f2bf7b52e16f 200
+[debug] [2026-11-04T17:48:13.217Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f894778ec5d9aeb0b8909fd2424612b91e748206fa8bfeccff07f2bf7b52e16f [stream]
+[debug] [2026-11-04T17:48:13.614Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/7db06572c1c3abcaf9e814ef5c4d4eaf9d5d8044c7241dc4aa5a3292a60f08fa 200
+[debug] [2026-11-04T17:48:13.615Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/7db06572c1c3abcaf9e814ef5c4d4eaf9d5d8044c7241dc4aa5a3292a60f08fa [stream]
+[debug] [2026-11-04T17:48:13.617Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2 200
+[debug] [2026-11-04T17:48:13.617Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2 [stream]
+[info] i  hosting: uploading new files [52/57] (91%) 
+[debug] [2026-11-04T17:48:14.094Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f5a3a5adb7454863da1f40f42674fbc89fee50b2743f4bf58862be7a7d5a1f57 200
+[debug] [2026-11-04T17:48:14.094Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f5a3a5adb7454863da1f40f42674fbc89fee50b2743f4bf58862be7a7d5a1f57 [stream]
+[debug] [2026-11-04T17:48:14.297Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/64019f18aab002afc70f5a68bf00d111fae7756bd7e09854b69cbf3d0c8e313d 200
+[debug] [2026-11-04T17:48:14.297Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/64019f18aab002afc70f5a68bf00d111fae7756bd7e09854b69cbf3d0c8e313d [stream]
+[debug] [2026-11-04T17:48:14.339Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f0eafc9782d72efd0f52fa62eb0b7477b4ac91652165ba66969e6acab9e15b39 200
+[debug] [2026-11-04T17:48:14.339Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/f0eafc9782d72efd0f52fa62eb0b7477b4ac91652165ba66969e6acab9e15b39 [stream]
+[debug] [2026-11-04T17:48:14.673Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1059e9014af6447b7e66decbd5ac314ccdd66922a2a7750fd67e639a3f065241 200
+[debug] [2026-11-04T17:48:14.674Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/1059e9014af6447b7e66decbd5ac314ccdd66922a2a7750fd67e639a3f065241 [stream]
+[debug] [2026-11-04T17:48:14.890Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/df46fc3e01f64d60b09b16d6a771b9175eab7132c8bf4374e93544892078cd9e 200
+[debug] [2026-11-04T17:48:14.891Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/60e2dbeb7678168e/files/df46fc3e01f64d60b09b16d6a771b9175eab7132c8bf4374e93544892078cd9e [stream]
+[debug] [2026-11-04T17:48:14.891Z] [hosting][upload queue][FINAL] {"max":9058,"min":1017,"avg":3428.035087719298,"active":0,"complete":57,"success":57,"errored":0,"retried":0,"total":57,"elapsed":9067}
+[info] i  hosting: upload complete 
+[info] ✔  hosting[jurassic-unix]: file upload complete 
+[debug] [2026-11-04T17:48:14.892Z] [hosting] deploy completed after 10892ms
+[debug] [2026-11-04T17:48:14.892Z] [
+  {
+    "config": {
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        ".firebaserc",
+        ".git/**",
+        ".gitignore",
+        "node_modules/**"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "site": "jurassic-unix"
+    },
+    "version": "projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e"
+  }
+]
+[info] i  hosting[jurassic-unix]: finalizing version... 
+[debug] [2026-11-04T17:48:14.895Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:14.895Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:14.897Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e updateMask=status%2Cconfig
+[debug] [2026-11-04T17:48:14.897Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e {"status":"FINALIZED","config":{"cleanUrls":true,"trailingSlashBehavior":"REMOVE"}}
+[debug] [2026-11-04T17:48:15.405Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e 200
+[debug] [2026-11-04T17:48:15.406Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e {"name":"projects/jurassic-unix/sites/jurassic-unix/versions/60e2dbeb7678168e","status":"FINALIZED","config":{"cleanUrls":true,"trailingSlashBehavior":"REMOVE"},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-11-04T17:48:02.924870Z","createUser":{"email":"luismartinez.cetis50@gmail.com"},"finalizeTime":"2026-11-04T17:48:15.433533Z","finalizeUser":{"email":"luismartinez.cetis50@gmail.com"}}
+[debug] [2026-11-04T17:48:15.406Z] [hosting] finalized version for jurassic-unix:[object Object]
+[info] ✔  hosting[jurassic-unix]: version finalized 
+[info] i  hosting[jurassic-unix]: releasing new version... 
+[debug] [2026-11-04T17:48:15.406Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:15.406Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:15.407Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/channels/live/releases versionName=projects%2Fjurassic-unix%2Fsites%2Fjurassic-unix%2Fversions%2F60e2dbeb7678168e
+[debug] [2026-11-04T17:48:15.407Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/channels/live/releases {}
+[debug] [2026-11-04T17:48:15.717Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/channels/live/releases 200
+[debug] [2026-11-04T17:48:36.554Z] ----------------------------------------------------------------------
+[debug] [2026-11-04T17:48:36.556Z] Command:       /usr/local/bin/node /Users/luismartinez/.npm/_npx/ba4f1959e38407b5/node_modules/.bin/firebase deploy --only hosting --project jurassic-unix
+[debug] [2026-11-04T17:48:36.556Z] CLI Version:   15.34.2
+[debug] [2026-11-04T17:48:36.556Z] Platform:      darwin
+[debug] [2026-11-04T17:48:36.556Z] Node Version:  v24.21.0
+[debug] [2026-11-04T17:48:36.556Z] Detected Agent: codex_cli
+[debug] [2026-11-04T17:48:36.556Z] Time:          Wed Nov 04 2026 11:48:36 GMT-0600 (Central Standard Time)
+[debug] [2026-11-04T17:48:36.556Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-11-04T17:48:37.231Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-11-04T17:48:37.231Z] > authorizing via signed-in user (luismartinez.cetis50@gmail.com)
+[debug] [2026-11-04T17:48:37.231Z] [iam] checking project jurassic-unix for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-11-04T17:48:37.238Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:37.238Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:37.239Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions [none]
+[debug] [2026-11-04T17:48:37.239Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions  x-goog-user-project=jurassic-unix
+[debug] [2026-11-04T17:48:37.239Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-11-04T17:48:37.593Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions 200
+[debug] [2026-11-04T17:48:37.593Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/jurassic-unix:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-11-04T17:48:37.596Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:37.596Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:37.597Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/jurassic-unix [none]
+[debug] [2026-11-04T17:48:37.810Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/jurassic-unix 200
+[debug] [2026-11-04T17:48:37.810Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/jurassic-unix {"projectId":"jurassic-unix","projectNumber":"864029641950","displayName":"JURASSIC UNIX","name":"projects/jurassic-unix","resources":{"hostingSite":"jurassic-unix"},"state":"ACTIVE","labels":{"firebase":"enabled"},"etag":"1_26b18810-6c64-40b1-9b68-56bbb503df63"}
+[info] 
+[info] === Deploying to 'jurassic-unix'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-11-04T17:48:37.814Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:37.814Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:37.815Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix [none]
+[debug] [2026-11-04T17:48:38.261Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix 200
+[debug] [2026-11-04T17:48:38.262Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix {"name":"projects/jurassic-unix/sites/jurassic-unix","defaultUrl":"https://jurassic-unix.web.app","appId":"1:864029641950:web:6ee51b97d2113c37ab864f","type":"DEFAULT_SITE"}
+[debug] [2026-11-04T17:48:38.263Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:38.263Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:38.263Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions [none]
+[debug] [2026-11-04T17:48:38.263Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-11-04T17:48:38.677Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions 200
+[debug] [2026-11-04T17:48:38.677Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions {"name":"projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[jurassic-unix]: beginning deploy... 
+[info] i  hosting[jurassic-unix]: found 62 files in . 
+[debug] [2026-11-04T17:48:38.697Z] [hosting] uploading with 200 concurrency
+[debug] [2026-11-04T17:48:38.699Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:38.699Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:38.701Z] [hosting] hash cache [] stored for 62 files
+[debug] [2026-11-04T17:48:38.701Z] [hosting][hash queue][FINAL] {"max":1,"min":0,"avg":0,"active":0,"complete":62,"success":62,"errored":0,"retried":0,"total":62,"elapsed":3}
+[debug] [2026-11-04T17:48:38.701Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88:populateFiles [none]
+[debug] [2026-11-04T17:48:38.701Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88:populateFiles {"files":{"/texto.mp3":"2bd078f15a201fc85c184b6dbba5ab3b7594727b2c4b48f0081b14a3acbcd39a","/styles.css":"1bed943e0923d7c09dc8a09cfebc264d5984375631b3c56c9391eefb39994a36","/script.js":"e64b058abffca220c9ea4233a387be62c205588b8e38f3254d5b2aa053818086","/logo_Jurassic-removebg-preview.png":"2bb744dc2355d985ed77dfe2c572715362b06e836832c8fb667a836121672dd5","/index.html":"c404bba34c16d5989775d8f308f9f088a9a33992ff4f8afe4a15c4c51b6d7e4b","/app.js":"72e3c0f29fe8e8b2203035e0b329dfa43bbb69c5c955ce5fd16e906e1e0b25b5","/Intro.MP4":"b3e4e027a9cd54837050fe1477529394e0e0b817a5d6934369f51b1ff787fe9e","/ESCAPE.MP4":"9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2","/Digital.mp3":"638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e","/Compi.mp4":"f894778ec5d9aeb0b8909fd2424612b91e748206fa8bfeccff07f2bf7b52e16f","/Alerta.mp3":"2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32","/AUDIO_INTRO.mp3":"1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37","/sonidos /Velociraptor sounds.mp3":"042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4","/sonidos /Triceratops sounds.mp3":"b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f","/sonidos /T.REX ROAR - Sound Design - Pierre Mendola.mp3":"52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085","/sonidos /Stegosaurus Sounds J.P.mp3":"7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed","/sonidos /Sonido de Dilophosaurus en La Vida Real Segun La Ciencia #Dinosaurio #Shorts #Humor.mp3":"f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259","/sonidos /Real Parasaurolophus sound _ Dinosaur.mp3":"d86bdf30644ff676c11244588b955c0843dfda8065fc2e3ecb9ad0282729b0e6","/sonidos /JW Herrerasaurus sound effects.mp3":"912f3eb93eff342480071baf664ed398495d8aa1486626d892f22b673b8b5f2a","/sonidos /Chimerasaurus.mp3":"4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9","/sonidos /Brachiosaurus Sounds.mp3":"6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967","/sonidos /Ankylosaurus Sounds.mp3":"3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9","/assets/video/Triceratops_Peleando.mp4":"7db06572c1c3abcaf9e814ef5c4d4eaf9d5d8044c7241dc4aa5a3292a60f08fa","/assets/video/Rex_Escape.mp4":"f5a3a5adb7454863da1f40f42674fbc89fee50b2743f4bf58862be7a7d5a1f57","/assets/video/Raptor_Escape.mp4":"df46fc3e01f64d60b09b16d6a771b9175eab7132c8bf4374e93544892078cd9e","/assets/video/Gryphovenator.mp4":"f0eafc9782d72efd0f52fa62eb0b7477b4ac91652165ba66969e6acab9e15b39","/assets/video/Falla.mp4":"f87f1171e3bd55654786bee812669df4e09710c56ca574863f99e862b103b7e9","/assets/video/Estegosaurus_Enfermo.mp4":"1059e9014af6447b7e66decbd5ac314ccdd66922a2a7750fd67e639a3f065241","/assets/video/ESCAPE.MP4":"9710992174fcbfa1c47412cfb81a2506a710bdbfe65f356c6c1e4de63ad125b2","/assets/video/Dilo_Attack.mp4":"2c5a056405f95de34bd268266341ddf0cd4f42eeceb8a9d43901ba61b3462311","/assets/video/Compi.mp4":"8a36ccee649e8925078bee06a3dc36a1f6340ff0a9f302504efad7da882c8883","/assets/video/Compi.MOV":"ba63677d32b4230bb83ffc174e9b2691b1a827ae1fda9856bf620c7867d8fdd7","/assets/video/Chimerasaurus Escape.MP4":"e1bb837da30d089f2dd5946492c47e509f0aed1d1e5a9acc476a7b025dcdfa7b","/assets/video/Anky_Caminando.mp4":"64019f18aab002afc70f5a68bf00d111fae7756bd7e09854b69cbf3d0c8e313d","/assets/audio/triceratops.mp3":"b95b3446d1e8a3d168e3b9e206f288d00dd6df257ee1d1ff96d0cacb2222bb9f","/assets/audio/stego.mp3":"7e51099854eeadd0eb598b82eb27a2d64601baa063fffd90ff0c2006bdb0e9ed","/assets/audio/rex.mp3":"52cb2117b0f451a0452d0d5eb921f7ded0609be27f9083953c7738fe3ffa7085","/assets/audio/raptor.mp3":"042ecba66fb0e72aaa3c139fe398b77d35f515c649941051f44c73e4c26d5ef4","/assets/audio/dilo.mp3":"f2e5042db981900152c71bf22717d523be22052be8c09037eb78e170fda88259","/assets/audio/brachio.mp3":"6803a7acd887bd1b8983e09c9489d245a699daaf6ab5b9290334e9e87dee2967","/assets/audio/ankylosaurus.mp3":"3e29527f552ca3cadae585ba4f8ce0164265f6433416c5dc674d0990832252a9","/assets/audio/ambiente.mp3":"638ec9468c1255b95bded8d53a092150461f8ab91eccab8c6ee7a5a046ee846e","/assets/audio/alerta.mp3":"2a4ebab82fecf18bd079b4aa7da1ff5befbe3d88e17b369acec1f17488e0ad32","/assets/audio/INTRO_AUDIO.MP3":"1d9fa312183e26c6887dd385e6218e1492af37442263bb28b099ce4e40269d37","/assets/audio/Garras.mp3":"1ca23e53151ef129491bba621032a446ecd4f07fb0209072cb0da901d5fcbfac","/assets/audio/Chimerasaurus.mp3":"4cef7837f709f7378b904016d8158b1c832c2cd515538c0d1689464a3d44ddc9","/Señales/Señal.jpg":"f7cb1d86f813bf2b6ee17838bd752acc8a7505fcc08f610a0b81ee5a12a975af","/Señales/Maritima.jpg":"48d5cdec162144923c0f219d54034415c589a9c351b52a17abd1750f86520a37","/Dinosaurios/Chimerasaurus.PNG":"1921a7a517cad8669f9c88a2bc1ea171f742c2e684b657beb4a05f29f164c127","/Dinosaurios/Triasico/Herrerasaurus.jpeg":"8ef739079015cde76cd62c1dc4d41aee9740ba017515d15576973e8bca2f7ec6","/Dinosaurios/Triasico/Eoraptor.jpeg":"0b5b20e1ba2933bfe397c09547f4a2df8c6c8c4f1bafd41623e614a8b4de3faf","/Dinosaurios/Triasico/Coelophysis.jpeg":"45b5e72f3ca784055cbb65fea7b97f2d0f35e6e134e92fea39db0a2d97b3ff01","/Dinosaurios/Jurasico/Stegosaurus.jpeg":"139172db7f28d70038d9a391fedbde33dc3944c32c219bba3234209cf4b0020c","/Dinosaurios/Jurasico/Diplodocus.jpeg":"17083507c85263cfb0e9758140e0be9fee4db049a904ed2c45fafba5217dfc4c","/Dinosaurios/Jurasico/Dilophosaurus.webp":"6ddf21c4b125f7aa225f324e60265da68c26ac5bdffa2f7eefe91728bfb2554f","/Dinosaurios/Jurasico/Brachiosaurus.jpg":"cb7cce44c54bed1bf1af872e0fec930aff51950c625c8b9e37a359ade0f46a51","/Dinosaurios/Jurasico/Allosaurus.jpeg":"5b90568de1be0e88c711e0e8ed86e8575ffec0b36ac543fd5a492d4a35779ed3","/Dinosaurios/Creatacico/Velociraptor.jpeg":"6b28811bccf541ea076e84a89aa947d85bcd276e398204fe56971df378241fba","/Dinosaurios/Creatacico/Tyrannosaurus rex.webp":"97fe0701ead747cf08ce674443496f1bb1f7391b06cc7026814877700c96a6bb","/Dinosaurios/Creatacico/Triceratops.jpeg":"12662f9822e216f01a9048e6cd7a9e4caf94764d1dbc13cb43daf8153c3b804b","/Dinosaurios/Creatacico/Parasaurolophus.webp":"cf0f8582acf6925c5c954b3c1d4ae20175b4a3aed21e527ae2de1ea1dc7c7ee2","/Dinosaurios/Creatacico/Ankylosaurus.jpeg":"d298b13b78514b44ab6900cb49609c59c644b09a4dc2e2cc0666f06b5c1a74b9"}}
+[debug] [2026-11-04T17:48:39.106Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88:populateFiles 200
+[debug] [2026-11-04T17:48:39.106Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88:populateFiles {"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/jurassic-unix/versions/9ba2a8d04245ee88/files"}
+[debug] [2026-11-04T17:48:39.106Z] [hosting][populate queue][FINAL] {"max":407,"min":407,"avg":407,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":407}
+[debug] [2026-11-04T17:48:39.106Z] [hosting] uploads queued: 0
+[debug] [2026-11-04T17:48:39.107Z] [hosting][upload queue][FINAL] {"max":0,"min":9999999999,"avg":0,"active":0,"complete":0,"success":0,"errored":0,"retried":0,"total":0,"elapsed":1793814519107}
+[info] i  hosting: upload complete 
+[info] ✔  hosting[jurassic-unix]: file upload complete 
+[debug] [2026-11-04T17:48:39.107Z] [hosting] deploy completed after 427ms
+[debug] [2026-11-04T17:48:39.107Z] [
+  {
+    "config": {
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        ".firebaserc",
+        ".git/**",
+        ".gitignore",
+        "node_modules/**",
+        "**/.DS_Store",
+        "**/._*",
+        "firebase-debug.log"
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "site": "jurassic-unix"
+    },
+    "version": "projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88"
+  }
+]
+[info] i  hosting[jurassic-unix]: finalizing version... 
+[debug] [2026-11-04T17:48:39.111Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:39.111Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:39.112Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88 updateMask=status%2Cconfig
+[debug] [2026-11-04T17:48:39.112Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88 {"status":"FINALIZED","config":{"cleanUrls":true,"trailingSlashBehavior":"REMOVE"}}
+[debug] [2026-11-04T17:48:39.478Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88 200
+[debug] [2026-11-04T17:48:39.479Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88 {"name":"projects/jurassic-unix/sites/jurassic-unix/versions/9ba2a8d04245ee88","status":"FINALIZED","config":{"cleanUrls":true,"trailingSlashBehavior":"REMOVE"},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-11-04T17:48:38.503482Z","createUser":{"email":"luismartinez.cetis50@gmail.com"},"finalizeTime":"2026-11-04T17:48:39.484451Z","finalizeUser":{"email":"luismartinez.cetis50@gmail.com"}}
+[debug] [2026-11-04T17:48:39.479Z] [hosting] finalized version for jurassic-unix:[object Object]
+[info] ✔  hosting[jurassic-unix]: version finalized 
+[info] i  hosting[jurassic-unix]: releasing new version... 
+[debug] [2026-11-04T17:48:39.479Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:39.479Z] Checked if tokens are valid: true, expires at: 1793818078076
+[debug] [2026-11-04T17:48:39.480Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/channels/live/releases versionName=projects%2Fjurassic-unix%2Fsites%2Fjurassic-unix%2Fversions%2F9ba2a8d04245ee88
+[debug] [2026-11-04T17:48:39.480Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/channels/live/releases {}
+[debug] [2026-11-04T17:48:39.837Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/jurassic-unix/sites/jurassic-unix/channels/live/releases 200

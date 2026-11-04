@@ -851,15 +851,14 @@ function getChimeraContainmentWindow() {
 
 function generateDirectorPlan() {
   const profile = pickRandomItem(DIRECTOR_PROFILES);
-  const optionalCount = randomDigit(profile.optionalCount[0], profile.optionalCount[1]);
-  const optionalEvents = pickUniqueWeighted(profile.optionalEvents, optionalCount, profile.weights);
-  const plannedEvents = Array.from(new Set(["raptor", "trex", "grypho", "omega", ...profile.requiredEvents, ...optionalEvents]));
+  // Every established dinosaur event participates in every session. Profiles
+  // still control the order and pressure, but no species is silently omitted.
+  const plannedEvents = ["raptor", "trex", "grypho", "omega", "dilo", "barrier", "herd", "anky", "stego", "compi"];
   const allVariableEvents = ["dilo", "barrier", "herd", "anky", "stego", "compi"];
-  const skippedEvents = allVariableEvents.filter((eventKey) => !plannedEvents.includes(eventKey));
   return {
     profile,
     plannedEvents,
-    skippedEvents,
+    skippedEvents: [],
     eventWeights: profile.weights,
     attackGoals: {
       raptor: randomDigit(profile.attackGoals.raptor[0], profile.attackGoals.raptor[1]),
@@ -869,7 +868,7 @@ function generateDirectorPlan() {
     },
     omegaEarliestAt: randomDigit(profile.omegaWindow[1] * 2, profile.omegaWindow[0] * 2),
     omegaForceAt: randomDigit(600, 860),
-    nextRandomEventAt: SESSION_DURATION - randomDigit(70, 140),
+    nextRandomEventAt: SESSION_DURATION - randomDigit(55, 85),
   };
 }
 
@@ -3437,7 +3436,7 @@ function maybeActivateRandomDirectorEvent() {
   state.timelineFlags[key] = true;
   state.deferredEvents[key] = false;
   activateDirectorEvent(key);
-  setNextRandomDirectorWindow(getDirectorPhase() >= 4 ? 14 : 18, getDirectorPhase() >= 4 ? 28 : 38);
+  setNextRandomDirectorWindow(getDirectorPhase() >= 4 ? 12 : 16, getDirectorPhase() >= 4 ? 24 : 32);
   return true;
 }
 
@@ -4402,6 +4401,39 @@ async function completeTrainingPower() {
 
 function parseCommand(rawCommand) {
   return rawCommand.trim().split(/\s+/).filter(Boolean);
+}
+
+// Novice players frequently use Spanish verbs, omit accents, or write a file
+// name with spaces. Treat those as the same intentional actions instead of
+// charging a penalty for a spelling/UI mismatch.
+function normalizeCommandInput(rawCommand) {
+  const normalized = rawCommand.trim().toLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ");
+  const aliases = {
+    ayuda: "help", archivos: "ls", "ver archivos": "ls", estado: "status",
+    incidentes: "incidents", misiones: "missions", pista: "hint", limpiar: "clear",
+    reiniciar: "restart", "evacuar ahora": "evacuate now", "evacuar ya": "evacuate now", salir: "evacuate now",
+  };
+  if (aliases[normalized]) return aliases[normalized];
+  const words = normalized.split(" ");
+  const verbAliases = {
+    restaurar: "restore", reparar: "repair", contener: "contain", neutralizar: "neutralize",
+    bloquear: "lock", estabilizar: "stabilize", redirigir: "redirect", analizar: "analyze",
+    activar: "activate", abrir: "open",
+  };
+  if (verbAliases[words[0]]) words[0] = verbAliases[words[0]];
+  if (words[0] === "cat") {
+    const fileAliases = {
+      "power log": "POWER.LOG", "energia log": "POWER.LOG", "generator log": "GENERATOR.LOG",
+      "raptor key": "RAPTOR.KEY", "trex key": "TREX.KEY", "t rex key": "TREX.KEY",
+      "dilo log": "DILO.LOG", "toxin key": "TOXIN.KEY", "triceratops log": "TRICERATOPS.LOG",
+      "anky log": "ANKY.LOG", "anky key": "ANKY.KEY", "stego log": "STEGO.LOG",
+      "chimera key": "CHIMERA.KEY", "omega log": "OMEGA.LOG", "door sys": "DOOR.SYS", rutas: "EVAC.ROUTES",
+    };
+    const requestedFile = words.slice(1).join(" ").replace(/[._-]/g, " ");
+    if (fileAliases[requestedFile]) return `cat ${fileAliases[requestedFile]}`;
+  }
+  return words.join(" ");
 }
 
 function showStatus() {
@@ -6085,7 +6117,8 @@ async function processTrainingCommand(command, tokens, argsLower, argsUpper) {
 }
 
 async function handleCommand(rawCommand) {
-  const tokens = parseCommand(rawCommand);
+  const normalizedCommand = normalizeCommandInput(rawCommand);
+  const tokens = parseCommand(normalizedCommand);
   if (!tokens.length) return;
 
   const command = tokens[0].toLowerCase();
@@ -6095,6 +6128,7 @@ async function handleCommand(rawCommand) {
   if (await processTrainingCommand(command, tokens, argsLower, argsUpper)) return;
 
   addLine(`root@jurassic-unix:~# ${rawCommand}`, "command");
+  if (normalizedCommand !== rawCommand.trim()) addLine(`Interpretado como: ${normalizedCommand}`, "success");
 
   if (state.gameOver && !["restart", "clear", "help"].includes(command)) {
     addLine("Sistema bloqueado. Reinicia el escenario para volver a intentarlo.", "error");
@@ -6144,6 +6178,10 @@ async function handleCommand(rawCommand) {
     case "cat": {
       const fileName = argsUpper.join(" ");
       const files = getFiles();
+      if (!fileName) {
+        await typeLine("Indica un archivo. Usa ls o el botón VER ARCHIVOS para elegir uno.", "warning");
+        return;
+      }
       if (!files[fileName]) {
         playAlert();
         addLine(`${command}: ${tokens.slice(1).join(" ")}: archivo no encontrado`, "error");
@@ -6470,15 +6508,8 @@ async function handleCommand(rawCommand) {
       return;
   }
 
-  state.attempts += 1;
-  applyCommandPenalty(state.omegaReleased ? "omega" : "standard", `Comando no reconocido: ${rawCommand}`);
-  if (state.attempts >= 3) {
-    addLine("ALERTA: intento no autorizado detectado.", "error");
-    addLine("ALERTA: brecha de seguridad en laboratorio B.", "error");
-    applyDeterioration({ damage: 6, bio: 6, stability: -8, energy: -4 });
-    state.attempts = 0;
-  }
-  updateHud();
+  await typeLine(`No reconozco "${rawCommand}". No hay penalización: usa help, status, incidents o hint.`, "warning");
+  showContextGuide(getCurrentObjectiveKey(), "warning");
 }
 
 function revealBootOverlay() {
