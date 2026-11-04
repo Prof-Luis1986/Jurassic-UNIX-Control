@@ -132,6 +132,7 @@ const evacuationAction = byId("evacuationAction");
 
 const toggleAmbientMuteButton = byId("toggleAmbientMute");
 const toggleAmbientPauseButton = byId("toggleAmbientPause");
+const toggleNarrativeMuteButton = byId("toggleNarrativeMute");
 const scanSectorButton = byId("scanSectorButton");
 const identifySpeciesButton = byId("identifySpeciesButton");
 const confirmContainmentButton = byId("confirmContainmentButton");
@@ -153,7 +154,7 @@ const ROTOR_DEBUG = false;
 const CHIMERA_DEBUG = false;
 const SESSION_DURATION = 30 * 60;
 const MINIMUM_SESSION_SECONDS = SESSION_DURATION;
-const SAFE_AUDIO = Object.freeze({ ambient: 0.04, alert: 0.14, intro: 0.22, creature: 0.24, clone: 0.18 });
+const SAFE_AUDIO = Object.freeze({ ambient: 0.04, alert: 0.14, intro: 0.22, creature: 0.24, clone: 0.18, narrative: 0.24, speechAlert: 0.36 });
 const ROTOR_PROTOCOLS = Object.freeze({
   power: { label: "ENERGIA PRINCIPAL", next: "raptor" },
   generator: { label: "GENERADOR DE RESPALDO", next: "raptor" },
@@ -407,6 +408,43 @@ const ambientNarrativeBank = [
     triggers: ["ambient"],
     text: "No puedo confirmar quien autorizo la mezcla genetica. Puedo confirmar quien borro la autorizacion.",
   },
+  {
+    id: "security-thermal-01",
+    theme: "security",
+    title: "SECURITY.LOG // LECTURA TERMICA",
+    source: "SEGURIDAD PERIMETRAL",
+    minPhase: 1,
+    triggers: ["ambient"],
+    text: "Camara cuatro desconectada. La lectura termica no coincide con ninguna especie autorizada.",
+  },
+  {
+    id: "quimera-017",
+    theme: "chimera",
+    title: "GS-017.LOG // APRENDIZAJE",
+    source: "ARCHIVO RESTRINGIDO",
+    minPhase: 3,
+    triggers: ["ambient", "file"],
+    files: ["OMEGA.LOG", "DNA-MIX.LOG"],
+    text: "El expediente GS cero diecisiete registra patrones de apertura de compuertas memorizados por el especimen. El acceso fue revocado.",
+  },
+  {
+    id: "morgan-01",
+    theme: "personnel",
+    title: "MORGAN.LOG // BITACORA PERSONAL",
+    source: "DR. MORGAN / AUDIO TRANSCRITO",
+    minPhase: 2,
+    triggers: ["ambient"],
+    text: "El organismo no responde a los sedantes como esperabamos. Sigue reaccionando a nuestra presencia.",
+  },
+  {
+    id: "terminal-01",
+    theme: "ai",
+    title: "JURASSIC UNIX // MENSAJE RESIDUAL",
+    source: "TERMINAL CENTRAL",
+    minPhase: 1,
+    triggers: ["ambient"],
+    text: "No todos los errores pueden corregirse reiniciando el sistema.",
+  },
 ];
 
 const state = {
@@ -425,6 +463,7 @@ const state = {
   trainingPowerRestored: false,
   ambientMuted: false,
   ambientPaused: false,
+  narrativeMuted: false,
   powerOnline: false,
   generatorDamaged: false,
   generatorRepaired: false,
@@ -1562,6 +1601,9 @@ function updateAmbientButtons() {
   if (toggleAmbientPauseButton) {
     toggleAmbientPauseButton.textContent = state.ambientPaused ? "Reanudar ambiente" : "Pausar ambiente";
   }
+  if (toggleNarrativeMuteButton) {
+    toggleNarrativeMuteButton.textContent = state.narrativeMuted ? "Activar relatos" : "Silenciar relatos";
+  }
 }
 
 function toggleAmbientMute() {
@@ -1576,6 +1618,22 @@ function toggleAmbientPause() {
     audioAmbiente.pause();
   } else if (state.protocolStarted && !state.gameOver && !state.escaped) {
     startAmbient();
+  }
+  updateAmbientButtons();
+}
+
+function toggleNarrativeMute() {
+  state.narrativeMuted = !state.narrativeMuted;
+  if (state.narrativeMuted) {
+    state.narrative.queue = state.narrative.queue.filter((item) => item.options?.channel !== "ambient-narrative");
+    if (state.narrative.current?.options?.channel === "ambient-narrative") {
+      window.speechSynthesis?.cancel();
+      state.narrative.isSpeaking = false;
+      state.narrative.current = null;
+      state.audio.currentSpeech = null;
+      state.audio.speechPriority = "low";
+      restoreAudioMixAfterSpeech();
+    }
   }
   updateAmbientButtons();
 }
@@ -1713,7 +1771,8 @@ function speak(text, onend, options = {}) {
   utterance.lang = options.lang || "es-MX";
   utterance.rate = options.rate ?? 0.92;
   utterance.pitch = options.pitch ?? 0.78;
-  utterance.volume = options.volume ?? 0.72;
+  const safeSpeechVolume = priority === "critical" ? SAFE_AUDIO.speechAlert : priority === "high" ? 0.3 : SAFE_AUDIO.narrative;
+  utterance.volume = Math.min(options.volume ?? safeSpeechVolume, safeSpeechVolume);
   utterance.onend = () => {
     state.narrative.isSpeaking = false;
     state.narrative.current = null;
@@ -1766,6 +1825,7 @@ function initializeScenario() {
   state.trainingPowerRestored = false;
   state.ambientMuted = false;
   state.ambientPaused = false;
+  state.narrativeMuted = false;
   state.powerOnline = false;
   state.generatorDamaged = false;
   state.generatorRepaired = false;
@@ -3432,6 +3492,7 @@ function scheduleNextAmbientNarrative(minGap = 58, maxGap = 112) {
 
 function canPlayAmbientNarrative(trigger = "ambient") {
   if (!state.bootStarted || state.trainingActive || state.gameOver || state.escaped) return false;
+  if (state.narrativeMuted) return false;
   if (state.narrative.isSpeaking) return false;
   if (!canStartNarrativeAudio()) return false;
   if (state.evacuationAvailable && trigger === "ambient") return false;
@@ -3457,25 +3518,22 @@ function getNarrativeCandidates(trigger = "ambient", context = {}) {
 
 function playAmbientNarrative(entry, trigger = "ambient") {
   if (!entry) return false;
-  if (state.ambientPaused) return false;
+  if (state.ambientPaused || state.narrativeMuted) return false;
   state.narrative.lastPlayedAt = state.countdownSeconds;
   scheduleNextAmbientNarrative();
   addLine(`TRANSMISION RECUPERADA // ${entry.title}`, "warning");
   addLine(`${entry.source}: ${entry.text}`, "narrative");
-  currentAlertText.textContent = `Registro ambiental recuperado: ${entry.title}`;
-  showAlertPanel(`REGISTRO RECUPERADO: ${entry.title}`, "active");
-  if (trigger === "ambient" && Math.random() < 0.45) triggerVisualGlitchBurst("normal");
   clonePlay(typingSound, 0.06);
   const started = speak(`Registro recuperado. ${entry.text}`, () => {
     state.narrative.isSpeaking = false;
   }, {
     id: entry.id,
-    channel: "narrative",
+    channel: "ambient-narrative",
     priority: "medium",
     retryOnInterrupt: true,
     rate: 0.84,
     pitch: 0.62,
-    volume: state.ambientMuted ? 0 : 0.58,
+    volume: SAFE_AUDIO.narrative,
   });
   if (started && !state.narrative.seen.includes(entry.id)) {
     state.narrative.seen.push(entry.id);
@@ -6547,6 +6605,7 @@ resumeSession.addEventListener("click", hideFocusLock);
 restartScenarioButton.addEventListener("click", restartScenario);
 toggleAmbientMuteButton.addEventListener("click", toggleAmbientMute);
 toggleAmbientPauseButton.addEventListener("click", toggleAmbientPause);
+toggleNarrativeMuteButton.addEventListener("click", toggleNarrativeMute);
 scanSectorButton.addEventListener("click", scanSector);
 identifySpeciesButton.addEventListener("click", identifySpecies);
 confirmContainmentButton.addEventListener("click", confirmContainmentFromActiveZone);
