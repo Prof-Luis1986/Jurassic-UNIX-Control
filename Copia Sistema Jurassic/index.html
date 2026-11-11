@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Práctica de criptografía con cifrado César.">
+  <title>Jurassic System Interface</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#actividad">Ir a la actividad</a>
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="Inicio de Sistema Jurassic">
+      <span class="brand-mark" aria-hidden="true">🦕</span>
+      <span>Sistema Jurassic</span>
+    </a>
+    <div class="header-tools">
+      <span class="quiet-status" aria-label="Este espacio no reproduce sonido">Exploración tranquila</span>
+      <button class="text-button" id="contrastButton" type="button" aria-pressed="false">Más contraste</button>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <section class="hero" aria-labelledby="heroTitle">
+      <img src="assets/valle-tranquilo.png" alt="Un braquiosaurio tranquilo junto a un estanque en un valle prehistórico" class="hero-image">
+      <div class="hero-copy">
+        <p class="section-label">Expedición de criptografía</p>
+        <h1 id="heroTitle">Descifra a tu ritmo, explorador.</h1>
+        <p>En este valle jurásico cada letra puede esconder una pista. Practica el cifrado César sin alarmas, cuenta regresiva ni sonidos inesperados.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#actividad">Elegir misión <span aria-hidden="true">→</span></a>
+          <button class="button button-secondary" id="showPause" type="button">Tomar una pausa</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="preferences" aria-labelledby="preferenceTitle">
+      <div>
+        <p class="section-label">Tu mochila de explorador</p>
+        <h2 id="preferenceTitle">Tú decides cómo participar.</h2>
+      </div>
+      <div class="preference-list">
+        <span>Leer y observar</span>
+        <span>Responder por escrito</span>
+        <span>Elegir una opción</span>
+        <span>Tomar una pausa</span>
+      </div>
+    </section>
+
+    <section class="activities" id="actividad" aria-labelledby="activityTitle">
+      <div class="section-heading">
+        <p class="section-label">Misiones disponibles</p>
+        <h2 id="activityTitle">Elige tu siguiente pista. No hay prisa.</h2>
+        <p>Al terminar, puedes quedarte en la misma actividad, cambiar a otra o descansar.</p>
+      </div>
+      <div class="activity-grid">
+        <article class="activity-card activity-card-featured">
+          <div class="card-number" aria-hidden="true"><span>01</span> 🦴</div>
+          <h3>Conoce el cifrado César</h3>
+          <p>Descubre cómo un desplazamiento cambia cada letra del mensaje.</p>
+          <button class="activity-button" data-activity="observar" type="button">Abrir actividad</button>
+        </article>
+        <article class="activity-card">
+          <div class="card-number" aria-hidden="true"><span>02</span> 🔎</div>
+          <h3>Descifra un mensaje</h3>
+          <p>Usa una clave para recuperar una palabra oculta.</p>
+          <button class="activity-button" data-activity="ordenar" type="button">Abrir actividad</button>
+        </article>
+        <article class="activity-card">
+          <div class="card-number" aria-hidden="true"><span>03</span> ✍️</div>
+          <h3>Cifra tu mensaje</h3>
+          <p>Escribe una palabra y observa cómo se transforma.</p>
+          <button class="activity-button" data-activity="escribir" type="button">Abrir actividad</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="activity-panel" id="activityPanel" hidden aria-live="polite" aria-labelledby="panelTitle">
+      <div class="panel-topline">
+        <p class="section-label">Actividad actual</p>
+        <button class="text-button" id="closeActivity" type="button">Cerrar actividad</button>
+      </div>
+      <div id="activityContent"></div>
+    </section>
+
+    <section class="support" aria-labelledby="supportTitle">
+      <div>
+        <p class="section-label">Apoyo</p>
+        <h2 id="supportTitle">Puedes resolverlo de distintas maneras.</h2>
+      </div>
+      <p>Puedes señalar, escribir, usar una seña o pedir tiempo. Tu manera de resolver y comunicarte cuenta.</p>
+    </section>
+  </main>
+
+  <dialog class="pause-dialog" id="pauseDialog" aria-labelledby="pauseTitle">
+    <div class="pause-orb" aria-hidden="true"></div>
+    <p class="section-label">Pausa disponible</p>
+    <h2 id="pauseTitle">Puedes estar aquí el tiempo que necesites.</h2>
+    <p>No tienes que hacer nada. Cuando estés listo, puedes cerrar este mensaje y volver a elegir.</p>
+    <button class="button button-primary" id="closePause" type="button">Volver cuando esté listo</button>
+  </dialog>
+
+  <footer>Sistema Jurassic · sin reproducción automática de audio o video</footer>
+  <script src="script.js"></script>
+  <script type="module" src="firebase-init.js"></script>
+</body>
+</html>

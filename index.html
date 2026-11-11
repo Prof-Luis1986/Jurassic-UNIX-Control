@@ -40,10 +40,20 @@
       <p class="intro-status" id="introStatus">Pulsa INICIAR PROTOCOLO DE APERTURA para ver la apertura. La emergencia real iniciara despues del entrenamiento.</p>
       <div class="intro-actions">
         <button id="startIntro" class="start-button">INICIAR PROTOCOLO DE APERTURA</button>
-        <button id="skipIntro" class="start-button start-button--secondary">OMITIR INTRO</button>
+        <button id="viewOpeningCinematic" class="start-button" type="button">VER CINEMÁTICA DE APERTURA</button>
+        <button id="skipIntro" class="start-button start-button--secondary">SALTAR NARRACIÓN</button>
       </div>
     </div>
   </div>
+  <section class="opening-cinematic-overlay hidden" id="openingCinematicOverlay" aria-hidden="true" aria-label="Cinemática de introducción">
+    <video class="opening-cinematic-video" id="openingCinematicVideo" muted controls playsinline preload="metadata">
+      <source src="cinematica_intro.mp4" type="video/mp4">
+    </video>
+    <div class="opening-cinematic-controls">
+      <p id="openingCinematicStatus">CINEMÁTICA DE APERTURA // PREPARANDO SECUENCIA</p>
+      <button id="skipOpeningCinematic" class="start-button start-button--secondary" type="button">OMITIR CINEMÁTICA</button>
+    </div>
+  </section>
   <div class="boot-overlay" id="bootOverlay">
     <div class="boot-card">
       <img src="logo_Jurassic-removebg-preview.png" alt="Jurassic System" class="boot-logo">
@@ -61,6 +71,41 @@
   </div>
 
   <section class="training-overlay hidden" id="trainingOverlay" aria-hidden="true">
+    <section class="training-intervention hidden" id="trainingIntervention" aria-live="polite" aria-label="Intervención de práctica del rotor">
+      <div class="training-intervention__panel">
+        <header class="training-intervention__header">
+          <div>
+            <p class="boot-kicker">INTERVENCIÓN DE PRÁCTICA</p>
+            <h2>ENERGÍA DE PRÁCTICA</h2>
+            <p>Así se abre un protocolo real: el rotor ocupa toda la pantalla para que no tengas que buscarlo en el mapa.</p>
+          </div>
+          <div class="training-intervention__timer">
+            <span>TIEMPO PARA ACTUAR</span>
+            <strong>SIN LÍMITE</strong>
+          </div>
+        </header>
+        <main class="training-intervention__body">
+          <div class="training-intervention__rotor" id="trainingInterventionRotor">
+            <span>ROTOR DE PRÁCTICA</span>
+            <strong id="trainingInterventionState">ACTIVO</strong>
+            <button type="button" class="training-intervention__dial" id="trainingInterventionDial" disabled aria-label="Girar rotor de práctica">
+              <span id="trainingInterventionValue">3</span>
+            </button>
+            <p id="trainingInterventionHint">Gira atrás una vez para pasar de 3 a 2.</p>
+          </div>
+          <div class="training-intervention__actions">
+            <p>En una emergencia real, cada protocolo tiene un tiempo propio. Aquí puedes practicar sin penalización.</p>
+            <button type="button" class="action-button" id="trainingInterventionTurn" disabled>GIRAR ATRÁS</button>
+            <button type="button" class="action-button action-button--primary" id="trainingInterventionSave" disabled>GUARDAR DÍGITO</button>
+          </div>
+        </main>
+        <footer class="training-intervention__queue">
+          <span>PRÓXIMA AMENAZA</span>
+          <strong>VELOCIRAPTOR EN COLA</strong>
+          <em>EN ESPERA · NO SE ACTIVARÁ DURANTE LA PRÁCTICA</em>
+        </footer>
+      </div>
+    </section>
     <div class="training-panel">
       <div class="training-header">
         <div>
@@ -348,8 +393,12 @@
       <section class="cipher-console hidden" id="cipherConsole">
         <div class="cipher-console__header">
           <div>
-            <p class="label">DESCIFRADO ACTIVO</p>
+            <p class="label">INTERVENCION DE CONTENCION</p>
             <strong id="cipherConsoleTarget">OBJETIVO: RAPTOR</strong>
+          </div>
+          <div class="cipher-intervention__timer" aria-live="polite">
+            <span>TIEMPO PARA ACTUAR</span>
+            <strong id="cipherInterventionTimer">--:--</strong>
           </div>
           <p id="cipherConsoleHint">Los rotores aparecen durante protocolos activos. Lee archivos .LOG y .KEY para entender la sincronización.</p>
         </div>
@@ -372,6 +421,11 @@
               <button type="button" class="action-button action-button--primary" id="focusCipherSend">Confirmar protocolo</button>
             </div>
           </div>
+        </div>
+        <div class="cipher-threat-queue" aria-live="polite">
+          <span>PRÓXIMA AMENAZA</span>
+          <strong id="cipherNextThreat">ESCANEANDO SECTORES…</strong>
+          <em id="cipherNextThreatTime">EN ESPERA HASTA FINALIZAR PROTOCOLO</em>
         </div>
       </section>
       <section id="terminalOutput" class="terminal-output" aria-live="polite"></section>

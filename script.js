@@ -4,7 +4,12 @@ const introOverlay = byId("introOverlay");
 const introVideo = byId("introVideo");
 const introStatus = byId("introStatus");
 const startIntroButton = byId("startIntro");
+const viewOpeningCinematicButton = byId("viewOpeningCinematic");
 const skipIntroButton = byId("skipIntro");
+const openingCinematicOverlay = byId("openingCinematicOverlay");
+const openingCinematicVideo = byId("openingCinematicVideo");
+const openingCinematicStatus = byId("openingCinematicStatus");
+const skipOpeningCinematicButton = byId("skipOpeningCinematic");
 const bootOverlay = byId("bootOverlay");
 const startSystemButton = byId("startSystem");
 const skipTrainingBootButton = byId("skipTrainingBoot");
@@ -22,6 +27,14 @@ const trainingRotorDial = byId("trainingRotorDial");
 const trainingRotorValue = byId("trainingRotorValue");
 const trainingRotorTurn = byId("trainingRotorTurn");
 const trainingRotorSave = byId("trainingRotorSave");
+const trainingIntervention = byId("trainingIntervention");
+const trainingInterventionRotor = byId("trainingInterventionRotor");
+const trainingInterventionState = byId("trainingInterventionState");
+const trainingInterventionHint = byId("trainingInterventionHint");
+const trainingInterventionDial = byId("trainingInterventionDial");
+const trainingInterventionValue = byId("trainingInterventionValue");
+const trainingInterventionTurn = byId("trainingInterventionTurn");
+const trainingInterventionSave = byId("trainingInterventionSave");
 const trainingCompletePanel = byId("trainingCompletePanel");
 const skipTrainingButton = byId("skipTraining");
 const startRealSimulationButton = byId("startRealSimulation");
@@ -128,6 +141,9 @@ const cipherConsoleBuffer = byId("cipherConsoleBuffer");
 const cipherRotorCards = byId("cipherRotorCards");
 const focusCipherAppendButton = byId("focusCipherAppend");
 const focusCipherSendButton = byId("focusCipherSend");
+const cipherInterventionTimer = byId("cipherInterventionTimer");
+const cipherNextThreat = byId("cipherNextThreat");
+const cipherNextThreatTime = byId("cipherNextThreatTime");
 const evacuationAction = byId("evacuationAction");
 
 const toggleAmbientMuteButton = byId("toggleAmbientMute");
@@ -156,7 +172,7 @@ const SESSION_DURATION = 30 * 60;
 const MINIMUM_SESSION_SECONDS = SESSION_DURATION;
 const SAFE_AUDIO = Object.freeze({ ambient: 0.04, alert: 0.14, intro: 0.22, creature: 0.24, clone: 0.18, narrative: 0.24, speechAlert: 0.36 });
 const ROTOR_PROTOCOLS = Object.freeze({
-  power: { label: "ENERGIA PRINCIPAL", next: "raptor" },
+  power: { label: "ENERGIA PRINCIPAL", next: "generator" },
   generator: { label: "GENERADOR DE RESPALDO", next: "raptor" },
   barrier: { label: "BARRERAS SECUNDARIAS", next: "herd" },
   herd: { label: "SECTOR C / TRICERATOPS", next: "anky" },
@@ -452,6 +468,7 @@ const state = {
   protocolStarted: false,
   introStarted: false,
   introFinished: false,
+  openingCinematicStarted: false,
   bootStarted: false,
   trainingActive: false,
   trainingCompleted: false,
@@ -467,6 +484,9 @@ const state = {
   powerOnline: false,
   generatorDamaged: false,
   generatorRepaired: false,
+  compiIncidents: 0,
+  compiIncidentGoal: 3,
+  compiNextEligibleAt: SESSION_DURATION,
   raptorContained: false,
   trexContained: false,
   gryphoContained: false,
@@ -596,6 +616,7 @@ const state = {
     cooldown: 0,
     activePuzzle: "none",
   },
+  intervention: { target: null, secondsRemaining: 0, retries: 0 },
   guide: {
     objectiveKey: "power",
     lastProgressAt: SESSION_DURATION,
@@ -738,7 +759,7 @@ function logOverlayAction(action, overlay) {
 }
 
 function isStartupOverlay(overlay) {
-  return overlay === introOverlay || overlay === bootOverlay || overlay === trainingOverlay;
+  return overlay === introOverlay || overlay === openingCinematicOverlay || overlay === bootOverlay || overlay === trainingOverlay;
 }
 
 function hideOverlaySafely(overlay) {
@@ -853,7 +874,7 @@ function generateDirectorPlan() {
   const profile = pickRandomItem(DIRECTOR_PROFILES);
   // Every established dinosaur event participates in every session. Profiles
   // still control the order and pressure, but no species is silently omitted.
-  const plannedEvents = ["raptor", "trex", "grypho", "omega", "dilo", "barrier", "herd", "anky", "stego", "compi"];
+  const plannedEvents = ["generator", "raptor", "trex", "grypho", "omega", "dilo", "barrier", "herd", "anky", "stego", "compi"];
   const allVariableEvents = ["dilo", "barrier", "herd", "anky", "stego", "compi"];
   return {
     profile,
@@ -1307,6 +1328,25 @@ function startDirectorEventIfNeeded(key) {
   return true;
 }
 
+function openGeneratorProtocol() {
+  if (state.gameOver || state.escaped || (state.generatorRepaired && !state.generatorDamaged)) return false;
+
+  if (!state.generatorDamaged) {
+    state.timelineFlags.generator = true;
+    activateDirectorEvent("generator");
+    return true;
+  }
+
+  state.activeZone = "power";
+  markProgress("generator");
+  setCipherTarget("generator");
+  setPuzzleVisibility("generator");
+  setCurrentAlert("Generador dañado. Abre GENERATOR.LOG y sincroniza los 3 rotores de respaldo.", "error");
+  showContextGuide("generator", "error");
+  updateHud();
+  return true;
+}
+
 function isEventResolved(key) {
   const resolved = {
     raptor: state.raptorContained,
@@ -1316,7 +1356,7 @@ function isEventResolved(key) {
     herd: state.herdCalmed,
     anky: state.ankyRedirected,
     stego: state.stegoAnalyzed,
-    compi: state.timelineFlags.compi && state.powerOnline,
+    compi: state.compiIncidents >= state.compiIncidentGoal,
   };
   return Boolean(resolved[key]);
 }
@@ -1828,6 +1868,9 @@ function initializeScenario() {
   state.powerOnline = false;
   state.generatorDamaged = false;
   state.generatorRepaired = false;
+  state.compiIncidents = 0;
+  state.compiIncidentGoal = randomDigit(3, 4);
+  state.compiNextEligibleAt = SESSION_DURATION;
   state.raptorContained = false;
   state.trexContained = false;
   state.gryphoContained = false;
@@ -2678,13 +2721,71 @@ function setPuzzleVisibility(mode) {
   if (state.chimeraActive && mode !== "chimera" && mode !== "none") {
     mode = "chimera";
   }
+  const previousMode = state.director.activePuzzle;
+  const modeChanged = previousMode !== mode;
   state.director.activePuzzle = mode;
   if (!cipherConsole) return;
   const shouldShow = ["raptor", "trex", "grypho", "dilo", "chimera", ...Object.keys(ROTOR_PROTOCOLS), "evac-main", "evac-helipad", "evac-tunnel", "evac-cargo"].includes(mode);
+  const visibilityChanged = cipherConsole.classList.contains("hidden") === shouldShow;
   cipherConsole.classList.toggle("hidden", !shouldShow);
   if (shouldShow) {
-    preservePuzzleViewport(1200);
+    // updateHud runs once per second. Reopening the same puzzle on every tick
+    // used to recreate its viewport lock continuously, making the controls
+    // feel frozen while the player tried to operate a rotor.
+    if (modeChanged || visibilityChanged) {
+      startInterventionWindow(mode);
+      preservePuzzleViewport(1200);
+    }
+  } else if (modeChanged || visibilityChanged) {
+    state.intervention = { target: null, secondsRemaining: 0, retries: 0 };
   }
+}
+
+function getInterventionDuration(target) {
+  if (target === "chimera") return 95;
+  if (getRouteKeyFromCipherTarget(target)) return 120;
+  if (["raptor", "trex", "grypho"].includes(target)) return 110;
+  return 135;
+}
+
+function startInterventionWindow(target, duration = getInterventionDuration(target)) {
+  if (state.intervention.target === target && state.intervention.secondsRemaining > 0) return;
+  // Separate from the session clock so the guaranteed final evacuation can
+  // still be solved after the main 30-minute scenario timer reaches zero.
+  state.intervention = { target, secondsRemaining: duration, retries: 0 };
+  updateInterventionHud();
+}
+
+function getUpcomingThreatPreview() {
+  const labels = { raptor: "VELOCIRAPTOR", trex: "T-REX", grypho: "GRYPHOVENATOR ALFA", dilo: "DILOPHOSAURUS", herd: "TRICERATOPS", anky: "ANKYLOSAURUS", stego: "ESTEGOSAURUS", compi: "COMPIS / SUBESTACION", omega: "CHIMERASAURUS" };
+  const next = ["raptor", "trex", "grypho", "dilo", "herd", "anky", "stego", "compi", "omega"].find((key) => isEventPlanned(key) && !state.timelineFlags[key] && !isEventResolved(key));
+  return next ? { label: labels[next], key: next } : { label: "SIN LECTURAS PENDIENTES", key: null };
+}
+
+function updateInterventionHud() {
+  if (!cipherInterventionTimer || !cipherNextThreat || !cipherNextThreatTime) return;
+  const remaining = Math.max(0, state.intervention.secondsRemaining ?? 0);
+  cipherInterventionTimer.textContent = formatCountdown(remaining);
+  cipherInterventionTimer.classList.toggle("is-critical", remaining <= 25);
+  const next = getUpcomingThreatPreview();
+  cipherNextThreat.textContent = next.label;
+  const estimatedDelay = formatCountdown(getDirectorPhase() >= 4 ? 18 : 28);
+  cipherNextThreatTime.textContent = next.key
+    ? `EN COLA · ESTIMADO ${estimatedDelay} DESPUÉS DEL PROTOCOLO`
+    : "SISTEMAS ESTABLES";
+}
+
+function handleInterventionTimeout() {
+  if (!isPuzzleActive() || state.intervention.secondsRemaining > 0) return false;
+  const target = state.intervention.target;
+  state.intervention.retries += 1;
+  state.intervention.secondsRemaining = 75;
+  resetAllRotors();
+  applyDeterioration({ damage: 4, bio: 3, stability: -4, energy: -2 });
+  setCurrentAlert(`VENTANA AGOTADA: ${target?.toUpperCase() || "PROTOCOLO"}. Rotores reiniciados; tienes 01:15 para reintentar.`, "error");
+  addLine("INTERVENCION INCOMPLETA: los rotores se reiniciaron. La amenaza se mantiene aislada, pero el laboratorio sufrió daños.", "warning");
+  updateInterventionHud();
+  return true;
 }
 
 function isPuzzleActive() {
@@ -3419,7 +3520,11 @@ function getRandomDirectorCandidates() {
   if (isEventPlanned("herd") && !state.herdCalmed && !state.timelineFlags.herd) candidates.push("herd");
   if (isEventPlanned("anky") && !state.ankyRedirected && !state.timelineFlags.anky) candidates.push("anky");
   if (isEventPlanned("stego") && !state.stegoAnalyzed && !state.timelineFlags.stego) candidates.push("stego");
-  if (isEventPlanned("compi") && !state.timelineFlags.compi) candidates.push("compi");
+  if (
+    isEventPlanned("compi") && !state.timelineFlags.compi &&
+    state.compiIncidents < state.compiIncidentGoal &&
+    state.countdownSeconds <= state.compiNextEligibleAt
+  ) candidates.push("compi");
   if (state.countdownSeconds <= state.director.omegaEarliestAt && !state.omegaReleased && !state.timelineFlags.omega) candidates.push("omega");
   return candidates.filter((key) => canActivateDirectorEvent(key));
 }
@@ -4162,6 +4267,7 @@ function updateHud() {
   updateActionButtons();
   updateCipherHelper();
   setPuzzleVisibility(state.director.activePuzzle);
+  updateInterventionHud();
   updateAmbientButtons();
 }
 
@@ -4291,9 +4397,11 @@ async function startRealScenario() {
   state.trainingCompleted = true;
   state.bootStarted = true;
   introVideo?.pause();
+  openingCinematicVideo?.pause();
   audioIntro?.pause();
   if (audioIntro) audioIntro.currentTime = 0;
   hideOverlaySafely(introOverlay);
+  hideOverlaySafely(openingCinematicOverlay);
   hideOverlaySafely(bootOverlay);
   hideOverlaySafely(trainingOverlay);
   appShell?.classList.remove("hidden");
@@ -4332,8 +4440,12 @@ function updateTrainingUi() {
   }
   const rotorEnabled = state.trainingRotorActive && !state.trainingRotorSaved;
   const rotorAligned = state.trainingRotorCurrent === state.trainingRotorTarget;
+  const interventionVisible = rotorEnabled;
+  trainingIntervention?.classList.toggle("hidden", !interventionVisible);
+  trainingInterventionRotor?.classList.toggle("is-aligned", rotorAligned);
   trainingRotorPanel?.classList.toggle("is-aligned", rotorAligned);
   if (trainingRotorValue) trainingRotorValue.textContent = String(state.trainingRotorCurrent);
+  if (trainingInterventionValue) trainingInterventionValue.textContent = String(state.trainingRotorCurrent);
   if (trainingRotorState) {
     trainingRotorState.textContent = !state.trainingRotorActive
       ? "BLOQUEADO"
@@ -4352,9 +4464,20 @@ function updateTrainingUi() {
       ? "Rotor alineado en 2. Pulsa GUARDAR DIGITO."
       : "Gira atras una vez: 3 debe quedar en 2.";
   }
+  if (trainingInterventionState) {
+    trainingInterventionState.textContent = rotorAligned ? "ALINEADO" : "ACTIVO";
+  }
+  if (trainingInterventionHint) {
+    trainingInterventionHint.textContent = rotorAligned
+      ? "Rotor alineado en 2. Pulsa GUARDAR DÍGITO."
+      : "Gira atrás una vez para pasar de 3 a 2.";
+  }
   if (trainingRotorDial) trainingRotorDial.disabled = !rotorEnabled;
   if (trainingRotorTurn) trainingRotorTurn.disabled = !rotorEnabled;
   if (trainingRotorSave) trainingRotorSave.disabled = !state.trainingRotorActive || state.trainingRotorSaved || !rotorAligned;
+  if (trainingInterventionDial) trainingInterventionDial.disabled = !rotorEnabled;
+  if (trainingInterventionTurn) trainingInterventionTurn.disabled = !rotorEnabled;
+  if (trainingInterventionSave) trainingInterventionSave.disabled = !rotorEnabled || !rotorAligned;
   trainingCompletePanel?.classList.toggle("hidden", !state.trainingPowerRestored);
 }
 
@@ -4800,6 +4923,10 @@ function triggerThreatEscapeCinematic(threatKey) {
     return false;
   }
   const tier = config.tier || getThreatNarrativeTier(threatKey);
+  // A cinematic must be the only full-screen layer. The rotor console is
+  // restored deliberately when the video ends, so it cannot obscure the
+  // video or leave the player on an empty-looking interface.
+  setPuzzleVisibility("none");
   state.activeThreatCinematic = threatKey;
   state.omegaCinematicPlaying = true;
   if (state.eventVideoSeen && threatKey in state.eventVideoSeen) {
@@ -4900,6 +5027,19 @@ function cerrarEventoAmenaza() {
   if (state.gameState !== "playing" && !state.escaped && !state.gameOver) {
     setGameState("playing", `video de amenaza finalizado: ${threatKey || "desconocido"}`);
   }
+  const cinematicRotorTargets = new Set([
+    "raptor", "trex", "grypho", "chimera", "dilo", "herd", "anky", "stego", "compi",
+  ]);
+  if (cinematicRotorTargets.has(threatKey) && !state.escaped && !state.gameOver) {
+    setCipherTarget(threatKey);
+    // The same rotor values may have been rendered before the cinematic was
+    // shown. In that case the render cache must not keep a hidden/stale panel
+    // when returning from a T-Rex (or any other) video.
+    delete cipherRotorCards?.dataset.renderSignature;
+    setPuzzleVisibility(threatKey);
+    updateCipherHelper();
+  }
+  updateHud();
   focusTerminalIfAllowed();
 }
 
@@ -5062,7 +5202,12 @@ function canActivateDirectorEvent(key) {
   if (key === "omega") return !getActiveMajorThreat() && state.countdownSeconds <= state.director.omegaEarliestAt && canLaunchCriticalThreat(key);
   if (key === "sensors") return !getActiveMajorThreat();
   if (key === "collapse") return !getActiveMajorThreat();
-  if (key === "compi") return state.powerOnline && !getActiveMajorThreat() && isEventPlanned(key) && canLaunchCriticalThreat(key);
+  if (key === "compi") {
+    return state.powerOnline &&
+      state.compiIncidents < state.compiIncidentGoal &&
+      state.countdownSeconds <= state.compiNextEligibleAt &&
+      !getActiveMajorThreat() && isEventPlanned(key) && canLaunchCriticalThreat(key);
+  }
   if (!isEventPlanned(key)) return false;
   if (!canLaunchCriticalThreat(key)) return false;
   if (["raptor", "trex", "grypho", "dilo", "herd", "anky", "stego"].includes(key) && !state.powerOnline) return false;
@@ -5083,6 +5228,10 @@ function processTimedThreats() {
 
   state.countdownSeconds = Math.max(0, state.countdownSeconds - 1);
   state.elapsedSeconds += 1;
+  if (isPuzzleActive() && state.intervention.secondsRemaining > 0) {
+    state.intervention.secondsRemaining -= 1;
+  }
+  handleInterventionTimeout();
   maintainMajorThreatMode();
   if (state.director.cooldown > 0) {
     state.director.cooldown -= 1;
@@ -5207,6 +5356,16 @@ function updateCipherHelper() {
     : "Rotor alineado. Guárdalo para sincronizar el protocolo.";
   cipherConsoleBuffer.textContent = formatCipherBuffer();
 
+  // Do not replace the rotor controls for every HUD refresh. Apart from doing
+  // unnecessary layout work, replacing focused buttons while a user was
+  // clicking/dragging them could drop the interaction and look like a freeze.
+  const rotorRenderSignature = JSON.stringify({
+    activeRotorIndex,
+    rotatedIndex: state.rotorFeedback.rotatedIndex,
+    rotors: rotors.map(({ label, letter, shift, baseValue, currentValue, savedValue }) => ({ label, letter, shift, baseValue, currentValue, savedValue })),
+  });
+  if (cipherRotorCards.dataset.renderSignature === rotorRenderSignature) return;
+  cipherRotorCards.dataset.renderSignature = rotorRenderSignature;
   cipherRotorCards.innerHTML = rotors.map((rotor, index) => `
     <div class="cipher-rotor ${index === activeRotorIndex ? "is-active" : ""} ${isRotorAligned(rotor) ? "is-correct" : ""} ${rotor.savedValue !== null ? "is-saved" : ""} ${state.rotorFeedback.rotatedIndex === index ? "is-rotating" : ""}" data-rotor-index="${index}">
       <span>ROTOR ${index + 1}</span>
@@ -5600,6 +5759,8 @@ async function executeRotorContainment(target = state.cipherHelper.target) {
     await printLines(["Rotores C-07 sincronizados.", "Compuertas pesadas cerradas.", "Tyrannosaurus rex CONTENIDO."], "success");
     if (state.trexAttackCount < state.director.attackGoals.trex) {
       scheduleAdditionalPredatorAttack("trex");
+    } else if (state.generatorDamaged) {
+      openGeneratorProtocol();
     } else {
       startDirectorEventIfNeeded("dilo");
     }
@@ -5702,7 +5863,13 @@ async function completeRotorProtocol(target) {
   if (target === "power" || target === "compi") {
     state.powerOnline = true;
     state.generatorDamaged = false;
-    if (target === "compi") state.timelineFlags.compi = false;
+    if (target === "compi") {
+      state.timelineFlags.compi = false;
+      state.compiIncidents += 1;
+      // Compis return as a recurring nuisance, but not while the player is
+      // resolving the next immediate crisis: roughly 4–6 minutes apart.
+      state.compiNextEligibleAt = state.countdownSeconds - randomDigit(240, 360);
+    }
     state.energiaSistema = clamp(state.energiaSistema + 22, 0, 100);
     state.estabilidadLaboratorio = clamp(state.estabilidadLaboratorio + 10, 0, 100);
   } else if (target === "generator") {
@@ -5730,6 +5897,7 @@ async function completeRotorProtocol(target) {
   detenerAlerta(`SITUACION CONTROLADA // ${protocol.label}`);
   updateHud();
   await printLines([`ROTORES ${protocol.label} SINCRONIZADOS.`, ...outcomes[target]], "success");
+  if (target === "power") openGeneratorProtocol();
   if (target === "barrier") startDirectorEventIfNeeded("herd");
   if (target === "herd") startDirectorEventIfNeeded("anky");
   if (target === "anky") startDirectorEventIfNeeded("stego");
@@ -6083,8 +6251,10 @@ async function processTrainingCommand(command, tokens, argsLower, argsUpper) {
     updateTrainingUi();
     await printTrainingLines([
       "ROTOR SIMPLE ACTIVADO.",
-      "Instruccion visual: gira atras una vez para pasar de 3 a 2.",
-      "Cuando el rotor marque 2, pulsa GUARDAR DIGITO.",
+      "Se abrió la pantalla de intervención: así aparecerán los rotores en una emergencia real.",
+      "La cola inferior anticipa la siguiente amenaza; en esta práctica no se activará ninguna.",
+      "Instrucción visual: gira atrás una vez para pasar de 3 a 2.",
+      "Cuando el rotor marque 2, pulsa GUARDAR DÍGITO.",
     ], "success");
     return true;
   }
@@ -6333,6 +6503,7 @@ async function handleCommand(rawCommand) {
         setCurrentAlert("Energía principal restaurada.", "success");
         speak(narrationLines.power, null, { priority: "medium", channel: "narrative", retryOnInterrupt: true });
         await printLines(["Restaurando suministro electrico...", "Subestacion oeste en linea.", "Energia principal ONLINE."], "success");
+        openGeneratorProtocol();
         return;
       }
       if (argsLower[0] === "barrier" && argsUpper.slice(1).join("-") === "BARRIER-RESTORE-31") {
@@ -6519,16 +6690,38 @@ function revealBootOverlay() {
   state.introFinished = true;
   introVideo.pause();
   audioIntro.pause();
+  openingCinematicVideo?.pause();
   hideOverlaySafely(introOverlay);
+  hideOverlaySafely(openingCinematicOverlay);
   showOverlaySafely(bootOverlay, { requiresInteraction: true, focusElement: startSystemButton });
   setGameState("tutorial", "intro finalizada");
+}
+
+function startOpeningCinematic({ withSound = false } = {}) {
+  if (blockIntroDuringGameplay("startOpeningCinematic")) return;
+  if (state.gameState !== "intro" || state.introFinished || state.openingCinematicStarted) return;
+  if (!openingCinematicOverlay || !openingCinematicVideo) {
+    revealBootOverlay();
+    return;
+  }
+  state.openingCinematicStarted = true;
+  introVideo.pause();
+  audioIntro.pause();
+  hideOverlaySafely(introOverlay);
+  showOverlaySafely(openingCinematicOverlay, { requiresInteraction: true, focusElement: skipOpeningCinematicButton });
+  openingCinematicStatus.textContent = "CINEMÁTICA DE APERTURA // LA CONTENCIÓN HA FALLADO";
+  openingCinematicVideo.muted = !withSound;
+  openingCinematicVideo.currentTime = 0;
+  openingCinematicVideo.play().catch(() => {
+    openingCinematicStatus.textContent = "Pulsa reproducir para iniciar la cinemática.";
+  });
 }
 
 function finalizarIntroSiListo() {
   if (blockIntroDuringGameplay("INTRO_AUDIO.MP3 ended")) return;
   if (state.gameState !== "intro") return;
   if (!state.introStarted || state.introFinished) return;
-  revealBootOverlay();
+  startOpeningCinematic();
 }
 
 function iniciarProtocolo() {
@@ -6562,13 +6755,12 @@ function iniciarProtocolo() {
 }
 
 startIntroButton.addEventListener("click", iniciarProtocolo);
+viewOpeningCinematicButton?.addEventListener("click", () => startOpeningCinematic({ withSound: true }));
 skipIntroButton.addEventListener("click", () => {
   if (blockIntroDuringGameplay("skipIntroButton")) return;
-  if (!state.protocolStarted) {
-    iniciarProtocolo();
-  }
-  revealBootOverlay();
+  startOpeningCinematic({ withSound: true });
 });
+skipOpeningCinematicButton?.addEventListener("click", revealBootOverlay);
 startSystemButton.addEventListener("click", runBootSequence);
 skipTrainingBootButton?.addEventListener("click", startRealScenario);
 trainingForm?.addEventListener("submit", async (event) => {
@@ -6586,16 +6778,27 @@ trainingForm?.addEventListener("submit", async (event) => {
 trainingRotorTurn?.addEventListener("click", turnTrainingRotor);
 trainingRotorDial?.addEventListener("click", turnTrainingRotor);
 trainingRotorSave?.addEventListener("click", saveTrainingRotor);
+trainingInterventionTurn?.addEventListener("click", turnTrainingRotor);
+trainingInterventionDial?.addEventListener("click", turnTrainingRotor);
+trainingInterventionSave?.addEventListener("click", saveTrainingRotor);
 skipTrainingButton?.addEventListener("click", startRealScenario);
 startRealSimulationButton?.addEventListener("click", startRealScenario);
 audioIntro.addEventListener("ended", finalizarIntroSiListo);
+openingCinematicVideo?.addEventListener("ended", revealBootOverlay);
+openingCinematicVideo?.addEventListener("error", () => {
+  if (isGameplayActive()) return;
+  if (openingCinematicStatus) {
+    openingCinematicStatus.textContent = "Error al cargar la cinemática. Puedes continuar con OMITIR CINEMÁTICA.";
+  }
+});
 audioIntro.addEventListener("error", () => {
   console.error("Error al cargar o reproducir assets/audio/INTRO_AUDIO.MP3");
   if (isGameplayActive()) {
     addLine("AVISO: INTRO_AUDIO.MP3 reportó error fuera de intro. Gameplay continúa.", "warning");
     return;
   }
-  introStatus.textContent = "Error en INTRO_AUDIO.MP3. Usa OMITIR INTRO para continuar manualmente.";
+  introStatus.textContent = "La narración no se pudo reproducir. Iniciando cinemática de apertura.";
+  startOpeningCinematic();
 });
 escapeVideo?.addEventListener("ended", () => {
   if (state.finalOutcome === "failure") {
