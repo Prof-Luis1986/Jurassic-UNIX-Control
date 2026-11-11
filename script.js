@@ -169,7 +169,12 @@ const dinoSounds = {
 const ROTOR_DEBUG = false;
 const CHIMERA_DEBUG = false;
 const SESSION_DURATION = 30 * 60;
-const MINIMUM_SESSION_SECONDS = SESSION_DURATION;
+const ESCAPE_INTERVAL_SECONDS = 10 * 60;
+const ESCAPE_WINDOW_SECONDS = 35;
+// The first evacuation can be completed at minute 10. If the player misses
+// its short window, the next attempt is intentionally delayed to the next
+// ten-minute checkpoint.
+const MINIMUM_SESSION_SECONDS = ESCAPE_INTERVAL_SECONDS;
 const SAFE_AUDIO = Object.freeze({ ambient: 0.04, alert: 0.14, intro: 0.22, creature: 0.24, clone: 0.18, narrative: 0.24, speechAlert: 0.36 });
 const ROTOR_PROTOCOLS = Object.freeze({
   power: { label: "ENERGIA PRINCIPAL", next: "generator" },
@@ -953,8 +958,8 @@ function initializeEscapeRoutesForPlan() {
 
 function createEscapeOpportunitySchedule() {
   return [
-    { id: "early", threshold: randomDigit(720, 960), triggered: false },
-    { id: "final", threshold: randomDigit(180, 360), triggered: false },
+    { id: "minute-10", threshold: SESSION_DURATION - ESCAPE_INTERVAL_SECONDS, triggered: false },
+    { id: "minute-20", threshold: SESSION_DURATION - (ESCAPE_INTERVAL_SECONDS * 2), triggered: false },
   ];
 }
 
@@ -3267,7 +3272,7 @@ function crearOportunidadEscape(tipoRuta = null) {
   state.escapeOpportunity.count += 1;
   state.escapeOpportunity.activeId = state.escapeOpportunity.activeId || `escape-${state.escapeOpportunity.count}`;
   state.escapeOpportunity.activeType = tipoRuta || routeKey;
-  state.escapeOpportunity.deadlineAt = Math.max(0, state.countdownSeconds - (tipoRuta === "last-resort" ? 90 : 70));
+  state.escapeOpportunity.deadlineAt = Math.max(0, state.countdownSeconds - (tipoRuta === "last-resort" ? 90 : ESCAPE_WINDOW_SECONDS));
   if (!state.escapeOpportunity.usedRoutes.includes(routeKey)) state.escapeOpportunity.usedRoutes.push(routeKey);
 
   const secondsAvailable = state.countdownSeconds - state.escapeOpportunity.deadlineAt;
@@ -3296,12 +3301,19 @@ function forzarRutaAlternativa() {
   state.escapeWindowActive = false;
   state.currentEscapeRoute = null;
   state.escapeOpportunity.activeId = null;
+  state.escapeOpportunity.activeType = null;
   state.escapeOpportunity.deadlineAt = null;
-  const nextRoute = chooseEscapeRoute();
-  if (!state.escapeRoutes[nextRoute]) return activarEscapeUltimoRecurso();
-  addLine("VENTANA DE EVACUACIÓN CERRADA. Director buscando ruta alternativa...", "warning");
+  state.evacuationOverride.target = null;
+  state.currentProtocol = null;
+  resetAllRotors();
+  clearRotorProtocolSnapshot();
+  setPuzzleVisibility("none");
+  detenerAlerta("VENTANA DE ESCAPE CERRADA // Espera el siguiente intervalo de 10 minutos");
+  addLine("VENTANA DE ESCAPE CERRADA.", "warning");
+  addLine("No llegaste a tiempo. El próximo escape se habilitará en el siguiente intervalo de 10 minutos.", "warning");
   applyDeterioration({ damage: 3, bio: 1, stability: -3, energy: -2 });
-  return crearOportunidadEscape(nextRoute);
+  updateHud();
+  return false;
 }
 
 function activarEscapeUltimoRecurso() {
@@ -3323,7 +3335,7 @@ function processEscapeOpportunities() {
   for (const windowConfig of state.escapeOpportunity.schedule) {
     if (!windowConfig.triggered && state.countdownSeconds <= windowConfig.threshold) {
       state.escapeOpportunity.activeId = windowConfig.id;
-      if (crearOportunidadEscape(windowConfig.id === "early" ? null : chooseEscapeRoute())) {
+      if (crearOportunidadEscape()) {
         windowConfig.triggered = true;
       }
       break;
@@ -5299,7 +5311,9 @@ function processTimedThreats() {
   }
 
   if (maybeTriggerCollapse()) return;
-  if (state.elapsedSeconds >= MINIMUM_SESSION_SECONDS) {
+  // At minute 30 there is no later interval to wait for, so arm the final
+  // fallback route instead of leaving the player in a dead end.
+  if (state.elapsedSeconds >= SESSION_DURATION) {
     armGuaranteedFinalExit();
     return;
   }
